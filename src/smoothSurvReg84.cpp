@@ -808,7 +808,7 @@ smoothSurvReg84(int *nP,   int *nyP,   int *nBetaP,   int *nGammaP,  int *nSplin
            for (i = nSplines - 1; i >= 0; i--){
                if (Ainvord[i] == lastThreeA[1]) continue;
                if (fabs(1 - sigmaZero * sigmaZero + knotsMat[lastThreeA[1]] * knotsMat[Ainvord[i]]) > 1e-4
-                      && fabs(knotsMat[Ainvord[i]] - knotsMat[lastThreeA[1]]) > 1e-4){
+		   && fabs(knotsMat[Ainvord[i]] - knotsMat[lastThreeA[1]]) > 1e-4){
                    lastThreeA[2] = Ainvord[i];
                    break;
                }

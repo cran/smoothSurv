@@ -70,17 +70,23 @@ namespace SCYTHE {
       typedef T ttype;
       typedef matrix_iterator<ttype> iterator;
       typedef const_matrix_iterator<ttype> const_iterator;
-      typedef row_major_iterator<ttype> row_major_iterator;
-      typedef const_row_major_iterator<ttype> const_row_major_iterator;
-      typedef col_major_iterator<ttype> col_major_iterator;
-      typedef const_col_major_iterator<ttype> const_col_major_iterator;
+      typedef row_major_iterator<ttype> row_major_Iterator;
+      typedef const_row_major_iterator<ttype> const_row_major_Iterator;
+      typedef col_major_iterator<ttype> col_major_Iterator;
+      typedef const_col_major_iterator<ttype> const_col_major_Iterator;
 
-      friend class iterator;
-      friend class const_iterator;
-      friend class row_major_iterator;
-      friend class col_major_iterator;
-      friend class const_row_major_iterator;
-      friend class const_col_major_iterator;
+      friend class matrix_iterator<ttype>;
+      friend class const_matrix_iterator<ttype>;
+      friend class row_major_iterator<ttype>;
+      friend class const_row_major_iterator<ttype>;
+      friend class col_major_iterator<ttype>;
+      friend class const_col_major_iterator<ttype>;
+      //      friend class iterator;
+      //      friend class const_iterator;
+      //      friend class row_major_Iterator;
+      //      friend class col_major_Iterator;
+      //      friend class const_row_major_Iterator;
+      //      friend class const_col_major_Iterator;
 
       /**** Constructors ****/
 
@@ -403,68 +409,68 @@ namespace SCYTHE {
 
       /**** Iterator Stuff ****/
 
-      inline row_major_iterator begin()
+      inline row_major_Iterator begin()
 	{
-	  return row_major_iterator(*this);
+	  return row_major_Iterator(*this);
 	}
 
-      inline row_major_iterator end()
+      inline row_major_Iterator end()
 	{
-	  row_major_iterator temp(*this);
+	  row_major_Iterator temp(*this);
 	  return (temp + (rows_ * cols_));
 	}
 
-      inline row_major_iterator vec(const int &n)
+      inline row_major_Iterator vec(const int &n)
 	{
-	  return row_major_iterator(*this).next_vec(n);
+	  return row_major_Iterator(*this).next_vec(n);
 	}
 
-      inline const_row_major_iterator begin() const
+      inline const_row_major_Iterator begin() const
 	{
-	  return const_row_major_iterator(*this);
+	  return const_row_major_Iterator(*this);
 	}
 
-      inline const_row_major_iterator end() const
+      inline const_row_major_Iterator end() const
 	{
-	  const_row_major_iterator temp(*this);
+	  const_row_major_Iterator temp(*this);
 	  return (temp + (rows_ * cols_));
 	}
 
-      inline const_row_major_iterator vec(const int &n) const
+      inline const_row_major_Iterator vec(const int &n) const
 	{
-	  return const_row_major_iterator(*this).next_vec(n);
+	  return const_row_major_Iterator(*this).next_vec(n);
 	}
 
-      inline col_major_iterator beginc()
+      inline col_major_Iterator beginc()
 	{
-	  return col_major_iterator(*this);
+	  return col_major_Iterator(*this);
 	}
 
-      inline col_major_iterator endc()
+      inline col_major_Iterator endc()
 	{
-	  col_major_iterator temp(*this);
+	  col_major_Iterator temp(*this);
 	  return (temp + (rows_ * cols_));
 	}
 
-      inline col_major_iterator vecc(const int &n)
+      inline col_major_Iterator vecc(const int &n)
 	{
-	  return col_major_iterator(*this).next_vec(n);
+	  return col_major_Iterator(*this).next_vec(n);
 	}
 
-      inline const_col_major_iterator beginc() const
+      inline const_col_major_Iterator beginc() const
 	{
-	  return const_col_major_iterator(*this);
+	  return const_col_major_Iterator(*this);
 	}
 
-      inline const_col_major_iterator endc() const
+      inline const_col_major_Iterator endc() const
 	{
-	  const_col_major_iterator temp(*this);
+	  const_col_major_Iterator temp(*this);
 	  return (temp + (rows_ * cols_));
 	}
 
-      inline const_col_major_iterator vecc(const int &n) const
+      inline const_col_major_Iterator vecc(const int &n) const
 	{
-	  return const_col_major_iterator(*this).next_vec(n);
+	  return const_col_major_Iterator(*this).next_vec(n);
 	}
 
     private:

@@ -66,6 +66,8 @@ namespace SCYTHE {
 	template <class T>
 	class const_matrix_iterator;
 
+// matrix_iterator
+// =================
 	template <class T>
 	class matrix_iterator
 		: public std::iterator<std::random_access_iterator_tag, T>
@@ -178,10 +180,13 @@ namespace SCYTHE {
 			{
 			}
 
+ 	        protected:
 			Matrix<T> *matrix_;
 			int current_;
 	};
 
+// const_matrix_iterator
+// ======================
 	template <class T>
 	class const_matrix_iterator
 		: public std::iterator<std::random_access_iterator_tag, T>
@@ -299,10 +304,13 @@ namespace SCYTHE {
 			{
 			}
 
+      	        protected:
 			const Matrix<T> *matrix_;
 			int current_;
 	};
 
+// row_major_iterator
+// ==================
 	/**** An iterator that does ops in row-major order ****/
 	template <class T>
 	class row_major_iterator : public matrix_iterator<T>
@@ -336,8 +344,8 @@ namespace SCYTHE {
 			inline row_major_iterator<T> &operator= (const
 					row_major_iterator &rmi)
 			{
-				matrix_ = rmi.matrix_;
-				current_ = rmi.current_;
+				this->matrix_ = rmi.matrix_;
+				this->current_ = rmi.current_;
 
 				return *this;
 			}
@@ -345,8 +353,8 @@ namespace SCYTHE {
 			// Step forward, return new position
 			inline row_major_iterator<T> &operator++ ()
 			{
-				if (current_ < matrix_->size())
-					++current_;
+				if (this->current_ < this->matrix_->size())
+				    ++(this->current_);
 				
 				return *this;
 			}
@@ -365,8 +373,8 @@ namespace SCYTHE {
 			// Step back, return new position
 			inline row_major_iterator<T> &operator-- ()
 			{
-				if (current_ > 0)
-					--current_;
+				if (this->current_ > 0)
+				    --(this->current_);
 				
 				return *this;
 			}
@@ -385,18 +393,18 @@ namespace SCYTHE {
 			// Provide access to the [nth] element XXX int?
 			inline T &operator[] (const int &n) const
 			{
-				return matrix_->data_[n];
+				return this->matrix_->data_[n];
 			}
 
 			// Step n elements
 			inline row_major_iterator<T> &operator+= (const int &n)
 			{
-				if (current_ + n > matrix_->size())
-					current_ = matrix_->size();
-				else if (current_ + n < 0)
-					current_ = 0;
+				if (this->current_ + n > this->matrix_->size())
+					this->current_ = this->matrix_->size();
+				else if (this->current_ + n < 0)
+					this->current_ = 0;
 				else
-					current_ += n;
+					this->current_ += n;
 				
 				return *this;
 			}
@@ -411,7 +419,7 @@ namespace SCYTHE {
 			inline std::ptrdiff_t operator-
 				(const row_major_iterator<T> &rmi) const
 			{
-				return current_ - rmi.current_;
+				return this->current_ - rmi.current_;
 			}
 
 			/**** Matrix Iterator Facilities ****/
@@ -419,35 +427,35 @@ namespace SCYTHE {
 			// Jump forward the length of a row
 			inline row_major_iterator<T> &plus_vec ()
 			{
-				return (*this += matrix_->cols());
+				return (*this += this->matrix_->cols());
 			}
 
 			// Jump forward the length of a row n times
 			inline row_major_iterator<T> &plus_vec (const int &n)
 			{
-				return (*this += (n * matrix_->cols()));
+ 			        return (*this += (n * (this->matrix_->cols())));
 			}
 
 			// Jump backward the length of a row
 			inline row_major_iterator<T> &minus_vec ()
 			{
-				return (*this -= matrix_->cols());
+				return (*this -= this->matrix_->cols());
 			}
 
 			// Jump backward the length of a row n times
 			inline row_major_iterator<T> &minus_vec (const int &n)
 			{
-				return (*this -= (n * matrix_->cols()));
+			        return (*this -= (n * (this->matrix_->cols())));
 			}
 
 			// Jump to the beginnin of the next vector
 			inline row_major_iterator<T> &next_vec ()
 			{
-				int cur_vec = (int) (current_ / matrix_->cols());
-				if (cur_vec + 1 < matrix_->rows())
-					current_ = (cur_vec + 1) * matrix_->cols();
+				int cur_vec = (int) (this->current_ / this->matrix_->cols());
+				if (cur_vec + 1 < this->matrix_->rows())
+					this->current_ = (cur_vec + 1) * this->matrix_->cols();
 				else
-					current_ = matrix_->size();
+					this->current_ = this->matrix_->size();
 
 				return *this;
 			}
@@ -455,13 +463,13 @@ namespace SCYTHE {
 			// Jump to the beginning of the nth next vector
 			inline row_major_iterator<T> &next_vec (const int &n)
 			{
-				int cur_vec = (int) (current_ / matrix_->cols());
-				if (cur_vec + n >= matrix_->rows())
-					current_ = matrix_->size();
+				int cur_vec = (int) (this->current_ / this->matrix_->cols());
+				if (cur_vec + n >= this->matrix_->rows())
+					this->current_ = this->matrix_->size();
 				else if (cur_vec + n <= 0)
-					current_ = 0;
+					this->current_ = 0;
 				else
-					current_ = (cur_vec + n) * matrix_->cols();
+					this->current_ = (cur_vec + n) * this->matrix_->cols();
 
 				return *this;
 			}
@@ -469,11 +477,11 @@ namespace SCYTHE {
 			// Jump to the beginnin of the previous vector
 			inline row_major_iterator<T> &prev_vec ()
 			{
-				int cur_vec = (int) (current_ / matrix_->cols());
+				int cur_vec = (int) (this->current_ / this->matrix_->cols());
 				if (cur_vec > 0)
-					current_ = (cur_vec - 1) * matrix_->cols();
+					this->current_ = (cur_vec - 1) * this->matrix_->cols();
 				else
-					current_ = 0;
+					this->current_ = 0;
 
 				return *this;
 			}
@@ -484,8 +492,7 @@ namespace SCYTHE {
 				return (this->next_vec(-n));
 			}
 			
-			friend bool operator== (const row_major_iterator<T> &a,
-															const row_major_iterator<T> &b)
+			friend bool operator== (const row_major_iterator<T> &a,	const row_major_iterator<T> &b)
 			{
 				if (a.current_ == b.current_ && a.matrix_ == b.matrix_)
 					return true;
@@ -493,8 +500,7 @@ namespace SCYTHE {
 				return false;
 			}
 
-			friend bool operator<(const row_major_iterator &a,
-														const row_major_iterator &b)
+			friend bool operator<(const row_major_iterator &a, const row_major_iterator &b)
 			{
 				if (a.matrix_ != b.matrix_)
 					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
@@ -508,7 +514,9 @@ namespace SCYTHE {
 			}
 
 	};
-	
+
+// const_row_major_iterator
+// ==========================	
 	template <class T>
 	class const_row_major_iterator : public const_matrix_iterator<T>
 	{	
@@ -546,8 +554,8 @@ namespace SCYTHE {
 			inline const_row_major_iterator<T> &operator= (const
 					const_row_major_iterator &rmi)
 			{
-				matrix_ = rmi.matrix_;
-				current_ = rmi.current_;
+				this->matrix_ = rmi.matrix_;
+				this->current_ = rmi.current_;
 
 				return *this;
 			}
@@ -555,8 +563,8 @@ namespace SCYTHE {
 			// Step forward, return new position
 			inline const_row_major_iterator<T> &operator++ ()
 			{
-				if (current_ < matrix_->size())
-					++current_;
+				if (this->current_ < this->matrix_->size())
+				     ++(this->current_);
 				
 				return *this;
 			}
@@ -575,8 +583,8 @@ namespace SCYTHE {
 			// Step back, return new position
 			inline const_row_major_iterator<T> &operator-- ()
 			{
-				if (current_ > 0)
-					--current_;
+				if (this->current_ > 0)
+				     --(this->current_);
 				
 				return *this;
 			}
@@ -595,18 +603,18 @@ namespace SCYTHE {
 			// Provide access to the [nth] element XXX int?
 			inline const T &operator[] (const int &n) const
 			{
-				return matrix_->data_[n];
+				return this->matrix_->data_[n];
 			}
 
 			// Step n elements
 			inline const_row_major_iterator<T> &operator+= (const int &n)
 			{
-				if (current_ + n > matrix_->size())
-					current_ = matrix_->size();
-				else if (current_ + n < 0)
-					current_ = 0;
+				if (this->current_ + n > this->matrix_->size())
+					this->current_ = this->matrix_->size();
+				else if (this->current_ + n < 0)
+					this->current_ = 0;
 				else
-					current_ += n;
+					this->current_ += n;
 				
 				return *this;
 			}
@@ -621,7 +629,7 @@ namespace SCYTHE {
 			inline std::ptrdiff_t operator-
 				(const const_row_major_iterator<T> &rmi) const
 			{
-				return current_ - rmi.current_;
+				return this->current_ - rmi.current_;
 			}
 
 			/**** Matrix Iterator Facilities ****/
@@ -629,35 +637,35 @@ namespace SCYTHE {
 			// Jump forward the length of a row
 			inline const_row_major_iterator<T> &plus_vec ()
 			{
-				return (*this += matrix_->cols());
+				return (*this += this->matrix_->cols());
 			}
 
 			// Jump forward the length of a row n times
 			inline const_row_major_iterator<T> &plus_vec (const int &n)
 			{
-				return (*this += (n * matrix_->cols()));
+			        return (*this += (n * (this->matrix_->cols())));
 			}
 
 			// Jump backward the length of a row
 			inline const_row_major_iterator<T> &minus_vec ()
 			{
-				return (*this -= matrix_->cols());
+				return (*this -= this->matrix_->cols());
 			}
 
 			// Jump backward the length of a row n times
 			inline const_row_major_iterator<T> &minus_vec (const int &n)
 			{
-				return (*this -= (n * matrix_->cols()));
+			         return (*this -= (n * (this->matrix_->cols())));
 			}
 
 			// Jump to the beginnin of the next vector
 			inline const_row_major_iterator<T> &next_vec ()
 			{
-				int cur_vec = (int) (current_ / matrix_->cols());
-				if (cur_vec + 1 < matrix_->rows())
-					current_ = (cur_vec + 1) * matrix_->cols();
+				int cur_vec = (int) (this->current_ / this->matrix_->cols());
+				if (cur_vec + 1 < this->matrix_->rows())
+					this->current_ = (cur_vec + 1) * this->matrix_->cols();
 				else
-					current_ = matrix_->size();
+					this->current_ = this->matrix_->size();
 
 				return *this;
 			}
@@ -665,13 +673,13 @@ namespace SCYTHE {
 			// Jump to the beginning of the nth next vector
 			inline const_row_major_iterator<T> &next_vec (const int &n)
 			{
-				int cur_vec = (int) (current_ / matrix_->cols());
-				if (cur_vec + n >= matrix_->rows())
-					current_ = matrix_->size();
+				int cur_vec = (int) (this->current_ / this->matrix_->cols());
+				if (cur_vec + n >= this->matrix_->rows())
+					this->current_ = this->matrix_->size();
 				else if (cur_vec + n <= 0)
-					current_ = 0;
+					this->current_ = 0;
 				else
-					current_ = (cur_vec + n) * matrix_->cols();
+					this->current_ = (cur_vec + n) * this->matrix_->cols();
 
 				return *this;
 			}
@@ -679,11 +687,11 @@ namespace SCYTHE {
 			// Jump to the beginnin of the previous vector
 			inline const_row_major_iterator<T> &prev_vec ()
 			{
-				int cur_vec = (int) (current_ / matrix_->cols());
+				int cur_vec = (int) (this->current_ / this->matrix_->cols());
 				if (cur_vec > 0)
-					current_ = (cur_vec - 1) * matrix_->cols();
+					this->current_ = (cur_vec - 1) * this->matrix_->cols();
 				else
-					current_ = 0;
+					this->current_ = 0;
 
 				return *this;
 			}
@@ -694,8 +702,7 @@ namespace SCYTHE {
 				return (this->next_vec(-n));
 			}
 			
-			friend bool operator== (const const_row_major_iterator<T> &a,
-															const const_row_major_iterator<T> &b)
+			friend bool operator== (const const_row_major_iterator<T> &a, const const_row_major_iterator<T> &b)
 			{
 				if (a.current_ == b.current_ && a.matrix_ == b.matrix_)
 					return true;
@@ -703,8 +710,7 @@ namespace SCYTHE {
 				return false;
 			}
 
-			friend bool operator<(const const_row_major_iterator &a,
-														const const_row_major_iterator &b)
+			friend bool operator<(const const_row_major_iterator &a, const const_row_major_iterator &b)
 			{
 				if (a.matrix_ != b.matrix_)
 					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
@@ -718,7 +724,9 @@ namespace SCYTHE {
 			}
 
 	};
-	
+
+// col_major_iterator
+// ====================	
 	/**** An iterator that does ops in col-major order ****/
 	template <class T>
 	class col_major_iterator : public matrix_iterator<T>
@@ -752,8 +760,8 @@ namespace SCYTHE {
 			inline col_major_iterator<T> &operator= (const
 					col_major_iterator &cmi)
 			{
-				matrix_ = cmi.matrix_;
-				current_ = cmi.current_;
+				this->matrix_ = cmi.matrix_;
+				this->current_ = cmi.current_;
 
 				return *this;
 			}
@@ -761,14 +769,14 @@ namespace SCYTHE {
 			// Step forward, return new position
 			inline col_major_iterator<T> &operator++ ()
 			{
-				if (current_ >= matrix_->cols() * (matrix_->rows() - 1)) {
-					if (current_ >= matrix_->size() - 1)
-						current_ = matrix_->size();
+				if (this->current_ >= this->matrix_->cols() * (this->matrix_->rows() - 1)) {
+					if (this->current_ >= this->matrix_->size() - 1)
+						this->current_ = this->matrix_->size();
 					else
-						current_ = (current_ + 1) -
-							(matrix_->rows() - 1) * matrix_->cols();
+						this->current_ = (this->current_ + 1) -
+							(this->matrix_->rows() - 1) * this->matrix_->cols();
 				} else
-					current_ += matrix_->cols();
+					this->current_ += this->matrix_->cols();
 
 				return *this;
 			}
@@ -786,14 +794,14 @@ namespace SCYTHE {
 			// Step back, return new position
 			inline col_major_iterator<T> &operator-- ()
 			{
-				if (current_ > 0) {
-					if (current_ == matrix_->size())
-						--current_;
-					else if (current_ < matrix_->cols()) {
-						current_ = (current_ - 1) + 
-							(matrix_->rows() - 1) * matrix_->cols();
+				if (this->current_ > 0) {
+					if (this->current_ == this->matrix_->size())
+					     --(this->current_);
+					else if (this->current_ < this->matrix_->cols()) {
+						this->current_ = (this->current_ - 1) + 
+							(this->matrix_->rows() - 1) * this->matrix_->cols();
 					} else
-						current_ -= matrix_->cols();
+						this->current_ -= this->matrix_->cols();
 				}
 				
 				return *this;
@@ -812,10 +820,10 @@ namespace SCYTHE {
 			// Provide access to the [nth] element XXX int?
 			inline T &operator[] (const int &n) const
 			{
-				int col = (int) (n / matrix_->rows());
-				int row = n - (col * matrix_->rows());
+				int col = (int) (n / this->matrix_->rows());
+				int row = n - (col * this->matrix_->rows());
 
-				return matrix_->data_[row * matrix_->cols_ + col];
+				return this->matrix_->data_[row * this->matrix_->cols_ + col];
 			}
 
 			// Step n elements
@@ -823,24 +831,24 @@ namespace SCYTHE {
 			{
 				int cm;
 
-				if (current_ == matrix_->size())
-					cm = current_;
+				if (this->current_ == this->matrix_->size())
+					cm = this->current_;
 				else {
-					int row = (int) (current_ / matrix_->cols());
-					int col = current_ - (row * matrix_->cols());
-					cm = col * matrix_->rows() + row;
+					int row = (int) (this->current_ / this->matrix_->cols());
+					int col = this->current_ - (row * this->matrix_->cols());
+					cm = col * this->matrix_->rows() + row;
 				}
 
 				cm += n;
 
-				if (cm >= matrix_->size())
-					current_ = matrix_->size();
+				if (cm >= this->matrix_->size())
+					this->current_ = this->matrix_->size();
 				else if (cm <= 0)
-					current_ = 0;
+					this->current_ = 0;
 				else {
-					int col = (int) (cm / matrix_->rows());
-					int row = cm - (col * matrix_->rows());
-					current_ = row * matrix_->cols() + col;
+					int col = (int) (cm / this->matrix_->rows());
+					int row = cm - (col * this->matrix_->rows());
+					this->current_ = row * this->matrix_->cols() + col;
 				}
 
 				return *this;
@@ -857,20 +865,20 @@ namespace SCYTHE {
 				(const col_major_iterator<T> &cmi) const
 			{
 				int cm, bcm;
-				if (current_ == matrix_->size())
-					cm = current_;
+				if (this->current_ == this->matrix_->size())
+					cm = this->current_;
 				else {
-					int row = (int) (current_ / matrix_->cols());
-					int col = current_ - (row * matrix_->cols());
-					cm = col * matrix_->rows() + row;
+					int row = (int) (this->current_ / this->matrix_->cols());
+					int col = this->current_ - (row * this->matrix_->cols());
+					cm = col * this->matrix_->rows() + row;
 				}
 
-				if (cmi.current_ == matrix_->size())
+				if (cmi.current_ == this->matrix_->size())
 					bcm = cmi.current_;
 				else {
-					int brow = (int) (cmi.current_ / matrix_->cols());
-					int bcol = cmi.current_ - (brow * matrix_->cols());
-					bcm = bcol * matrix_->rows() + brow;
+					int brow = (int) (cmi.current_ / this->matrix_->cols());
+					int bcol = cmi.current_ - (brow * this->matrix_->cols());
+					bcm = bcol * this->matrix_->rows() + brow;
 				}
 				
 				return cm - bcm;
@@ -881,36 +889,36 @@ namespace SCYTHE {
 			// Jump forward the length of a row
 			inline col_major_iterator<T> &plus_vec ()
 			{
-				return (*this += matrix_->rows());
+				return (*this += this->matrix_->rows());
 			}
 
 			// Jump forward the length of a row n times
 			inline col_major_iterator<T> &plus_vec (const int &n)
 			{
-				return (*this += (n * matrix_->rows()));
+				return (*this += (n * this->matrix_->rows()));
 			}
 
 			// Jump backward the length of a row
 			inline col_major_iterator<T> &minus_vec ()
 			{
-				return (*this -= matrix_->rows());
+				return (*this -= this->matrix_->rows());
 			}
 
 			// Jump backward the length of a row n times
 			inline col_major_iterator<T> &minus_vec (const int &n)
 			{
-				return (*this -= (n * matrix_->rows()));
+				return (*this -= (n * this->matrix_->rows()));
 			}
 
 			// Jump to the beginnin of the next vector
 			inline col_major_iterator<T> &next_vec ()
 			{
-				int col = (int) (current_ - 
-					((int) (current_ / matrix_->cols()) * matrix_->cols()));
-				if (col + 1 < matrix_->cols())
-						current_ = col + 1;
+				int col = (int) (this->current_ - 
+					((int) (this->current_ / this->matrix_->cols()) * this->matrix_->cols()));
+				if (col + 1 < this->matrix_->cols())
+						this->current_ = col + 1;
 				else
-					current_ = matrix_->size();
+					this->current_ = this->matrix_->size();
 
 				return *this;
 			}
@@ -918,14 +926,14 @@ namespace SCYTHE {
 			// Jump to the beginning of the nth next vector
 			inline col_major_iterator<T> &next_vec (const int &n)
 			{
-				int col = (int) (current_ - 
-					((int) (current_ / matrix_->cols()) * matrix_->cols()));
-				if (col + n >= matrix_->cols())
-					current_ = matrix_->size();
+				int col = (int) (this->current_ - 
+					((int) (this->current_ / this->matrix_->cols()) * this->matrix_->cols()));
+				if (col + n >= this->matrix_->cols())
+					this->current_ = this->matrix_->size();
 				else if (col + n <= 0)
-					current_ = 0;
+					this->current_ = 0;
 				else
-					current_ = col + n;
+					this->current_ = col + n;
 
 				return *this;
 			}
@@ -933,12 +941,12 @@ namespace SCYTHE {
 			// Jump to the beginnin of the previous vector
 			inline col_major_iterator<T> &prev_vec ()
 			{
-				int col = (int) (current_ - 
-					((int) (current_ / matrix_->cols()) * matrix_->cols()));
+				int col = (int) (this->current_ - 
+					((int) (this->current_ / this->matrix_->cols()) * this->matrix_->cols()));
 				if (col - 1 > 0)
-						current_ = col - 1;
+						this->current_ = col - 1;
 				else
-					current_ = 0;
+					this->current_ = 0;
 
 				return *this;
 			}
@@ -949,8 +957,7 @@ namespace SCYTHE {
 				return (this->next_vec(-n));
 			}
 			
-			friend bool operator== (const col_major_iterator<T> &a,
-															const col_major_iterator<T> &b)
+			friend bool operator== (const col_major_iterator<T> &a,	const col_major_iterator<T> &b)
 			{
 				if (a.current_ == b.current_ && a.matrix_ == b.matrix_)
 					return true;
@@ -958,8 +965,7 @@ namespace SCYTHE {
 				return false;
 			}
 
-			friend bool operator<(const col_major_iterator &a,
-														const col_major_iterator &b)	
+			friend bool operator<(const col_major_iterator &a, const col_major_iterator &b)	
 			{
 				if (a.matrix_ != b.matrix_)
 					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
@@ -992,6 +998,8 @@ namespace SCYTHE {
 				
 	};
 
+// const_col_major_iterator
+// ===========================
 	template <class T>
 	class const_col_major_iterator : public const_matrix_iterator<T>
 	{	
@@ -1029,8 +1037,8 @@ namespace SCYTHE {
 			inline const_col_major_iterator<T> &operator= (const
 					const_col_major_iterator &cmi)
 			{
-				matrix_ = cmi.matrix_;
-				current_ = cmi.current_;
+				this->matrix_ = cmi.matrix_;
+				this->current_ = cmi.current_;
 
 				return *this;
 			}
@@ -1038,14 +1046,14 @@ namespace SCYTHE {
 			// Step forward, return new position
 			inline const_col_major_iterator<T> &operator++ ()
 			{
-				if (current_ >= matrix_->cols() * (matrix_->rows() - 1)) {
-					if (current_ >= matrix_->size() - 1)
-						current_ = matrix_->size();
+				if (this->current_ >= this->matrix_->cols() * (this->matrix_->rows() - 1)) {
+					if (this->current_ >= this->matrix_->size() - 1)
+						this->current_ = this->matrix_->size();
 					else
-						current_ = (current_ + 1) -
-							(matrix_->rows() - 1) * matrix_->cols();
+						this->current_ = (this->current_ + 1) -
+							(this->matrix_->rows() - 1) * this->matrix_->cols();
 				} else
-					current_ += matrix_->cols();
+					this->current_ += this->matrix_->cols();
 
 				return *this;
 			}
@@ -1063,14 +1071,14 @@ namespace SCYTHE {
 			// Step back, return new position
 			inline const_col_major_iterator<T> &operator-- ()
 			{
-				if (current_ > 0) {
-					if (current_ == matrix_->size())
-						--current_;
-					else if (current_ < matrix_->cols()) {
-						current_ = (current_ - 1) + 
-							(matrix_->rows() - 1) * matrix_->cols();
+				if (this->current_ > 0) {
+					if (this->current_ == this->matrix_->size())
+						--this->current_;
+					else if (this->current_ < this->matrix_->cols()) {
+						this->current_ = (this->current_ - 1) + 
+							(this->matrix_->rows() - 1) * this->matrix_->cols();
 					} else
-						current_ -= matrix_->cols();
+						this->current_ -= this->matrix_->cols();
 				}
 				
 				return *this;
@@ -1089,10 +1097,10 @@ namespace SCYTHE {
 			// Provide access to the [nth] element XXX int?
 			inline const T &operator[] (const int &n) const
 			{
-				int col = (int) (n / matrix_->rows());
-				int row = n - (col * matrix_->rows());
+				int col = (int) (n / this->matrix_->rows());
+				int row = n - (col * this->matrix_->rows());
 
-				return matrix_->data_[row * matrix_->cols_ + col];
+				return this->matrix_->data_[row * this->matrix_->cols_ + col];
 			}
 
 			// Step n elements
@@ -1100,24 +1108,24 @@ namespace SCYTHE {
 			{
 				int cm;
 
-				if (current_ == matrix_->size())
-					cm = current_;
+				if (this->current_ == this->matrix_->size())
+					cm = this->current_;
 				else {
-					int row = (int) (current_ / matrix_->cols());
-					int col = current_ - (row * matrix_->cols());
-					cm = col * matrix_->rows() + row;
+					int row = (int) (this->current_ / this->matrix_->cols());
+					int col = this->current_ - (row * this->matrix_->cols());
+					cm = col * this->matrix_->rows() + row;
 				}
 
 				cm += n;
 
-				if (cm >= matrix_->size())
-					current_ = matrix_->size();
+				if (cm >= this->matrix_->size())
+					this->current_ = this->matrix_->size();
 				else if (cm <= 0)
-					current_ = 0;
+					this->current_ = 0;
 				else {
-					int col = (int) (cm / matrix_->rows());
-					int row = cm - (col * matrix_->rows());
-					current_ = row * matrix_->cols() + col;
+					int col = (int) (cm / this->matrix_->rows());
+					int row = cm - (col * this->matrix_->rows());
+					this->current_ = row * this->matrix_->cols() + col;
 				}
 
 				return *this;
@@ -1134,20 +1142,20 @@ namespace SCYTHE {
 				(const const_col_major_iterator<T> &cmi) const
 			{
 				int cm, bcm;
-				if (current_ == matrix_->size())
-					cm = current_;
+				if (this->current_ == this->matrix_->size())
+					cm = this->current_;
 				else {
-					int row = (int) (current_ / matrix_->cols());
-					int col = current_ - (row * matrix_->cols());
-					cm = col * matrix_->rows() + row;
+					int row = (int) (this->current_ / this->matrix_->cols());
+					int col = this->current_ - (row * this->matrix_->cols());
+					cm = col * this->matrix_->rows() + row;
 				}
 
-				if (cmi.current_ == matrix_->size())
+				if (cmi.current_ == this->matrix_->size())
 					bcm = cmi.current_;
 				else {
-					int brow = (int) (cmi.current_ / matrix_->cols());
-					int bcol = cmi.current_ - (brow * matrix_->cols());
-					bcm = bcol * matrix_->rows() + brow;
+					int brow = (int) (cmi.current_ / this->matrix_->cols());
+					int bcol = cmi.current_ - (brow * this->matrix_->cols());
+					bcm = bcol * this->matrix_->rows() + brow;
 				}
 				
 				return cm - bcm;
@@ -1158,36 +1166,36 @@ namespace SCYTHE {
 			// Jump forward the length of a row
 			inline const_col_major_iterator<T> &plus_vec ()
 			{
-				return (*this += matrix_->rows());
+				return (*this += this->matrix_->rows());
 			}
 
 			// Jump forward the length of a row n times
 			inline const_col_major_iterator<T> &plus_vec (const int &n)
 			{
-				return (*this += (n * matrix_->rows()));
+				return (*this += (n * this->matrix_->rows()));
 			}
 
 			// Jump backward the length of a row
 			inline const_col_major_iterator<T> &minus_vec ()
 			{
-				return (*this -= matrix_->rows());
+				return (*this -= this->matrix_->rows());
 			}
 
 			// Jump backward the length of a row n times
 			inline const_col_major_iterator<T> &minus_vec (const int &n)
 			{
-				return (*this -= (n * matrix_->rows()));
+				return (*this -= (n * this->matrix_->rows()));
 			}
 
 			// Jump to the beginnin of the next vector
 			inline const_col_major_iterator<T> &next_vec ()
 			{
-				int col = (int) (current_ - 
-					((int)(current_ / matrix_->cols()) * matrix_->cols()));
-				if (col + 1 < matrix_->cols())
-						current_ = col + 1;
+				int col = (int) (this->current_ - 
+					((int)(this->current_ / this->matrix_->cols()) * this->matrix_->cols()));
+				if (col + 1 < this->matrix_->cols())
+						this->current_ = col + 1;
 				else
-					current_ = matrix_->size();
+					this->current_ = this->matrix_->size();
 
 				return *this;
 			}
@@ -1195,14 +1203,14 @@ namespace SCYTHE {
 			// Jump to the beginning of the nth next vector
 			inline const_col_major_iterator<T> &next_vec (const int &n)
 			{
-				int col = (int) (current_ - 
-					((int)(current_ / matrix_->cols()) * matrix_->cols()));
-				if (col + n >= matrix_->cols())
-					current_ = matrix_->size();
+				int col = (int) (this->current_ - 
+					((int)(this->current_ / this->matrix_->cols()) * this->matrix_->cols()));
+				if (col + n >= this->matrix_->cols())
+					this->current_ = this->matrix_->size();
 				else if (col + n <= 0)
-					current_ = 0;
+					this->current_ = 0;
 				else
-					current_ = col + n;
+					this->current_ = col + n;
 
 				return *this;
 			}
@@ -1210,12 +1218,12 @@ namespace SCYTHE {
 			// Jump to the beginnin of the previous vector
 			inline const_col_major_iterator<T> &prev_vec ()
 			{
-				int col = (int) (current_ - 
-					((int)(current_ / matrix_->cols()) * matrix_->cols()));
+				int col = (int) (this->current_ - 
+					((int)(this->current_ / this->matrix_->cols()) * this->matrix_->cols()));
 				if (col - 1 > 0)
-						current_ = col - 1;
+						this->current_ = col - 1;
 				else
-					current_ = 0;
+					this->current_ = 0;
 
 				return *this;
 			}
@@ -1226,8 +1234,7 @@ namespace SCYTHE {
 				return (this->next_vec(-n));
 			}
 			
-			friend bool operator== (const const_col_major_iterator<T> &a,
-															const const_col_major_iterator<T> &b)
+			friend bool operator== (const const_col_major_iterator<T> &a, const const_col_major_iterator<T> &b)
 			{
 				if (a.current_ == b.current_ && a.matrix_ == b.matrix_)
 					return true;
@@ -1235,12 +1242,10 @@ namespace SCYTHE {
 				return false;
 			}
 
-			friend bool operator<(const const_col_major_iterator &a,
-														const const_col_major_iterator &b)	
+			friend bool operator<(const const_col_major_iterator &a, const const_col_major_iterator &b)	
 			{
 				if (a.matrix_ != b.matrix_)
-					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
-							__LINE__, 
+					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,	__LINE__, 
 							"< Comparison on iterators to different matrices");
 
 				
@@ -1270,161 +1275,139 @@ namespace SCYTHE {
 	};
 
 	template <class T>
-	inline bool operator!= (const const_row_major_iterator<T> &a,
-													const const_row_major_iterator<T> &b)
+	inline bool operator!= (const const_row_major_iterator<T> &a, const const_row_major_iterator<T> &b)
 	{
 		return ! (a == b);
 	}
 
 	template <class T>
-	inline bool operator!= (const const_col_major_iterator<T> &a,
-													const const_col_major_iterator<T> &b)
+	inline bool operator!= (const const_col_major_iterator<T> &a, const const_col_major_iterator<T> &b)
 	{
 		return ! (a == b);
 	}
 
 	template <class T>
-	inline bool operator!= (const row_major_iterator<T> &a,
-													const row_major_iterator<T> &b)
+	inline bool operator!= (const row_major_iterator<T> &a, const row_major_iterator<T> &b)
 	{
 		return ! (a == b);
 	}
 
 	template <class T>
-	inline bool operator!= (const col_major_iterator<T> &a,
-													const col_major_iterator<T> &b)
+	inline bool operator!= (const col_major_iterator<T> &a, const col_major_iterator<T> &b)
 	{
 		return ! (a == b);
 	}
 
 	template <class T>
-	inline bool operator>(const const_row_major_iterator<T> &a,
-												const const_row_major_iterator<T> &b)
+	inline bool operator>(const const_row_major_iterator<T> &a, const const_row_major_iterator<T> &b)
 	{
 		return ! (a < b);
 	}
 
 	template <class T>
-	inline bool operator>(const const_col_major_iterator<T> &a,
-												const const_col_major_iterator<T> &b)
+	inline bool operator>(const const_col_major_iterator<T> &a, const const_col_major_iterator<T> &b)
 	{
 		return ! (a < b);
 	}
 
 	template <class T>
-	inline bool operator>(const row_major_iterator<T> &a,
-												const row_major_iterator<T> &b)
+	inline bool operator>(const row_major_iterator<T> &a, const row_major_iterator<T> &b)
 	{
 		return ! (a < b);
 	}
 
 	template <class T>
-	inline bool operator>(const col_major_iterator<T> &a,
-												const col_major_iterator<T> &b)
+	inline bool operator>(const col_major_iterator<T> &a, const col_major_iterator<T> &b)
 	{
 		return ! (a < b);
 	}
 
 	template <class T>
-	inline bool operator<= (const const_row_major_iterator<T> &a,
-													const const_row_major_iterator<T> &b)
+	inline bool operator<= (const const_row_major_iterator<T> &a, const const_row_major_iterator<T> &b)
 	{
 		return (a < b || a == b);
 	}
 
 	template <class T>
-	inline bool operator<= (const const_col_major_iterator<T> &a,
-													const const_col_major_iterator<T> &b)
+	inline bool operator<= (const const_col_major_iterator<T> &a, const const_col_major_iterator<T> &b)
 	{
 		return (a < b || a == b);
 	}
 
 	template <class T>
-	inline bool operator<= (const row_major_iterator<T> &a,
-													const row_major_iterator<T> &b)
+	inline bool operator<= (const row_major_iterator<T> &a, const row_major_iterator<T> &b)
 	{
 		return (a < b || a == b);
 	}
 
 	template <class T>
-	inline bool operator<= (const col_major_iterator<T> &a,
-													const col_major_iterator<T> &b)
+	inline bool operator<= (const col_major_iterator<T> &a,	const col_major_iterator<T> &b)
 	{
 		return (a < b || a == b);
 	}
 
 	template <class T>
-	inline bool operator>= (const const_row_major_iterator<T> &a,
-													const const_row_major_iterator<T> &b)
+	inline bool operator>= (const const_row_major_iterator<T> &a, const const_row_major_iterator<T> &b)
 	{
 		return (a > b || a == b);
 	}
 
 	template <class T>
-	inline bool operator>= (const const_col_major_iterator<T> &a,
-													const const_col_major_iterator<T> &b)
+	inline bool operator>= (const const_col_major_iterator<T> &a, const const_col_major_iterator<T> &b)
 	{
 		return (a > b || a == b);
 	}
 	
 	template <class T>
-	inline bool operator>= (const row_major_iterator<T> &a,
-													const row_major_iterator<T> &b)
+	inline bool operator>= (const row_major_iterator<T> &a,	const row_major_iterator<T> &b)
 	{
 		return (a > b || a == b);
 	}
 
 	template <class T>
-	inline bool operator>= (const col_major_iterator<T> &a,
-													const col_major_iterator<T> &b)
+	inline bool operator>= (const col_major_iterator<T> &a, const col_major_iterator<T> &b)
 	{
 		return (a > b || a == b);
 	}
 	
 	/* Non-member arithmetic operators for various iterators */
 	template <class T>
-	inline row_major_iterator<T> operator+ (row_major_iterator<T> rmi,
-																					const int &n)
+	inline row_major_iterator<T> operator+ (row_major_iterator<T> rmi, const int &n)
 	{
 		rmi += n;
 		return rmi;
 	}
 	
 	template <class T>
-	inline row_major_iterator<T> operator+ (const int &n,
-																					row_major_iterator<T> rmi)
+	inline row_major_iterator<T> operator+ (const int &n, row_major_iterator<T> rmi)
 	{
 		rmi += n;
 		return rmi;
 	}
 	
 	template <class T>
-	inline row_major_iterator<T> operator- (row_major_iterator<T> rmi,
-																					const int &n)
+	inline row_major_iterator<T> operator- (row_major_iterator<T> rmi, const int &n)
 	{
 		rmi -= n;
 		return rmi;
 	}
 	
 	template <class T>
-	inline col_major_iterator<T> operator+ (col_major_iterator<T> cmi,
-																					const int &n)
+	inline col_major_iterator<T> operator+ (col_major_iterator<T> cmi, const int &n)
 	{
 		cmi += n;
 		return cmi;
 	}
 	
 	template <class T>
-	inline col_major_iterator<T> operator+ (const int &n,
-																					col_major_iterator<T> cmi)
+	inline col_major_iterator<T> operator+ (const int &n, col_major_iterator<T> cmi)
 	{
 		cmi += n;
 		return cmi;
 	}
 	
 	template <class T>
-	inline col_major_iterator<T> operator- (col_major_iterator<T> cmi,
-																					const int &n)
+	inline col_major_iterator<T> operator- (col_major_iterator<T> cmi, const int &n)
 	{
 		cmi -= n;
 		return cmi;
@@ -1439,8 +1422,7 @@ namespace SCYTHE {
 	}
 	
 	template <class T>
-	inline const_row_major_iterator<T> operator+ (const int &n,
-																				const_row_major_iterator<T> rmi)
+	inline const_row_major_iterator<T> operator+ (const int &n, const_row_major_iterator<T> rmi)
 	{
 		rmi += n;
 		return rmi;
@@ -1463,8 +1445,7 @@ namespace SCYTHE {
 	}
 	
 	template <class T>
-	inline const col_major_iterator<T> operator+ (const int &n,
-																			const_col_major_iterator<T> cmi)
+	inline const col_major_iterator<T> operator+ (const int &n, const_col_major_iterator<T> cmi)
 	{
 		cmi += n;
 		return cmi;

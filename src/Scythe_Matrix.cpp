@@ -487,7 +487,7 @@ namespace SCYTHE {
 	}
 	}
       */
-      const_col_major_iterator cmi = m.beginc();
+      typename SCYTHE::Matrix<T>::const_col_major_Iterator cmi = m.beginc();
       for (int i = 0; i < rows_; ++i) {
 	for (int j = 0; j < m.cols_; ++j) {
 	  temp[i * m.cols_ + j] = inner_product(&data_[i * cols_],
@@ -834,11 +834,11 @@ namespace SCYTHE {
     s.str("");
     if (dim) {
       s << "Size: " << size() << " (" << rows_ << " x " << cols_
-	<< ")" << endl;
+	<< ")" << std::endl;
     }
     if (internal) {
       s << "Object: " << this << ", Data: " << data_
-	<< ", Allocation: " << alloc_ << endl;
+	<< ", Allocation: " << alloc_ << std::endl;
     }
 
     for (int i = 0; i < rows_; ++i) {
@@ -848,7 +848,7 @@ namespace SCYTHE {
 	if (i < rows_ - 1 || j < cols_ - 1)
 	  s << " ";
       }
-      s << endl;
+      s << std::endl;
     }
     return s.str();
   }
@@ -890,11 +890,11 @@ namespace SCYTHE {
 	out << std::setw(width) << std::setprecision(prec) <<  " "
 	    << data_[i];
       }
-      out << endl;
+      out << std::endl;
     } else {
       out << toString(prec,width);
     }
-    out << endl;
+    out << std::endl;
     out.close();
   }
 

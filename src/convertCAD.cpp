@@ -167,8 +167,10 @@ deriv_expAD(const Matrix<double> & knots, double sd0, const Matrix<int> & lastTh
    }
 
 // Index of the zero a in the shorter (by 2) a's sequence
-   int whichZero2 = (whichZero < min(l1, l2) ? whichZero :
-                       (whichZero < max(l1, l2) ? whichZero - 1 : whichZero - 2));
+   int minl1l2 = l1 < l2 ? l1 : l2;
+   int maxl1l2 = l1 >= l2 ? l1 : l2;
+   int whichZero2 = (whichZero < minl1l2 ? whichZero :
+		      (whichZero < maxl1l2 ? whichZero - 1 : whichZero - 2));
 
 
 // Compute the two columns of the resulting matrix corresponding to the two a's

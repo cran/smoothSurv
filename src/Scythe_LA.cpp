@@ -128,11 +128,10 @@ namespace SCYTHE {
 	Matrix<T>
 	sortc (Matrix<T> A)
 	{
-		for (typename Matrix<T>::col_major_iterator it = A.beginc();
-				it < A.endc(); it.next_vec())
-			sort(it, it + A.rows());
+	  for (typename SCYTHE::Matrix<T>::col_major_Iterator it = A.beginc(); it < A.endc(); it.next_vec())
+		sort(it, it + A.rows());
 
-		return A;
+  	  return A;
 	}
 	
 	/* Column bind two matrices */
@@ -146,14 +145,13 @@ namespace SCYTHE {
 		}
 		
 		Matrix<T> C(A.rows(), A.cols() + B.cols(), false);
-		typename Matrix<T>::col_major_iterator write = C.beginc();
-	
-		for (typename Matrix<T>::const_col_major_iterator read = A.beginc();
-				read < A.endc(); ++read)
+
+		typename SCYTHE::Matrix<T>::col_major_Iterator write = C.beginc();
+
+        	for (typename SCYTHE::Matrix<T>::const_col_major_Iterator read = A.beginc(); read < A.endc(); ++read)
 			*(write++) = *read;
 	
-		for (typename Matrix<T>::const_col_major_iterator read = B.beginc();
-				read < B.endc(); ++read)
+		for (typename SCYTHE::Matrix<T>::const_col_major_Iterator read = B.beginc(); read < B.endc(); ++read)
 			*(write++) = *read;
 	
 		return C;
@@ -171,14 +169,12 @@ namespace SCYTHE {
 		}
 		
 		Matrix<T> C(A.rows() + B.rows(), A.cols(), false);
-		typename Matrix<T>::row_major_iterator write = C.begin();
+		typename SCYTHE::Matrix<T>::row_major_Iterator write = C.begin();
 	
-		for (typename Matrix<T>::const_row_major_iterator read = A.begin();
-				read < A.end(); ++read)
+		for (typename SCYTHE::Matrix<T>::const_row_major_Iterator read = A.begin(); read < A.end(); ++read)
 			*(write++) = *read;
 	
-		for (typename Matrix<T>::const_row_major_iterator read = B.begin();
-				read < B.end(); ++read)
+		for (typename SCYTHE::Matrix<T>::const_row_major_Iterator read = B.begin(); read < B.end(); ++read)
 			*(write++) = *read;
 	
 		return C;
@@ -272,7 +268,7 @@ namespace SCYTHE {
   	}
 		Matrix<T> temp ((int) (0.5 * (A.size() - A.rows())) + A.rows(), 1,
 				false);
-		typename Matrix<T>::row_major_iterator iter = temp.begin();
+		typename SCYTHE::Matrix<T>::row_major_Iterator iter = temp.begin();
 		
 		for (int i = 0; i < A.rows(); ++i)
 			iter = copy(A.vecc(i) + i, A.vecc(i + 1), iter);
@@ -286,8 +282,8 @@ namespace SCYTHE {
 	Matrix<T>
 	xpnd(const Matrix<T> &A)
 	{
-		double newrowsize_d = -.5 + .5 * ::sqrt(1 + 8 * A.size());
-		if (fmod(newrowsize_d, 1.0) != 0.0)
+	  double newrowsize_d = -.5 + .5 * ::sqrt(1 + 8 * A.size());      
+	  if (std::fmod(newrowsize_d, 1.0) != 0.0)
 			throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__, __LINE__,
 					"Can't turn input vector into a square matrix");
 		
