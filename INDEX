@@ -1,0 +1,29 @@
+MP.pseudoinv            Work Function for 'smoothSurvReg', currently
+                        nowhere used. 
+a.to.c                  Work Function for 'smoothSurvReg' 
+c.to.a                  Work Function for 'smoothSurvReg' 
+derivative.cc3          Work Function for 'smoothSurvReg', currently
+                        nowhere used 
+derivative.expAD        Work Function for 'smoothSurvReg', currently
+                        nowhere used 
+extreme value           Density of the Extreme Value Distribution of a
+                        Minimum. 
+standardized logistic   Density of Standardized Logistic Distribution. 
+find.c                  Work Function for 'smoothSurvReg' 
+give.c                  Work Function for 'smoothSurvReg' 
+piece                   Left Continuous Piecewise Constant Function
+                        with a Finite Support. 
+plot.smoothSurvReg      Plot Objects of Class 'smoothSurvReg' 
+print.smoothSurvReg     Summary and Print for Objects of Class
+                        'smoothSurvReg' 
+residuals.smoothSurvReg
+                        Residuals for Objects of Class 'smoothSurvReg' 
+smoothSurvReg           Regression for a Survival Model with Smoothed
+                        Error Distribution 
+smoothSurvReg.control   More Options for 'smoothSurvReg' 
+smoothSurvReg.fit       Work Function to Fit the Model Using
+                        'smoothSurvReg' 
+smoothSurvReg.object    Smoothed Survival Regression Object 
+std.data                Standardization of the Data 
+survfit.smoothSurvReg   Survivor Curves for Objects of Class
+                        'smoothSurvReg' 
