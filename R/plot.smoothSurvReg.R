@@ -1,6 +1,6 @@
 ###########################################
 #### AUTHOR:    Arnost Komarek         ####
-####            (2003)                 ####
+####            02/05/2004             ####
 ####                                   ####
 #### FILE:      plot.smoothSurvReg.R   ####
 ####                                   ####
@@ -35,30 +35,20 @@
 ## ... ....... other arguments passed to 'plot' function
 ##
 ## RETURN: data.frame(x,y) to be used to produce the plot later on
-plot.smoothSurvReg <- function(x,
-                          plot = TRUE,
-                          resid = TRUE,
-                          knots = TRUE,
-                          compare = TRUE,
-                          components = FALSE,
-                          standard = TRUE,
-                          by = NULL,
-                          toler.c = 1e-5,
-                          xlim = NULL,
-                          ylim = NULL,
-                          xlab = expression(epsilon),
-                          ylab = expression(paste("f(",epsilon,")", sep = "")),
-                          type = "l",
-                          lty = 1,
-                          main = NULL,
-                          sub = NULL,
-                          bty = "n",
-                          ...)
+plot.smoothSurvReg <- 
+  function(x, plot = TRUE, resid = TRUE, knots = TRUE, compare = TRUE, 
+           components = FALSE, standard = TRUE, by, toler.c = 1e-5,
+           xlim, ylim, 
+           xlab = expression(epsilon), ylab = expression(paste("f(",epsilon,")", sep = "")),
+           type = "l", lty = 1, main, sub, bty = "n", ...)
 {
    if (x$fail >= 99){
         cat("No summary, smoothSurvReg failed.\n")
         return(invisible(x))
    }
+   is.intercept <- x$estimated["(Intercept)"]
+   common.logscale <- x$estimated["common.logscale"]
+   est.scale <- x$estimated["Scale"]
 
    if (compare && components) compare <- FALSE
    if (!standard){
@@ -73,39 +63,53 @@ plot.smoothSurvReg <- function(x,
    }
 
    ## Some fitted values
+   nbeta <- x$degree.smooth[1, "Mean param."]
+   nscale <- x$degree.smooth[1, "Scale param."]
+
    ccoef <- x$spline[["c coef."]]
-   knots <- x$spline$Knot
+   kknots <- x$spline$Knot
    sigma0 <- x$spline[["SD basis"]][1]
-   alpha <- x$adjust["(Intercept)","Value"]
-   sigma <- x$adjust["Scale","Value"]
    shift <- x$error.dist$Mean[1]
    scale <- x$error.dist$SD[1]
+   mu0 <- ifelse(is.intercept, x$regres["(Intercept)", "Value"], 0)
+   if (common.logscale){
+     if (est.scale) s0 <- x$regres["Scale", "Value"]
+     else           s0 <- x$init.regres["Scale", "Value"]
+   }
+   else{
+     regr.scale <- matrix(x$regres[(nbeta+1):(nbeta+nscale), "Value"], ncol = 1)
+     covar.scale <- matrix(rep(0, length(regr.scale)), ncol = 1)
+     if (rownames(x$regres)[nbeta+1] == "LScale.(Intercept)") covar.scale[1] <- 1
+     s0 <- (t(covar.scale) %*% regr.scale)[1]
+   }
+   alpha <- mu0 + (s0 * shift)
+   sigma <- s0 * scale
 
    ## Standardized density of the fitted distribution
    dfitted <- function(u){
-      normals <- scale*dnorm(scale*u + shift, mean = knots, sd = sigma0)
+      normals <- scale*dnorm(scale*u + shift, mean = kknots, sd = sigma0)
       value <- t(ccoef) %*% normals
       return(value)
    }
 
    ## Unstandardized density of the fitted distribution
    dfitted.un <- function(u){
-      normals <- (1/sigma)*dnorm((u - alpha)/sigma, mean = knots, sd = sigma0)
+      normals <- (1/s0)*dnorm((u - mu0)/s0, mean = kknots, sd = sigma0)
       value <- t(ccoef) %*% normals
       return(value)
    }
 
    ## xlim
    small.c <- ccoef < toler.c
-   if (is.null(xlim)){
-      knot.min <- min(knots[!small.c])
-      knot.max <- max(knots[!small.c])
+   if (missing(xlim)){
+      knot.min <- min(kknots[!small.c])
+      knot.max <- max(kknots[!small.c])
       if (standard) xlim <- c(knot.min - 3*sigma0, knot.max + 3*sigma0)
       else          xlim <- c(sigma*knot.min + alpha - 3*sigma0, sigma*knot.max + alpha + 3*sigma0)
    }
 
    ## y values
-   if (is.null(by)) by <- (xlim[2] - xlim[1])/100
+   if (missing(by)) by <- (xlim[2] - xlim[1])/100
    rooster <- seq(xlim[1], xlim[2], by = by)
    rooster2 <- matrix(rooster, ncol = 1)
    mean.extr <- -0.5772
@@ -123,7 +127,7 @@ plot.smoothSurvReg <- function(x,
 #   cat("Variance: "); print(vv[length(vv)])
 
    ## ylim
-   if (is.null(ylim)){
+   if (missing(ylim)){
       if (standard){
          ymax <- max(y.extreme, y.logis, y.normal, y.fitted) + 0.05
       }
@@ -135,7 +139,7 @@ plot.smoothSurvReg <- function(x,
 
 
    ## main
-   if (is.null(main)){
+   if (missing(main)){
       ll <- round(x$degree.smooth$Lambda, digits = 3)
       logll <- round(x$degree.smooth[, "Log(Lambda)"], digits = 3)
       main <- paste("Error distribution,   ", "Log(Lambda) = ", logll, sep="")
@@ -143,7 +147,7 @@ plot.smoothSurvReg <- function(x,
 
 
    ## sub
-   if (is.null(sub)){
+   if (missing(sub)){
       aic <- round(x$aic, digits = 3)
       df <- round(x$degree.smooth$df, digits = 2)
       nparam <- x$degree.smooth[["Number of parameters"]]
@@ -171,10 +175,10 @@ plot.smoothSurvReg <- function(x,
 
    ## Plot components
    if (plot && components){
-      rooster2 <- matrix(rep(rooster, length(knots)), nrow = length(knots), byrow = TRUE)
-      knots2 <- matrix(rep(knots, length(rooster)), ncol = length(rooster))
-      y.comp <- dnorm(rooster2, mean = knots2, sd = sigma0)
-      for (i in 1:length(knots)){
+      rooster2 <- matrix(rep(rooster, length(kknots)), nrow = length(kknots), byrow = TRUE)
+      kknots2 <- matrix(rep(kknots, length(rooster)), ncol = length(rooster))
+      y.comp <- dnorm(rooster2, mean = kknots2, sd = sigma0)
+      for (i in 1:length(kknots)){
          lines(rooster, ccoef[i]*y.comp[i,], lty = 2)
       }
    }
@@ -203,11 +207,11 @@ plot.smoothSurvReg <- function(x,
    }
 
    if (plot && knots){
-      if (!standard) knots <- sigma * knots + alpha
-      knots.plot <- knots[!small.c]
-      knots.plot <- knots.plot[knots.plot >= xlim[1] & knots.plot <= xlim[2]]
-      zero <- rep(ylim[1], length(knots.plot))
-      points(knots.plot, zero, pch = 19)
+      if (!standard) kknots <- sigma * kknots + alpha
+      kknots.plot <- kknots[!small.c]
+      kknots.plot <- kknots.plot[kknots.plot >= xlim[1] & kknots.plot <= xlim[2]]
+      zero <- rep(ylim[1], length(kknots.plot))
+      points(kknots.plot, zero, pch = 19)
    }
 
    to.return <- data.frame(x = rooster, y = y.fitted)

@@ -8,8 +8,8 @@
    Print a summary information of the fitted model.
 }
 \usage{
-print.smoothSurvReg(x, spline = NULL, digits = min(options()$digits, 4), \dots)
-summary.smoothSurvReg(object, spline = NULL, digits = min(options()$digits, 4), \dots)
+\method{print}{smoothSurvReg}(x, spline, digits = min(options()$digits, 4), \dots)
+\method{summary}{smoothSurvReg}(object, spline, digits = min(options()$digits, 4), \dots)
 }
 \arguments{
    \item{x, object}{

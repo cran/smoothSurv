@@ -1,18 +1,18 @@
 ###############################################
 #### AUTHOR:    Arnost Komarek             ####
-####            03/05/2004                 ####
+####            (2004)                     ####
 ####                                       ####
-#### FILE:      survfit.smoothSurvReg.R    ####
+#### FILE:      hazard.smoothSurvReg.R     ####
 ####                                       ####
-#### FUNCTIONS: survfit.smoothSurvReg      ####
+#### FUNCTIONS: hazard.smoothSurvReg       ####
 ###############################################
 
 ### ===================================================================================
-### survfit.smoothSurvReg: Compute survivor curves for objects of class 'smoothSurvReg'
+### hazard.smoothSurvReg: Compute hazard functions for objects of class 'smoothSurvReg'
 ### ===================================================================================
-## formula ... object of class 'smoothSurvReg' (name of the parameter is a little bit ambiguous
-##             but I have to call in this way due to compatibility with a generic function)
+## x ... object of class 'smoothSurvReg' 
 ## cov
+## time0 .... used when the model was log(T - t0) = alpha + beta'x + siga*epsilon
 ## plot
 ## cdf
 ## by
@@ -27,21 +27,23 @@
 ## legend
 ## bty
 ## ... ....... other parameters passed to plot function
-survfit.smoothSurvReg <- 
-  function(formula, cov, logscale.cov, time0 = 0, plot = TRUE, cdf = FALSE,
-           by, xlim, ylim = c(0, 1), xlab = "t", ylab, 
+hazard <- function(x, ...){
+  UseMethod("hazard")
+}  
+
+hazard.smoothSurvReg <-
+  function(x, cov, logscale.cov, time0 = 0, plot = TRUE,
+           by, xlim, ylim, xlab = "t", ylab = "h(t)", 
            type = "l", lty, main, sub, legend, bty = "n", ...)
 {
-   x <- formula
    if (x$fail >= 99){
-        cat("No survivor curve, smoothSurvReg failed.\n")
+        cat("No hazard functions, smoothSurvReg failed.\n")
         return(invisible(x))
    }
    is.intercept <- x$estimated["(Intercept)"]
    common.logscale <- x$estimated["common.logscale"]
    est.scale <- x$estimated["Scale"]
    allregrname <- row.names(x$regres)
-   
 
 ## INTERCEPT AND SCALE (if it is common)
 ## =====================================
@@ -50,7 +52,6 @@ survfit.smoothSurvReg <-
      if (est.scale) s0 <- x$regres["Scale", "Value"]
      else           s0 <- x$init.regres["Scale", "Value"]
    }
-
 
 ## COVARIATES FOR REGRESSION
 ## =========================
@@ -67,7 +68,6 @@ survfit.smoothSurvReg <-
    col.cov <- ifelse(is.null(dim(cov)),
                      ifelse(is.null(cov), 0, length(cov)),
                      dim(cov)[2])
-
 
  ## COVARIATES FOR LOG-SCALE
  ## ========================
@@ -92,7 +92,7 @@ survfit.smoothSurvReg <-
      logscale.row.cov <- row.cov
      logscale.col.cov <- 1
    }    
-   
+
 
 ## LINEAR PREDICTOR
 ## ================
@@ -136,8 +136,7 @@ survfit.smoothSurvReg <-
    }
    else{
      s0 <- rep(s0, row.cov)
-   }
-
+   }   
 
 ## COMPUTE DESIRED QUANTITIES
 ## ==========================            
@@ -155,10 +154,18 @@ survfit.smoothSurvReg <-
       return(value)
    }
 
+   ## Density function of the fitted error distribution
+   ## (density function of epsilon)
+   dfitted.un <- function(u){
+      normals <- dnorm(u, mean = knots, sd = sigma0)
+      value <- (t(ccoef) %*% normals)[1]
+      return(value)
+   }     
+
    ## Grid
    if (missing(xlim)){
       xmin <- time0
-      xmax <- exp(max(x$y[,1]))
+      xmax <- exp(max(x$y[,1])) + time0
       xlim <- c(xmin, xmax)
    }
    if (missing(by)){
@@ -174,17 +181,20 @@ survfit.smoothSurvReg <-
    s0s <- matrix(rep(s0, rep(length(grid), row.cov)), ncol = row.cov)
    grid2 <- matrix(rep(grid, row.cov), ncol = row.cov)
    grid2 <- (log(grid2 - time0) - etas) / s0s
-   Sfun <- list()
+   haz <- list()
    for (i in 1:row.cov){
       grid3 <- matrix(grid2[,i], ncol = 1)
-      Sfun[[i]] <- apply(grid3, 1, "sfitted.un")
-      if (cdf) Sfun[[i]] <- 1 - Sfun[[i]]
+      Sfun <- apply(grid3, 1, "sfitted.un")
+      dfun <- apply(grid3, 1, "dfitted.un")
+      Sfun[Sfun <= 0] <- NA
+      haz[[i]] <- (1/(grid - time0)) * (dfun/Sfun)
    }
 
-   ## ylab
-   if (missing(ylab))
-     if (cdf) ylab <- expression(paste("F(","t",")", sep = ""))
-     else     ylab <- expression(paste("S(","t",")", sep = ""))
+   ## ylim
+   if (missing(ylim)){
+     ymax <- max(sapply(haz, max, na.rm = TRUE), na.rm = TRUE)
+     ylim <- c(0, ymax)
+   }     
    
    ## lty
    if (missing(lty)){
@@ -192,9 +202,7 @@ survfit.smoothSurvReg <-
    }
 
    ## main and sub
-   if (missing(main)){
-      main <- ifelse(cdf, "Fitted Cum. Distribution Function", "Fitted Survivor Function")
-   }
+   if (missing(main)) main <- "Fitted Hazard"
    if (missing(sub)){
       aic <- round(x$aic, digits = 3)
       df <- round(x$degree.smooth$df, digits = 2)
@@ -204,31 +212,33 @@ survfit.smoothSurvReg <-
 
    ## Plot it
    if (plot){
-      plot(grid, Sfun[[1]],
+      plot(grid, haz[[1]],
            type = type, lty = lty[1], ylim = ylim, xlab = xlab, ylab = ylab, bty = bty, ...)
       title(main = main, sub = sub)
       if (row.cov > 1){
          for (i in 2:row.cov){
-            lines(grid, Sfun[[i]], lty = lty[i])
+            lines(grid, haz[[i]], lty = lty[i])
          }
       }
       leg <- numeric(2)
-      leg[1] <- ifelse(cdf, xlim[1], xlim[2])
+      leg[1] <- xlim[1]
       leg[2] <- ylim[2]
       legjust <- numeric(2)
-      legjust[1] <- ifelse(cdf, 0, 1)
+      legjust[1] <- 0
       legjust[2] <- 1
       if (missing(legend)) legend <- paste("cov", 1:row.cov, sep = "")
       legend(leg[1], leg[2], legend = legend, lty = lty, bty = "n", xjust = legjust[1], yjust = legjust[2])
    }
-   to.return <- data.frame(grid, Sfun[[1]])
+   to.return <- data.frame(grid, haz[[1]])
    if (row.cov > 1)
    for (i in 2:row.cov){
-      to.return <- cbind(to.return, Sfun[[i]])
+      to.return <- cbind(to.return, haz[[i]])
    }
    names(to.return) <- c("x", paste("y", 1:row.cov, sep = ""))
 
    if (plot) return(invisible(to.return))
    else      return(to.return)
-}
+}   
+
+
 

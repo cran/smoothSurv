@@ -30,4 +30,5 @@ Consequently, it has very few error checks on its input arguments.
 \author{
   \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
 }
+\keyword{internal}
 \keyword{utilities}

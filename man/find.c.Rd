@@ -57,4 +57,5 @@ plot(grid, approx, type = "l", xlab = "y", ylab = "f(y)", bty = "n")
 lines(grid, truth, lty = 2)
 legend(-4, 0.35, c("approx", "truth"), lty = 1:2, bty = "n")
 }
+\keyword{internal}
 \keyword{utilities}

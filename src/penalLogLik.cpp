@@ -1,4 +1,4 @@
-// SUBROUTINES FOR smoothSurvReg83 function
+// SUBROUTINES FOR smoothSurvReg84 function
 // ========================================
 
 // This code written by:
@@ -37,10 +37,10 @@
 // =================================================================
 
 // INPUT:
-//     Theta ......... current value of all parameters (beta, log(scale), d_1, ..., d_{g-3})
+//     Theta ......... current value of all parameters (beta, log(scale) pars., d_1, ..., d_{g-3})
 //
 //     what .......... what types of derivatives are to be computed
-//               1 = only w.r.t. beta and log(scale)
+//               1 = only w.r.t. beta and log(scale) pars.
 //               2 = only w.r.t. (d_1, ..., d_{g-3})'
 //                              or (a_1, ..., a_{g-1})'
 //               3 = joint
@@ -89,6 +89,7 @@ using namespace SCYTHE;
               nTheta,                   // number of all parameters to be really estimated
               nThetaSq,                 // nTheta^2
               nBeta,                    // number of columns in X matrix (number of beta parameters to be estimated)
+              nGamma,                   // number of columns in Z matrix (number of s parameters to be estimated)
               nScale,                   // number of scale parameters to be estimated (either 1 or 0)
               nRegres,                  // nBeta + nScale
               nD,                       // number of a coefficients to be estimated (either g-3 or g-1 or 0)
@@ -113,6 +114,7 @@ using namespace SCYTHE;
    extern Matrix<double> resp1Mat,         // response (exact, right censored or lower limit)  n x 1
                          resp2Mat,         // upper limit of response for interval censored data  n x 1
                          XMat,             // design matrix (covariates)  n x nBeta
+                         ZMat,             // design matrix (covariates) for log(scale) n x nGamma
                          offset;           // offset vector n x 1
 
   // Matrices and vectors used in Newton-Raphson steps
@@ -192,12 +194,14 @@ penalLogLik(const Matrix<double> & Theta,
    int person;            // variable for 'for' loop
 
 
-// EXTRACT BETA, LOG(SCALE), D'S FROM THE VECTOR OF PARAMETERS
-// ============================================================
+// EXTRACT BETA, LOG(SCALE) PARS., D'S FROM THE VECTOR OF PARAMETERS
+// ==================================================================
    Matrix<double> Beta, Gamma, Dcoef;
-   Beta = Theta(0, 0, nBeta - 1, 0);
-   if (estScale) Gamma = Theta(nBeta, 0, nBeta, 0);
-   else          Gamma = GammaGlobal;
+   if (n > 0){
+     Beta = Theta(0, 0, nBeta - 1, 0);
+     if (estScale) Gamma = Theta(nBeta, 0, nBeta + nGamma - 1, 0);
+     else          Gamma = GammaGlobal;
+   }
    if (estA){
       Dcoef = Theta(nBeta+nScale, 0, nBeta+nScale+nD-1, 0);
    }
@@ -233,7 +237,6 @@ penalLogLik(const Matrix<double> & Theta,
 
 // VARIOUS DERIVATIVES OF C'S, A'S and D'S
 // ===========================================
-
    if (estA && (derivOrder > 0) && (what != 1)){
 
       if (useD){
@@ -294,20 +297,9 @@ penalLogLik(const Matrix<double> & Theta,
    }
 
    // Values
-   logLikelihood = correctLik;                        // not zero but the correction factor
+   logLikelihood = (n > 0) ? correctLik : 0;                        // not zero but the correction factor (if there are some data)
    penalty = 0;
 
-
-// REGRESSION VARIABLES
-// =====================
-   double scale = exp(Gamma[0]);                      // scale
-   Matrix<double> eta = XMat * Beta + offset;         // linear predictor  (n x 1)
-   Matrix<double> w1Mat = (resp1Mat - eta)/scale;     // censored residuals (or lower limits of residuals in interval censored case) (n x 1)
-   double ss0 = 1 / (scale*sigmaZero);
-   double s2s02 = ss0 * ss0;
-   double s0 = invsigmaZero;
-   double s02 = s0 * s0;
-   double ss02 = (1 / scale) * s02;
 
 // **********************************************************************************
 // PENALTY TERM AND ITS DERIVATIVES
@@ -355,10 +347,16 @@ penalLogLik(const Matrix<double> & Theta,
 
    // Add appropriate values to UMat or UMatD and to GMat
       if (what == 3){
-         UMat = rbind(UMatUP, dQD);
-         if (derivOrder > 1){
-            GMat = cbind(GMatLEFT, rbind(GMatUP, Gaa));
-            HMat = GMat;
+	 if (n > 0){ 
+            UMat = rbind(UMatUP, dQD);
+            if (derivOrder > 1){
+               GMat = cbind(GMatLEFT, rbind(GMatUP, Gaa));
+               HMat = GMat;
+            }
+	 }
+         else{
+           UMat = dQD;
+           if (derivOrder > 1) HMat = Gaa;
          }
       }
       else{   // what == 2
@@ -372,436 +370,455 @@ penalLogLik(const Matrix<double> & Theta,
 // UNPENALIZED LOG-LIKELIHOOD AND ITS DERIVATIVES
 // ==============================================
 
- // Variables used in the loop over persons,
- //   variables used for interval censored observations have "subscript" 2
-   double loglperson = 0.0;          // personal contribution to log(likelihood)
-   Matrix<double> xvec;              // personal covariates
+   if (n > 0){
 
-   double w1, w2;                        // censored residuals w1 = lower limit = (y1 - eta)/sigma
-   Matrix<double> wm1, wm2,              // personal (w1[i] - knot[j])/sigma0 (g x 1)
-                  phiwm1, phiwm2,        // personal phi(wm1) (g x 1)
-                  phiwmDot1, phiwmDot2,  // personal wm1 & phi(wm1) (g x 1)
-                  phiwmDotDot1,          // personal (wm1*wm1 - 1) & phi(wm1) (g x 1)
-                  Swm1, Swm2,            // personal S(wm1) or (F(wm1) for left censored obs.) (g x 1)
-                  deltaSwm;              // personal S(wm1) - S(wm2) for interval censored observations
-   double fw1, fw2,                      // personal sigma0 * f(w1)
-          fwDot1, fwDot2,                // personal -sigma0^2 * f'(w1)
-          fwDotDot1,                     // personal sigma0^3 * f''(w1)
-          Sw1;                           // personal S(w1) or F(wm1) for left censored observation
-   double deltaS;                        // personal S(w1) - S(w2) for interval censored obs.
-   double dratio,                        // ratio involved in db, dg
-          ddratio,                       // ratio involved in ddbb, ddgg, ddbg
-          invDensity;                    // inversion of either density or survivor or PDF or deltaS
-   Matrix<double> vec_bg, vec_bg2;
+   // REGRESSION VARIABLES
+   // =====================
+      Matrix<double> scale, logscale;
+      if (estScale) logscale = ZMat * Gamma;
+      else          logscale = Matrix<double>(n, 1, true, Gamma[0]);
+      scale = exp(logscale);
+      Matrix<double> eta = XMat * Beta + offset;       // linear predictor  (n x 1)
+      Matrix<double> w1Mat = (resp1Mat - eta)/scale;   // censored residuals (or lower limits of residuals in interval censored case) (n x 1)
+      Matrix<double> ss0 = 1 / (scale*sigmaZero);
+      Matrix<double> s2s02 = ss0 & ss0;
+      double s0 = invsigmaZero;
+      double s02 = s0 * s0;
+      Matrix<double> ss02 = (1 / scale) * s02;
 
- // Components to store derivatives
- // d** and D** stuff changes over persons
- // U** and I** stuff sums over persons
-   double db, dg, ddbb, ddgg, ddbg;
-   double semidg = 0.0;
-   Matrix<double> Db, Da,
-                  DDba, DDga, DDaa1, DDaa2,
-                  Ubeta, Ugamma, Ibb, Ibg, Igg,
-                  Ua, Iaa, Iba, Iga;
+    // Variables used in the loop over persons,
+    //   variables used for interval censored observations have "subscript" 2
+      double loglperson = 0.0;          // personal contribution to log(likelihood)
+      Matrix<double> xvec;              // personal regression covariates
+      Matrix<double> zvec;              // personal covariates for log(sigma)
 
+      double w1, w2;                        // censored residuals w1 = lower limit = (y1 - eta)/sigma
+      Matrix<double> wm1, wm2,              // personal (w1[i] - knot[j])/sigma0 (g x 1)
+                     phiwm1, phiwm2,        // personal phi(wm1) (g x 1)
+                     phiwmDot1, phiwmDot2,  // personal wm1 & phi(wm1) (g x 1)
+                     phiwmDotDot1,          // personal (wm1*wm1 - 1) & phi(wm1) (g x 1)
+                     Swm1, Swm2,            // personal S(wm1) or (F(wm1) for left censored obs.) (g x 1)
+                     deltaSwm;              // personal S(wm1) - S(wm2) for interval censored observations
+      double fw1, fw2,                      // personal sigma0 * f(w1)
+             fwDot1, fwDot2,                // personal -sigma0^2 * f'(w1)
+             fwDotDot1,                     // personal sigma0^3 * f''(w1)
+             Sw1;                           // personal S(w1) or F(wm1) for left censored observation
+      double deltaS;                        // personal S(w1) - S(w2) for interval censored obs.
+      double dratio,                        // ratio involved in db, dg
+             ddratio,                       // ratio involved in ddbb, ddgg, ddbg
+             invDensity;                    // inversion of either density or survivor or PDF or deltaS
+      Matrix<double> vec_bg, vec_bg2;
 
- // Initialize by zeros these which will be summed up.
- //   Some of them may not be used (if what != 3 or derivOrder < 2)
- //   but initialization does not take almost any time and memory.
-   if (derivOrder > 0){
-      Ubeta = Matrix<double>(nBeta, 1, true, 0.0);
-      Ibb = Matrix<double>(nBeta, nBeta, true, 0.0);
-      if (estScale){
-         Ugamma = Matrix<double>(1, 1, true, 0.0);
-         Igg = Matrix<double>(1, 1, true, 0.0);
-         Ibg = Matrix<double>(nBeta, 1, true, 0.0);
-      }
-      if (estA){
-         Ua = Matrix<double>(nD, 1, true, 0.0);
-         Iaa = Matrix<double>(nD, nD, true, 0.0);
-         Iba = Matrix<double>(nBeta, nD, true, 0.0);
-      }
-      if (estScale && estA){
-         Iga = Matrix<double>(1, nD, true, 0.0);
-      }
-   }
+    // Components to store derivatives
+    // d** and D** stuff changes over persons
+    // U** and I** stuff sums over persons
+      double db, dg, ddbb, ddgg, ddbg;
+      double semidg = 0.0;
+      Matrix<double> Db, Da,
+                     DDba, DDga, DDaa1, DDaa2,
+                     Ubeta, Ugamma, Ibb, Ibg, Igg,
+                     Ua, Iaa, Iba, Iga;
 
- // Helping matrices
- // Matrix ww1(i, j) = w1[i]
-   Matrix<double> ww1 = w1Mat;
-   for(j = 1; j < nSplines; j++){        // create a matrix with g columns equal to w1, matrix (n x g)
-      ww1 = cbind(ww1, w1Mat);
-   }
- // Matrix mm(i, j) = knot[j]
-   Matrix<double> mm = t(knotsMat);
-   for(i = 1; i < n; i++){               // create a matrix with n rows equal to knots, matrix (n x g)
-      mm = rbind(mm, t(knotsMat));
-   }
-
- // Following quantities are used for all possible censoring patterns
-   Matrix<double> wm1Mat = (ww1 - mm)/sigmaZero;        // matrix (n x g), wm1Mat(i, j) = (w1[i] - mu[j]) / sigma0
-
- // Loop over persons to compute derivatives and likelihood contributions
-   for (person = 0; person < n; person++) {
-      xvec = t(XMat(person, 0, person, nBeta - 1));                 // covariate values for given person, vector (nBeta x 1)
-      w1 = w1Mat[person];                                           // residual
-      wm1 = t(wm1Mat(person, 0, person, nSplines - 1));             // (w1 - knots) / sigmaZero   (nknots x 1)
-
-      switch(statusMat[person]) {
-
-         // == exact observation ==
-         // **************************
-         case 1:
-             phiwm1 = fnorm(wm1);
-             fw1 = (tCcoef * phiwm1)[0];
-             if (fw1 <= 0){
-                 logLikelihood = -FLT_MAX;
-                 return -FLT_MAX;
-             }
-//             if (fw1 <= 0) fw1 = ZERO;
-             loglperson = -Gamma[0] + log(fw1) - logsigmaZero;
-
-             if (derivOrder > 0){
-                if ((what == 1) || (what == 3)){
-                   phiwmDot1 = wm1 & phiwm1;
-                   fwDot1 = (tCcoef * phiwmDot1)[0];
-                   dratio = fwDot1 / fw1;
-
-                   db = ss0 * dratio;
-                   Db = db * xvec;
-                   if (estScale){
-                      semidg = s0 * w1 * dratio;
-                      dg = -1 + semidg;
-                   }
-
-                   if (derivOrder > 1){
-                      phiwmDotDot1 = ((wm1 & wm1) - 1.0) & phiwm1;
-                      fwDotDot1 = (tCcoef * phiwmDotDot1)[0];
-                      ddratio = fwDotDot1 / fw1;
-
-                      ddbb = s2s02 * ddratio - (db * db);
-                      if (estScale){
-                         ddgg = s02 * w1 * w1 * ddratio - semidg * (1 + semidg);
-                         ddbg = ss02 * w1 * ddratio - db * (1 + semidg);
-                      }
-                   }
-                }
-
-                if (((what == 2) || (what == 3)) && estA){
-                   invDensity = 1 / fw1;
-                   Da = invDensity * dCdD * phiwm1;
-
-                   if (derivOrder > 1){
-                      DDaa1 = -Da * t(Da);
-                      DDaa2 = phiwm1[0] * ddCdDD[0];
-                      for (k = 1; k < nSplines; k++)
-                         DDaa2 += phiwm1[k] * ddCdDD[k];
-                      DDaa2 *= invDensity;
-                   }
-                }
-
-                if ((what == 3) && estA && (derivOrder > 1)){
-                   vec_bg = invDensity * t(dCdD * phiwmDot1);
-                   DDba = -Db * t(Da) + ss0 * xvec * vec_bg;
-                   if (estScale)
-                      DDga = -semidg * t(Da) + s0 * w1 * vec_bg;
-                }
-             }
-         break;
-
-         // === right censored observation ==
-         // ***********************************
-         case 0:
-             Swm1 = Snorm(wm1);
-             Sw1 = (tCcoef * Swm1)[0];
-             if (Sw1 <= 0){
-                 logLikelihood = -FLT_MAX;
-                 return -FLT_MAX;
-             }
-//             if (Sw1 <= 0) Sw1 = ZERO;
-             loglperson = log(Sw1);
-
-             if (derivOrder > 0){
-                if ((what == 1) || (what == 3)){
-                   phiwm1 = fnorm(wm1);
-                   fw1 = (tCcoef * phiwm1)[0];
-                   dratio = fw1 / Sw1;
-
-                   db = ss0 * dratio;
-                   Db = db * xvec;
-                   if (estScale){
-                      dg = s0 * w1 * dratio;
-                   }
-
-                   if (derivOrder > 1){
-                      phiwmDot1 = wm1 & phiwm1;
-                      fwDot1 = (tCcoef * phiwmDot1)[0];
-                      ddratio = fwDot1 / Sw1;
-
-                      ddbb = s2s02 * ddratio - (db * db);
-                      if (estScale){
-                         ddgg = s02 * w1 * w1 * ddratio - dg * (1 + dg);
-                         ddbg = ss02 * w1 * ddratio - db * (1 + dg);
-                      }
-                   }
-                }
-
-                if (((what == 2) || (what == 3)) && estA){
-                   invDensity = 1 / Sw1;
-                   Da = invDensity * dCdD * Swm1;
-
-                   if (derivOrder > 1){
-                      DDaa1 = -Da * t(Da);
-                      DDaa2 = Swm1[0] * ddCdDD[0];
-                      for (k = 1; k < nSplines; k++)
-                         DDaa2 += Swm1[k] * ddCdDD[k];
-                      DDaa2 *= invDensity;
-                   }
-                }
-
-                if ((what == 3) && estA && (derivOrder > 1)){
-                   vec_bg = invDensity * t(dCdD * phiwm1);
-                   DDba = -Db * t(Da) + ss0 * xvec * vec_bg;
-                   if (estScale)
-                      DDga = -dg * t(Da) + s0 * w1 * vec_bg;
-                }
-             }
-         break;
-
-         // === left censored observation ==
-         // ***********************************
-         case 2:
-             Swm1 = Fnorm(wm1);
-             Sw1 = (tCcoef * Swm1)[0];
-
-             if (Sw1 <= 0){
-                logLikelihood = -FLT_MAX;
-                return -FLT_MAX;
-             }
-//             if (Sw1 <= 0) Sw1 = ZERO;
-             loglperson = log(Sw1);
-
-             if (derivOrder > 0){
-                if ((what == 1) || (what == 3)){
-                   phiwm1 = fnorm(wm1);
-                   fw1 = (tCcoef * phiwm1)[0];
-                   dratio = -(fw1 / Sw1);
-
-                   db = ss0 * dratio;
-                   Db = db * xvec;
-                   if (estScale){
-                      dg = s0 * w1 * dratio;
-                   }
-
-                   if (derivOrder > 1){
-                      phiwmDot1 = wm1 & phiwm1;
-                      fwDot1 = (tCcoef * phiwmDot1)[0];
-                      ddratio = -(fwDot1 / Sw1);
-
-                      ddbb = s2s02 * ddratio - (db * db);
-                      if (estScale){
-                         ddgg = s02 * w1 * w1 * ddratio - dg * (1 + dg);
-                         ddbg = ss02 * w1 * ddratio - db * (1 + dg);
-                      }
-                   }
-                }
-
-                if (((what == 2) || (what == 3)) && estA){
-                   invDensity = 1 / Sw1;
-                   Da = invDensity * dCdD * Swm1;
-
-                   if (derivOrder > 1){
-                      DDaa1 = -Da * t(Da);
-                      DDaa2 = Swm1[0] * ddCdDD[0];
-                      for (k = 1; k < nSplines; k++)
-                         DDaa2 += Swm1[k] * ddCdDD[k];
-                      DDaa2 *= invDensity;
-                   }
-                }
-
-                if ((what == 3) && estA && (derivOrder > 1)){
-                   vec_bg = invDensity * t(dCdD * phiwm1);
-                   DDba = -Db * t(Da) - ss0 * xvec * vec_bg;
-                   if (estScale)
-                      DDga = -dg * t(Da) - s0 * w1 * vec_bg;
-                }
-             }
-         break;
-
-         // === interval censored observation ==
-         // ***********************************
-         case 3:
-             Swm1 = Snorm(wm1);
-             w2 = (resp2Mat[person] - eta[person])/scale;        // upper censored residual
-             wm2 = (w2 - knotsMat)/sigmaZero;                    // vector (g x 1)
-             Swm2 = Snorm(wm2);
-             deltaSwm = Swm1 - Swm2;                            // vector (g x 1)
-             deltaS = (tCcoef * deltaSwm)[0];
-             if (deltaS <= 0){
-                logLikelihood = -FLT_MAX;
-                return -FLT_MAX;
-             }
-//             if (deltaS <= 0) deltaS = ZERO;
-             loglperson = log(deltaS);
-
-             if (derivOrder > 0){
-                if ((what == 1) || (what == 3)){
-                   phiwm1 = fnorm(wm1);
-                   fw1 = (tCcoef * phiwm1)[0];
-                   phiwm2 = fnormZero(wm2);                            // vector (g x 1)
-                   fw2 = (tCcoef * phiwm2)[0];
-
-                   db = ss0 * ((fw1 -fw2)/deltaS);
-                   Db = db * xvec;
-                   if (estScale){
-                      dg = s0 * ((w1*fw1 - w2*fw2)/deltaS);
-                   }
-
-                   if (derivOrder > 1){
-                      phiwmDot1 = wm1 & phiwm1;
-                      fwDot1 = (tCcoef * phiwmDot1)[0];
-                      phiwmDot2 = wm2 & phiwm2;                           // vector (g x 1)
-                      fwDot2 = (tCcoef * phiwmDot2)[0];
-
-                      ddbb = s2s02 * ((fwDot1-fwDot2)/deltaS) - (db * db);
-                      if (estScale){
-                         ddgg = s02 * ((w1*w1*fwDot1 - w2*w2*fwDot2)/deltaS) - dg * (1 + dg);
-                         ddbg = ss02 * ((w1*fwDot1 - w2*fwDot2)/deltaS) - db * (1 + dg);
-                      }
-                   }
-                }
-
-                if (((what == 2) || (what == 3)) && estA){
-                   invDensity = 1 / deltaS;
-                   Da = invDensity * dCdD * deltaSwm;
-
-                   if (derivOrder > 1){
-                      DDaa1 = -Da * t(Da);
-                      DDaa2 = deltaSwm[0] * ddCdDD[0];
-                      for (k = 1; k < nSplines; k++)
-                         DDaa2 += deltaSwm[k] * ddCdDD[k];
-                      DDaa2 *= invDensity;
-                   }
-                }
-
-                if ((what == 3) && estA && (derivOrder > 1)){
-                   vec_bg = invDensity * t(dCdD * phiwm1);
-                   vec_bg2 = invDensity * t(dCdD * phiwm2);
-                   DDba = -Db * t(Da) + ss0 * xvec * (vec_bg - vec_bg2);
-                   if (estScale)
-                      DDga = -dg * t(Da) + s0 * (w1*vec_bg - w2*vec_bg2);
-                }
-             }
-         break;
-
-      }   // end of switch(statusMat[person])
-
-
-      // add the value
-      logLikelihood += loglperson;
-
-      // add the first derivatives
+    // Initialize by zeros these which will be summed up.
+    //   Some of them may not be used (if what != 3 or derivOrder < 2)
+    //   but initialization does not take almost any time and memory.
       if (derivOrder > 0){
-         if ((what == 1) || (what == 3)){
-            Ubeta += Db;
-            if (estScale) Ugamma += dg;
+         Ubeta = Matrix<double>(nBeta, 1, true, 0.0);
+         Ibb = Matrix<double>(nBeta, nBeta, true, 0.0);
+         if (estScale){
+            Ugamma = Matrix<double>(nGamma, 1, true, 0.0);
+            Igg = Matrix<double>(nGamma, nGamma, true, 0.0);
+            Ibg = Matrix<double>(nBeta, nGamma, true, 0.0);
          }
-         if (((what == 2) || (what == 3)) && estA) Ua += Da;
+         if (estA){
+            Ua = Matrix<double>(nD, 1, true, 0.0);
+            Iaa = Matrix<double>(nD, nD, true, 0.0);
+            Iba = Matrix<double>(nBeta, nD, true, 0.0);
+         }
+         if (estScale && estA){
+            Iga = Matrix<double>(nGamma, nD, true, 0.0);
+         }
       }
 
-      // add the second derivatives
-      if (derivOrder > 1){
-         if ((what == 1) || (what == 3)){
-            Ibb -= ddbb * xvec * t(xvec);
-            if (estScale){
-               Igg -= ddgg;
-               Ibg -= ddbg * xvec;
+    // Helping matrices
+    // Matrix ww1(i, j) = w1[i]
+      Matrix<double> ww1 = w1Mat;
+      for(j = 1; j < nSplines; j++){        // create a matrix with g columns equal to w1, matrix (n x g)
+         ww1 = cbind(ww1, w1Mat);
+      }
+
+    // Matrix mm(i, j) = knot[j]
+      Matrix<double> mm = t(knotsMat);
+      for(i = 1; i < n; i++){               // create a matrix with n rows equal to knots, matrix (n x g)
+        mm = rbind(mm, t(knotsMat));
+      }
+
+    // Following quantities are used for all possible censoring patterns
+      Matrix<double> wm1Mat = (ww1 - mm)/sigmaZero;        // matrix (n x g), wm1Mat(i, j) = (w1[i] - mu[j]) / sigma0
+
+    // Loop over persons to compute derivatives and likelihood contributions
+      for (person = 0; person < n; person++) {
+         xvec = t(XMat(person, 0, person, nBeta - 1));                 // covariate values for given person, vector (nBeta x 1)
+         if (estScale) zvec = t(ZMat(person, 0, person, nGamma - 1));
+         w1 = w1Mat[person];                                           // residual
+         wm1 = t(wm1Mat(person, 0, person, nSplines - 1));             // (w1 - knots) / sigmaZero   (nknots x 1)
+
+         switch(statusMat[person]) {
+  
+            // == exact observation ==
+            // **************************
+            case 1:
+                phiwm1 = fnorm(wm1);
+                fw1 = (tCcoef * phiwm1)[0];
+                if (fw1 <= 0){
+                    logLikelihood = -FLT_MAX;
+                    return -FLT_MAX;
+                }
+//                if (fw1 <= 0) fw1 = ZERO;
+                loglperson = -logscale[0] + log(fw1) - logsigmaZero;
+
+                if (derivOrder > 0){
+                   if ((what == 1) || (what == 3)){
+                      phiwmDot1 = wm1 & phiwm1;
+                      fwDot1 = (tCcoef * phiwmDot1)[0];
+                      dratio = fwDot1 / fw1;
+
+                      db = ss0[person] * dratio;
+                      Db = db * xvec;
+                      if (estScale){
+                         semidg = s0 * w1 * dratio;
+                         dg = -1 + semidg;
+                      }
+
+                      if (derivOrder > 1){
+                         phiwmDotDot1 = ((wm1 & wm1) - 1.0) & phiwm1;
+                         fwDotDot1 = (tCcoef * phiwmDotDot1)[0];
+                         ddratio = fwDotDot1 / fw1;
+
+                         ddbb = s2s02[person] * ddratio - (db * db);
+                         if (estScale){
+                            ddgg = s02 * w1 * w1 * ddratio - semidg * (1 + semidg);
+                            ddbg = ss02[person] * w1 * ddratio - db * (1 + semidg);
+                         }
+                      }
+                   }
+ 
+                   if (((what == 2) || (what == 3)) && estA){
+                      invDensity = 1 / fw1;
+                      Da = invDensity * dCdD * phiwm1;
+
+                      if (derivOrder > 1){
+                         DDaa1 = -Da * t(Da);
+                         DDaa2 = phiwm1[0] * ddCdDD[0];
+                         for (k = 1; k < nSplines; k++)
+                            DDaa2 += phiwm1[k] * ddCdDD[k];
+                         DDaa2 *= invDensity;
+                      }
+                   }
+
+                   if ((what == 3) && estA && (derivOrder > 1)){
+                      vec_bg = invDensity * t(dCdD * phiwmDot1);
+                      DDba = -Db * t(Da) + ss0[person] * xvec * vec_bg;
+                      if (estScale)
+                         DDga = -semidg * t(Da) + s0 * w1 * vec_bg;
+                   }
+                }
+            break;
+
+            // === right censored observation ==
+            // ***********************************
+            case 0:
+                Swm1 = Snorm(wm1);
+                Sw1 = (tCcoef * Swm1)[0];
+                if (Sw1 <= 0){
+                    logLikelihood = -FLT_MAX;
+                    return -FLT_MAX;
+                }
+//                if (Sw1 <= 0) Sw1 = ZERO;
+                loglperson = log(Sw1);
+
+                if (derivOrder > 0){
+                   if ((what == 1) || (what == 3)){
+                      phiwm1 = fnorm(wm1);
+                      fw1 = (tCcoef * phiwm1)[0];
+                      dratio = fw1 / Sw1;
+
+                      db = ss0[person] * dratio;
+                      Db = db * xvec;
+                      if (estScale){
+                         dg = s0 * w1 * dratio;
+                      }
+
+                      if (derivOrder > 1){
+                         phiwmDot1 = wm1 & phiwm1;
+                         fwDot1 = (tCcoef * phiwmDot1)[0];
+                         ddratio = fwDot1 / Sw1;
+
+                         ddbb = s2s02[person] * ddratio - (db * db);
+                         if (estScale){
+                            ddgg = s02 * w1 * w1 * ddratio - dg * (1 + dg);
+                            ddbg = ss02[person] * w1 * ddratio - db * (1 + dg);
+                         }
+                      }
+                   }
+
+                   if (((what == 2) || (what == 3)) && estA){
+                      invDensity = 1 / Sw1;
+                      Da = invDensity * dCdD * Swm1;
+
+                      if (derivOrder > 1){
+                         DDaa1 = -Da * t(Da);
+                         DDaa2 = Swm1[0] * ddCdDD[0];
+                         for (k = 1; k < nSplines; k++)
+                            DDaa2 += Swm1[k] * ddCdDD[k];
+                         DDaa2 *= invDensity;
+                      }
+                   }
+
+                   if ((what == 3) && estA && (derivOrder > 1)){
+                      vec_bg = invDensity * t(dCdD * phiwm1);
+                      DDba = -Db * t(Da) + ss0[person] * xvec * vec_bg;
+                      if (estScale)
+                         DDga = -dg * t(Da) + s0 * w1 * vec_bg;
+                   }
+                }
+            break;
+
+            // === left censored observation ==
+            // ***********************************
+            case 2:
+                Swm1 = Fnorm(wm1);
+                Sw1 = (tCcoef * Swm1)[0];
+
+                if (Sw1 <= 0){
+                   logLikelihood = -FLT_MAX;
+                   return -FLT_MAX;
+                }
+//                if (Sw1 <= 0) Sw1 = ZERO;
+                loglperson = log(Sw1);
+  
+                if (derivOrder > 0){
+                   if ((what == 1) || (what == 3)){
+                      phiwm1 = fnorm(wm1);
+                      fw1 = (tCcoef * phiwm1)[0];
+                      dratio = -(fw1 / Sw1);
+
+                      db = ss0[person] * dratio;
+                      Db = db * xvec;
+                      if (estScale){
+                         dg = s0 * w1 * dratio;
+                      }
+
+                      if (derivOrder > 1){
+                         phiwmDot1 = wm1 & phiwm1;
+                         fwDot1 = (tCcoef * phiwmDot1)[0];
+                         ddratio = -(fwDot1 / Sw1);
+
+                         ddbb = s2s02[person] * ddratio - (db * db);
+                         if (estScale){
+                            ddgg = s02 * w1 * w1 * ddratio - dg * (1 + dg);
+                            ddbg = ss02[person] * w1 * ddratio - db * (1 + dg);
+                         }
+                      }
+                   }
+  
+                   if (((what == 2) || (what == 3)) && estA){
+                      invDensity = 1 / Sw1;
+                      Da = invDensity * dCdD * Swm1;
+
+                      if (derivOrder > 1){
+                         DDaa1 = -Da * t(Da);
+                         DDaa2 = Swm1[0] * ddCdDD[0];
+                         for (k = 1; k < nSplines; k++)
+                            DDaa2 += Swm1[k] * ddCdDD[k];
+                         DDaa2 *= invDensity;
+                      }
+                   }
+
+                   if ((what == 3) && estA && (derivOrder > 1)){
+                      vec_bg = invDensity * t(dCdD * phiwm1);
+                      DDba = -Db * t(Da) - ss0[person] * xvec * vec_bg;
+                      if (estScale)
+                         DDga = -dg * t(Da) - s0 * w1 * vec_bg;
+                   }
+                }
+            break;
+
+            // === interval censored observation ==
+            // ***********************************
+            case 3:
+                Swm1 = Snorm(wm1);
+                w2 = (resp2Mat[person] - eta[person])/scale[person]; // upper censored residual
+                wm2 = (w2 - knotsMat)/sigmaZero;                     // vector (g x 1)
+                Swm2 = Snorm(wm2);
+                deltaSwm = Swm1 - Swm2;                              // vector (g x 1)
+                deltaS = (tCcoef * deltaSwm)[0];
+                if (deltaS <= 0){
+                   logLikelihood = -FLT_MAX;
+                   return -FLT_MAX;
+                }
+//                if (deltaS <= 0) deltaS = ZERO;
+                loglperson = log(deltaS);
+
+                if (derivOrder > 0){
+                   if ((what == 1) || (what == 3)){
+                      phiwm1 = fnorm(wm1);
+                      fw1 = (tCcoef * phiwm1)[0];
+                      phiwm2 = fnormZero(wm2);                            // vector (g x 1)
+                      fw2 = (tCcoef * phiwm2)[0];
+
+                      db = ss0[person] * ((fw1 -fw2)/deltaS);
+                      Db = db * xvec;
+                      if (estScale){
+                         dg = s0 * ((w1*fw1 - w2*fw2)/deltaS);
+                      }
+
+                      if (derivOrder > 1){
+                         phiwmDot1 = wm1 & phiwm1;
+                         fwDot1 = (tCcoef * phiwmDot1)[0];
+                         phiwmDot2 = wm2 & phiwm2;                           // vector (g x 1)
+                         fwDot2 = (tCcoef * phiwmDot2)[0];
+
+                         ddbb = s2s02[person] * ((fwDot1-fwDot2)/deltaS) - (db * db);
+                         if (estScale){
+                            ddgg = s02 * ((w1*w1*fwDot1 - w2*w2*fwDot2)/deltaS) - dg * (1 + dg);
+                            ddbg = ss02[person] * ((w1*fwDot1 - w2*fwDot2)/deltaS) - db * (1 + dg);
+                         }
+                      }
+                   }
+
+                   if (((what == 2) || (what == 3)) && estA){
+                      invDensity = 1 / deltaS;
+                      Da = invDensity * dCdD * deltaSwm;
+   
+                      if (derivOrder > 1){
+                         DDaa1 = -Da * t(Da);
+                         DDaa2 = deltaSwm[0] * ddCdDD[0];
+                         for (k = 1; k < nSplines; k++)
+                            DDaa2 += deltaSwm[k] * ddCdDD[k];
+                         DDaa2 *= invDensity;
+                      }
+                   }
+
+                   if ((what == 3) && estA && (derivOrder > 1)){
+                      vec_bg = invDensity * t(dCdD * phiwm1);
+                      vec_bg2 = invDensity * t(dCdD * phiwm2);
+                      DDba = -Db * t(Da) + ss0[person] * xvec * (vec_bg - vec_bg2);
+                      if (estScale)
+                         DDga = -dg * t(Da) + s0 * (w1*vec_bg - w2*vec_bg2);
+                   }
+                }
+            break;
+
+         }   // end of switch(statusMat[person])
+
+
+         // add the value
+         logLikelihood += loglperson;
+
+         // add the first derivatives
+         if (derivOrder > 0){
+            if ((what == 1) || (what == 3)){
+               Ubeta += Db;
+               if (estScale) Ugamma += dg * zvec;
+            }
+            if (((what == 2) || (what == 3)) && estA) Ua += Da;
+         }
+
+         // add the second derivatives
+         if (derivOrder > 1){
+            if ((what == 1) || (what == 3)){
+               Ibb -= ddbb * xvec * t(xvec);
+               if (estScale){
+                  Igg -= ddgg * zvec * t(zvec);
+                  Ibg -= ddbg * xvec * t(zvec);
+               }
+            }
+            if (((what == 2) || (what == 3)) && estA){
+               Iaa -= (DDaa1 + DDaa2);
+            }
+            if ((what == 3) && estA){
+               Iba -= DDba;
+               if (estScale)
+                  Iga -= zvec * DDga;
             }
          }
-         if (((what == 2) || (what == 3)) && estA){
-            Iaa -= (DDaa1 + DDaa2);
-         }
-         if ((what == 3) && estA){
-            Iba -= DDba;
-            if (estScale)
-               Iga -= DDga;
-         }
-      }
 
-   }   // end of the loop over persons
+      }   // end of the loop over persons
 
 
-  // Add appropriate values to UMat, create IMat
-  //   and put everything together
+     // Add appropriate values to UMat, create IMat
+     //   and put everything together
 
-   // first derivatives
-   if (derivOrder > 0){
-      switch (what){
-         case 1:
-            if (estScale) UMatRegres = rbind(Ubeta, Ugamma);
-            else          UMatRegres = Ubeta;                  // both a and scale are fixed
-         break;
+      // first derivatives
+      if (derivOrder > 0){
+         switch (what){
+            case 1:
+               if (estScale) UMatRegres = rbind(Ubeta, Ugamma);
+               else          UMatRegres = Ubeta;                  // both a and scale are fixed
+            break;
 
-         case 2:
-            UMatD += Ua;
-         break;
+            case 2:
+               UMatD += Ua;
+            break;
 
-         case 3:
-            if (estA && estScale) UMat += rbind(rbind(Ubeta, Ugamma), Ua);
-            else
-               if (estA) UMat += rbind(Ubeta, Ua);              // scale is fixed
+            case 3:
+               if (estA && estScale) UMat += rbind(rbind(Ubeta, Ugamma), Ua);
                else
-                  if (estScale) UMat += rbind(Ubeta, Ugamma);   // a is fixed
-                  else          UMat += Ubeta;                 // both a and scale are fixed
-         break;
-      }  // end of switch
-   }     // end of if (derivOrder > 0)
+                  if (estA) UMat += rbind(Ubeta, Ua);              // scale is fixed
+                  else
+                     if (estScale) UMat += rbind(Ubeta, Ugamma);   // a is fixed
+                     else          UMat += Ubeta;                 // both a and scale are fixed
+            break;
+         }  // end of switch
+      }     // end of if (derivOrder > 0)
 
-   // second derivatives
-   if (derivOrder > 1){
-      Matrix<double> IMatRow1, IMatRow2, IMatRow3;
-      switch (what){
-         case 1:
-            if (estScale){
-               IMatRow1 = cbind(Ibb, Ibg);
-               IMatRow2 = cbind(t(Ibg), Igg);
-               HMatRegres = rbind(IMatRow1, IMatRow2);
-            }
-            else{           // both a and scale are fixed
-               HMatRegres = Ibb;
-            }
-         break;
+      // second derivatives
+      if (derivOrder > 1){
+         Matrix<double> IMatRow1, IMatRow2, IMatRow3;
+         switch (what){
+            case 1:
+               if (estScale){
+                  IMatRow1 = cbind(Ibb, Ibg);
+                  IMatRow2 = cbind(t(Ibg), Igg);
+                  HMatRegres = rbind(IMatRow1, IMatRow2);
+               }
+               else{           // both a and scale are fixed
+                  HMatRegres = Ibb;
+               }
+            break;
 
-         case 2:
-            HMatD += Iaa;
-         break;
+            case 2:
+               HMatD += Iaa;
+            break;
 
-         case 3:
-            if (estA && estScale){
-               IMatRow1 = cbind(cbind(Ibb, Ibg), Iba);
-               IMatRow2 = cbind(cbind(t(Ibg), Igg), Iga);
-               IMatRow3 = cbind(cbind(t(Iba), t(Iga)), Iaa);
-               IMat = rbind(rbind(IMatRow1, IMatRow2), IMatRow3);
-            }
-            else
-               if (estA){     // scale is fixed
-                  IMatRow1 = cbind(Ibb, Iba);
-                  IMatRow3 = cbind(t(Iba), Iaa);
-                  IMat = rbind(IMatRow1, IMatRow3);
+            case 3:
+               if (estA && estScale){
+                  IMatRow1 = cbind(cbind(Ibb, Ibg), Iba);
+                  IMatRow2 = cbind(cbind(t(Ibg), Igg), Iga);
+                  IMatRow3 = cbind(cbind(t(Iba), t(Iga)), Iaa);
+                  IMat = rbind(rbind(IMatRow1, IMatRow2), IMatRow3);
                }
                else
-                  if (estScale){   // a is fixed
-                     IMatRow1 = cbind(Ibb, Ibg);
-                     IMatRow2 = cbind(t(Ibg), Igg);
-                     IMat = rbind(IMatRow1, IMatRow2);
+                  if (estA){     // scale is fixed
+                     IMatRow1 = cbind(Ibb, Iba);
+                     IMatRow3 = cbind(t(Iba), Iaa);
+                     IMat = rbind(IMatRow1, IMatRow3);
                   }
-                  else{           // both a and scale are fixed
-                     IMat = Ibb;
-                  }
-            HMat += IMat;
-         break;
-      }  // end of switch
-   }     // end of if (derivOrder > 1)
+                  else
+                     if (estScale){   // a is fixed
+                        IMatRow1 = cbind(Ibb, Ibg);
+                        IMatRow2 = cbind(t(Ibg), Igg);
+                        IMat = rbind(IMatRow1, IMatRow2);
+                     }
+                     else{           // both a and scale are fixed
+                        IMat = Ibb;
+                     }
+               HMat += IMat;
+            break;
+         }  // end of switch
+      }     // end of if (derivOrder > 1)
+   }        // end of if (n > 0)
 
 
 // **********************************************************************************
@@ -827,8 +844,11 @@ penalLogLik(const Matrix<double> & Theta,
 
          // add combination of second derivative of constr. to HMat
             Matrix<double> ddConComb = XiMat[0] * ddCon0 + XiMat[1] * ddCon1;
-            if (what == 3) HMat += cbind(GMatLEFT, rbind(GMatUP, ddConComb));
-            else           HMatD += ddConComb;              // what == 2
+            if (what == 3){
+              if (n > 0) HMat += cbind(GMatLEFT, rbind(GMatUP, ddConComb));
+              else       HMat += ddConComb;
+            }
+            else         HMatD += ddConComb;              // what == 2
          }
       }
    }

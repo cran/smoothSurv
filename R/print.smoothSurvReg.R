@@ -1,6 +1,6 @@
 ###########################################
 #### AUTHOR:    Arnost Komarek         ####
-####            (2003)                 ####
+####            01/05/2004             ####
 ####                                   ####
 #### FILE:      print.smoothSurvReg.R  ####
 ####                                   ####
@@ -14,17 +14,17 @@
 ## spline ..... T/F, do I want to print an information concerning the fitted spline?
 ## digits ..... # of printed digits
 ## ... ........ other arguments passed to 'print' function
-print.smoothSurvReg <- function(x, spline = NULL, digits = min(options()$digits, 4), ...)
+print.smoothSurvReg <- function(x, spline, digits = min(options()$digits, 4), ...)
 {
     if (x$fail >= 99) {
         cat("No summary, smoothSurvReg failed.\n")
         return(invisible(x))
     }
 
-    if(is.null(digits))
+    if(missing(digits))
         digits <- min(options()$digits, 4)
 
-    if(is.null(spline)) spline <- (nrow(x$spline) <= 31)
+    if(missing(spline)) spline <- (nrow(x$spline) <= 31)
 
     if(!is.null(cl <- x$call)) {
         cat("Call:\n")
@@ -128,7 +128,8 @@ print.smoothSurvReg <- function(x, spline = NULL, digits = min(options()$digits,
     penalty <- x$loglik[1, "Penalty"]
     df <- x$degree.smooth$df
     nparam <- x$degree.smooth[["Number of parameters"]]
-    nU <- x$degree.smooth[["Regression param."]]
+    nU <- x$degree.smooth[["Mean param."]]
+    nUscale <- x$degree.smooth[["Scale param."]]
     nUc <- x$degree.smooth[["Spline param."]]
     lambda <- x$degree.smooth$Lambda
     loglambda <- x$degree.smooth[, "Log(Lambda)"]
@@ -142,7 +143,8 @@ print.smoothSurvReg <- function(x, spline = NULL, digits = min(options()$digits,
 
     cat("Degree of smoothing:\n")
     cat("   Number of parameters:", format(nparam, digits=digits), "\n")
-    cat("             Regression parameters:", format(nU, digits=digits), "\n")
+    cat("                   Mean parameters:", format(nU, digits=digits), "\n")
+    cat("                  Scale parameters:", format(nUscale, digits=digits), "\n")
     cat("                 Spline parameters:", format(nUc, digits=digits), "\n\n")
 
     cat("                   Lambda:", format(lambda, digits=digits), "\n")

@@ -1,6 +1,6 @@
 ###############################################
 #### AUTHOR:    Arnost Komarek             ####
-####            (2003)                     ####
+####            02/05/2004                 ####
 ####                                       ####
 #### FILE:      residuals.smoothSurvReg.R  ####
 ####                                       ####
@@ -12,16 +12,25 @@
 ### =================================================================================
 ## object .......... object of class 'smoothSurvReg'
 ## ... ........ other arguments passed to 'residuals' function 
-##              (it'shere only for compatibility with a generic function)
+##              (it's here only for compatibility with a generic function)
 residuals.smoothSurvReg <- function(object, ...){
    ny <- ncol(object$y)
    nx <- ncol(object$x)
+   nz <- ncol(object$z)
 
+   est.scale <- object$estimated["Scale"]
+   common.logscale <- object$estimated["common.logscale"]
    regres <- object$regres[, "Value"]
    beta <- regres[1:nx]
-   if (length(regres) > nx) scale <- regres["Scale"]
-   else                     scale <- object$init.regres["Scale", "Value"]   ## scale was fixed
-
+   if (common.logscale){
+     if (est.scale) scale <- regres["Scale"]
+     else           scale <- object$init.regres["Scale", "Value"]
+   }
+   else{
+     parscale <- matrix(regres[(nx+1):(nx+nz)], ncol = 1)
+     logscale <- (object$z %*% parscale)
+     scale <- exp(logscale)
+   }
    eta <- object$x %*% beta
 
    y1 <- (object$y[,1] - eta)/scale

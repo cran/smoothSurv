@@ -7,7 +7,7 @@
    Compute residuals for the fitted model.
 }
 \usage{
-residuals.smoothSurvReg(object, ...)
+\method{residuals}{smoothSurvReg}(object, ...)
 }
 \arguments{
    \item{object}{

@@ -61,4 +61,5 @@ ccoef2 <- give.c(knots, sd0, last.three, c.rest)
 print(ccoef)
 print(ccoef2)    ## Almost no change
 }
+\keyword{internal}
 \keyword{utilities}

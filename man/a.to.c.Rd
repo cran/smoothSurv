@@ -40,4 +40,5 @@ print(acoef)
 ccoef2 <- a.to.c(acoef)
 print(ccoef2)
 }
+\keyword{internal}
 \keyword{utilities}

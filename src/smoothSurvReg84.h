@@ -27,8 +27,8 @@
 // USA
 //
 
-#ifndef smooth_Surv82_S_H
-#define smooth_Surv82_S_H
+#ifndef smooth_Surv84_S_H
+#define smooth_Surv84_S_H
 
 #include <R.h>
 #include <Rmath.h>

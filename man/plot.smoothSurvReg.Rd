@@ -7,12 +7,12 @@
    Plot the fitted error distribution.
 }
 \usage{
-plot.smoothSurvReg(x, plot = TRUE, resid = TRUE, knots = TRUE,
+\method{plot}{smoothSurvReg}(x, plot = TRUE, resid = TRUE, knots = TRUE,
    compare = TRUE, components = FALSE, standard = TRUE,
-   by = NULL, toler.c = 1e-5,
-   xlim = NULL, ylim = NULL,
+   by, toler.c = 1e-5,
+   xlim, ylim,
    xlab = expression(epsilon), ylab = expression(paste("f(",epsilon,")", sep = "")),
-   type = "l", lty = 1, main = NULL, sub = NULL, bty = "n", \dots)
+   type = "l", lty = 1, main, sub, bty = "n", \dots)
 }
 \arguments{
    \item{x}{
@@ -49,6 +49,9 @@ plot.smoothSurvReg(x, plot = TRUE, resid = TRUE, knots = TRUE,
       If \code{standard} data for plotting the fitted error distribution
       are created, otherwise data for plotting the distribution
       of \eqn{\alpha + \sigma\varepsilon}{alpha + sigma*epsilon} are created.
+      In the case that \eqn{\log(\sigma)}{log(sigma)} depends on covariates
+      and \code{standard} is FALSE, all covariates equal to zero are used
+      to compute \eqn{\log(\sigma)}{log(sigma)}.
    }
    \item{by}{
       Step for a ploting grid. If \code{NULL} it is automatically computed.

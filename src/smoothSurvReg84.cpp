@@ -2,8 +2,11 @@
 //  with possibly censored observations
 //  with smoothed error distribution
 // ================================================================
-// version8.3: constrained maximization of penalized log-likleihood
-//             with some improvements compared to version 8.2
+// version8.4: * constrained maximization of penalized log-likleihood
+//               with some improvements compared to versions 8.2 and 8.3
+//             * log(scale) may depend linearly on covariates
+//             * I allow for no data (n = 0), 
+//               only penalty is then minimized --> added 22/07/2004
 
 //     * using 'a' parametrization
 
@@ -40,9 +43,9 @@
 
 // =====================================================================================
 
-// start working on this version: July 3, 2003
-
-// -------------------------------------------
+// start working on this version: 28/04/2004                            
+// possibility of no data:        22/07/2004
+// ----------------------------------------------
 //
 
 // REMARKS:
@@ -96,7 +99,7 @@
 // USA
 //
 
-#include "smoothSurvReg83.h"
+#include "smoothSurvReg84.h"
 
 extern "C"{
 
@@ -109,7 +112,8 @@ using namespace SCYTHE;
        nTheta,                   // number of all parameters to be really estimated
        nThetaSq,                 // nTheta^2
        nBeta,                    // number of columns in X matrix (number of beta parameters to be estimated)
-       nScale,                   // number of scale parameters to be estimated (either 1 or 0)
+       nGamma,                       // number of columns in Z matrix (number of s parameters to be estimated)
+       nScale,                   // number of scale related parameters to be estimated (either nGamma or 0)
        nRegres,                  // nBeta + nScale
        nD,                       // number of a coefficients to be estimated (either g-3 or 0)
        nSplines,                 // number of splines (after removal of some c's it's smaller)
@@ -135,6 +139,7 @@ using namespace SCYTHE;
    Matrix<double> resp1Mat,         // response (exact, right censored or lower limit)  n x 1
                   resp2Mat,         // upper limit of response for interval censored data  n x 1
                   XMat,             // design matrix (covariates)  n x nBeta
+                  ZMat,             // design matrix (covariates) for log(scale) n x nGamma
                   offset;           // offset vector n x 1
 
 // Matrices and vectors used in Newton-Raphson steps
@@ -205,12 +210,12 @@ using namespace SCYTHE;
 // MAIN FUNCTION
 // **************
 void
-smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
-               double *XP,   double *YP,   double *offsetP,
+smoothSurvReg84(int *nP,   int *nyP,   int *nBetaP,   int *nGammaP,  int *nSplinesP,
+               double *XP,   double *YP,   double *offsetP,  double *ZP,
                double *knotsP,   double *sigmaZeroP,
                int *lastThreeAP,
                int *estScaleP,   int *estAP,
-               double *BetaP,    double *GammaP,   double *AcoefP,   double *CcoefP,
+               double *BetaP,    double *GammaP,    double *AcoefP,   double *CcoefP,
                double *penalloglikP,
                double *loglikP,   double *correctLikP,   double *penaltyP,
                double *HP,   double *IP,   double *GP,
@@ -234,11 +239,17 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
 // =========================================
      n = *nP;
      nBeta = *nBetaP;
+     nGamma = *nGammaP;
      nSplines = *nSplinesP;
      estScale = (*estScaleP != 0);
+     if (n <= 0){
+       nBeta = 0;
+       nGamma = 0;
+       estScale = false;
+     }
      estA = (*estAP != 0);
      estA = (nSplines < 4) ? false : estA;      // do not estimate a's if there are too few a's
-     nScale = estScale ? 1 : 0;
+     nScale = estScale ? nGamma : 0;
      nRegres = nBeta + nScale;
      if (estA) nD = (*maxiterP > 0) ? (nSplines - 1) : (nSplines - 3);    // I start with optimization with two eq. constraints
      else      nD = 0;
@@ -248,7 +259,7 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
      debug = *debugP;
      info = (*infoP != 0);
 
-     lambda = n*(*lambdaP);
+     lambda = (n > 0 ? n*(*lambdaP) : 1.0);
      sigmaZero = *sigmaZeroP;
      invsigmaZero = (sigmaZero > 0) ? (1/sigmaZero) : FLT_MAX;
      logsigmaZero = (sigmaZero > 0) ? log(sigmaZero) : (-FLT_MAX);
@@ -257,37 +268,52 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
      int *statusarray = new int[n];
      double *resp1array = new double[n];
      double *resp2array = new double[n];
-     if(*nyP == 2){                               // only exact/right censored observations
-       for(i = 0; i < n; i++){
-          statusarray[i] = int(YP[n + i]);
-          resp1array[i] = YP[i];
+     if (n > 0){
+       if(*nyP == 2){                               // only exact/right censored observations
+         for(i = 0; i < n; i++){
+            statusarray[i] = int(YP[n + i]);
+            resp1array[i] = YP[i];
+         }
+         statusMat = Matrix<int>(n, 1, statusarray);                 // vector (n x 1) with status (0 = right censored, 1 = event)
+         resp1Mat = Matrix<double>(n, 1, resp1array);                // vector (n x 1) with response (exact or right censored)
        }
-       statusMat = Matrix<int>(n, 1, statusarray);                 // vector (n x 1) with status (0 = right censored, 1 = event)
-       resp1Mat = Matrix<double>(n, 1, resp1array);                // vector (n x 1) with response (exact or right censored)
-     }
-     else{       // ny is 3                     // also interval censored observations
-       for(i = 0; i < n; i++){
-          statusarray[i] = int(YP[2*n + i]);
-          resp1array[i] = YP[i];
-          resp2array[i] = YP[n + i];
+       else{       // ny is 3                     // also interval censored observations
+         for(i = 0; i < n; i++){
+            statusarray[i] = int(YP[2*n + i]);
+            resp1array[i] = YP[i];
+            resp2array[i] = YP[n + i];
+         }
+         statusMat = Matrix<int>(n, 1, statusarray);                // vector (n x 1) with status (0 = right censored, 1 = event, 3 = interval censored).
+         resp1Mat = Matrix<double>(n, 1, resp1array);               // vector (n x 1) with response (exact or censored or lower limit of intervals)
+         resp2Mat = Matrix<double>(n, 1, resp2array);               // vector (n x 1) with upper limits of interval, arbitrary value for exact/right c. cases
        }
-       statusMat = Matrix<int>(n, 1, statusarray);                // vector (n x 1) with status (0 = right censored, 1 = event, 3 = interval censored).
-       resp1Mat = Matrix<double>(n, 1, resp1array);               // vector (n x 1) with response (exact or censored or lower limit of intervals)
-       resp2Mat = Matrix<double>(n, 1, resp2array);               // vector (n x 1) with upper limits of interval, arbitrary value for exact/right c. cases
      }
      delete [] statusarray;
      delete [] resp1array;
      delete [] resp2array;
 
   // Offset vector
-     offset = Matrix<double>(n, 1, offsetP);
+     if (n > 0) offset = Matrix<double>(n, 1, offsetP);
 
   // X matrix with covariates.
-     XMat = Matrix<double>(nBeta, n, XP);
-     XMat = t(XMat);                            // transposition since Scythe uses row-major order when filling the matrix
+     if (n > 0){
+       XMat = Matrix<double>(nBeta, n, XP);
+       XMat = t(XMat);                            // transposition since Scythe uses row-major order when filling the matrix
+     }
+
+  // Z matrix with covariates for log(scale)
+     if (estScale){
+       if (nGamma == 1) ZMat = Matrix<double>(n, 1, true, 1);
+       else{
+         ZMat = Matrix<double>(nGamma, n, ZP);
+         ZMat = t(ZMat);                            // transposition since Scythe uses row-major order when filling the matrix
+       }
+     }
+     else 
+       if (n > 0) ZMat = Matrix<double>(n, 1, true, 1);  
 
   // Correction to log-likelihood
-     correctLik = *correctLikP;
+     correctLik = (n > 0) ? *correctLikP : 0;
 
   // Knots and related matrices
      knotsMat = Matrix<double>(nSplines, 1, knotsP);  // vector with knots (expectations of narrow normals)
@@ -386,10 +412,12 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
 
   // Building blocks for score vector (null part for unpenalized parameters)
   // and for GMat (also null for unpenalized parameters)
-     UMatUP = Matrix<double>(nRegres, 1, true, 0.0);
-     if (estA){
-        GMatLEFT = Matrix<double>(nTheta, nRegres, true, 0.0);
-        GMatUP = Matrix<double>(nRegres, nD, true, 0.0);
+     if (n > 0){
+       UMatUP = Matrix<double>(nRegres, 1, true, 0.0);
+       if (estA){
+          GMatLEFT = Matrix<double>(nTheta, nRegres, true, 0.0);
+          GMatUP = Matrix<double>(nRegres, nD, true, 0.0);
+       }
      }
 
 
@@ -403,8 +431,10 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
      GMat = Matrix<double>(nTheta, nTheta, true, 0.0);
      IMat = Matrix<double>(nTheta, nTheta, true, 0.0);
      if (*maxiterP > 0){
-        UMatRegres = Matrix<double>(nRegres, 1, true, 0.0);
-        HMatRegres = Matrix<double>(nRegres, nRegres, true, 0.0);
+        if (n > 0){
+           UMatRegres = Matrix<double>(nRegres, 1, true, 0.0);
+           HMatRegres = Matrix<double>(nRegres, nRegres, true, 0.0);
+        }
         if (estA){
            UMatD = Matrix<double>(nD, 1, true, 0.0);
            HMatD = Matrix<double>(nD, nD, true, 0.0);
@@ -423,8 +453,12 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
 // ===========================================================================
      ThetaMat = Matrix<double>(nTheta, 1, true, 0.0);
      for (i = 0; i < nBeta; i++) ThetaMat[i] = BetaP[i];
-     if (estScale) ThetaMat[i] = *GammaP;
-     else          GammaGlobal = Matrix<double>(1, 1, GammaP);
+     if (estScale){
+       for (j = i; j < i+nGamma; j++) ThetaMat[j] = GammaP[j - i];
+     }
+     else{
+       if (n > 0) GammaGlobal = Matrix<double>(1, 1, GammaP);
+     }
      if (estA){
          j = i + nScale;
          if (*maxiterP > 0){
@@ -496,12 +530,17 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
       return;
    }
    else{
-      if (info){
+      if (n > 0 && info){
          Rprintf("\nIter.: %d, ", *firstiterP);
          Rprintf("Lp = %g = %g + (%g)\n",
                *penalloglikP, logLikelihood, penalty);
          if (*maxiterP > 0 && estA)
                 Rprintf("                                                           Constraints = %g,  %g\n", -minCon[0], -minCon[1]);
+      }
+      if (n <= 0 && info){
+         Rprintf("\nIter.: %d,  ", *firstiterP);
+         Rprintf("Penalty = %g,  Mean constr. = %g,  Var constr.= %g\n",
+               penalty, -minCon[0], -minCon[1]);
       }
    }
 
@@ -560,7 +599,7 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
       Matrix<double> NRzeroA = Matrix<double>(nD, 1, true, 0.0);
 
       for (iteration = *firstiterP + 1; iteration <= *maxiterP; iteration++){
-         stopRegres = false;
+	 stopRegres = (n > 0) ? false : true;
          stopA = estA ? false : true;
 
   // 1. UPDATE a's
@@ -629,353 +668,368 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
                if (relatdiff <= *epsP || newobjectfun >= objectfun) break;
                newThetaMat = 0.5*(ThetaMat + newThetaMat);
             }
-            if (halfstep == *maxhalfP){
+            if (n > 0 && halfstep == *maxhalfP){
                if (info) REprintf("      STOP: Conditionally not converging.\n");
                *failP = 54;
                break;
             }
 
           // 1e) check the convergence and update the estimates
-            normU = EucNorm(minCon);
-            if (halfstep == 0 && relatdiff <= *epsP && normU <= *epsP) stopA = true;
-
-            if (info){
-                Rprintf("Iter.: %d(a coef),  ", iteration);
-                Rprintf("Lp = %g = %g + (%g),  Rel.diff. = %g,  %d halfsteps\n",
-                     newpenalloglik, logLikelihood, penalty, relatdiff, halfstep);
-            if (*maxiterP > 0 && estA)
-                Rprintf("                                                           Constraints = %g,  %g\n", -minCon[0], -minCon[1]);
+            if (n > 0){
+              normU = EucNorm(minCon);
+              if (halfstep == 0 && relatdiff <= *epsP && normU <= *epsP) stopA = true;
+              if (info){
+                  Rprintf("Iter.: %d(a coef),  ", iteration);
+                  Rprintf("Lp = %g = %g + (%g),  Rel.diff. = %g,  %d halfsteps\n",
+                       newpenalloglik, logLikelihood, penalty, relatdiff, halfstep);
+              if (*maxiterP > 0 && estA)
+                  Rprintf("                                                           Constraints = %g,  %g\n", -minCon[0], -minCon[1]);
+              }
             }
-
+            else{
+              if(fabs(newpenalloglik) < *epsP && fabs(minCon[0]) < *epsP && fabs(minCon[1]) < *epsP) stopA = true;
+              if (info){
+                Rprintf("Iter.: %d,  ", iteration);
+                Rprintf("Penalty = %g,  Mean constr. = %g,  Var constr.= %g\n",
+			penalty, -minCon[0], -minCon[1]);
+              }
+            }
             ThetaMat = newThetaMat;
-
          }  // end of the a's update
 
   // 2. UPDATE REGRESSION PART
   // ==========================
-      // 2a) derivatives
-         *penalloglikP = penalLogLik(ThetaMat, 1, 2, false);
-         useHMat = HMatRegres;   // I need original Hessian to make it positive definite if it is not
+         if (n > 0){
+         // 2a) derivatives
+            *penalloglikP = penalLogLik(ThetaMat, 1, 2, false);
+            useHMat = HMatRegres;   // I need original Hessian to make it positive definite if it is not
 
-      // 2b) Cholesky decomposition and compute H^{-1}U
-      //      (if necessary modify the second derivative matrix to have it pos. def.)
-         kk = -1;
-         do{
-            ierrQP = 0;
-            // if HMat is positive def. UMatRegres contains NR step
-            //                          NRstepRegres contains the same NR step
-            qpgen1CPP(useHMat.getArray(), UMatRegres.getArray(), &nRegres, &nRegres,
-                NRstepRegres.getArray(), &crvalQP,
-                &dummydouble, &dummyint, &dummydouble,
-                &zeroint, &zeroint, &zeroint,
-                &dummyint, &dummyint,
-                iterQP.getArray(), workQP.getArray(),
-                &ierrQP, tolCholP);
+         // 2b) Cholesky decomposition and compute H^{-1}U
+         //      (if necessary modify the second derivative matrix to have it pos. def.)
+            kk = -1;
+            do{
+               ierrQP = 0;
+               // if HMat is positive def. UMatRegres contains NR step
+               //                          NRstepRegres contains the same NR step
+               qpgen1CPP(useHMat.getArray(), UMatRegres.getArray(), &nRegres, &nRegres,
+                   NRstepRegres.getArray(), &crvalQP,
+                   &dummydouble, &dummyint, &dummydouble,
+                   &zeroint, &zeroint, &zeroint,
+                   &dummyint, &dummyint,
+                   iterQP.getArray(), workQP.getArray(),
+                   &ierrQP, tolCholP);
 
-                switch (ierrQP){
-                   case 0:         // OK
-                   break;
-                   case 2:         // problems to decompose the second derivative matrix
-                      kk++;
-//                      if (info && kk == 0) REprintf("      WARNING: Minus Hessian was not positive definite.\n");
-                      useHMat = HMatRegres;
-                      k = createPosDef(useHMat.getArray(), nRegres, *tolEigenP * pow(10.0, kk));
-                      if (k != 0){
-                         if (info) REprintf("      STOP: Problems with eigen values decomposition.\n");
-                         *failP = 63;
-                         break_for_loop = true;
-                         ierrQP = 1;   // to leave the 'do' sequence
-                      }
-                   break;
-               }
-         } while (ierrQP == 2);
-         if (break_for_loop) break;
+                   switch (ierrQP){
+                      case 0:         // OK
+                      break;
+                      case 2:         // problems to decompose the second derivative matrix
+                         kk++;
+//                         if (info && kk == 0) REprintf("      WARNING: Minus Hessian was not positive definite.\n");
+                         useHMat = HMatRegres;
+                         k = createPosDef(useHMat.getArray(), nRegres, *tolEigenP * pow(10.0, kk));
+                         if (k != 0){
+                            if (info) REprintf("      STOP: Problems with eigen values decomposition.\n");
+                            *failP = 63;
+                            break_for_loop = true;
+                            ierrQP = 1;   // to leave the 'do' sequence
+                         }
+                      break;
+                  }
+            } while (ierrQP == 2);
+            if (break_for_loop) break;
 
-      // 2d) find the length of the step that increases the objective function
-      //    (use all the time old lagrangians!!!)
-         NRstep = rbind(NRstepRegres, NRzeroA);
-         newThetaMat = ThetaMat + NRstep;
-         for (halfstep = 0; halfstep < *maxhalfP; halfstep++){
-            newpenalloglik = penalLogLik(newThetaMat, 1, 0*(halfstep == 0), false);
-            relatdiff = fabs(1 - (*penalloglikP/newpenalloglik));
-            if (relatdiff <= *epsP || newpenalloglik >= *penalloglikP) break;
-            newThetaMat = 0.5*(ThetaMat + newThetaMat);
-         }
-         if (halfstep == *maxhalfP){
-            if (info) REprintf("      STOP: Conditionally not converging.\n");
-            *failP = 64;
-            break;
-         }
+         // 2d) find the length of the step that increases the objective function
+         //    (use all the time old lagrangians!!!)
+            NRstep = rbind(NRstepRegres, NRzeroA);
+            newThetaMat = ThetaMat + NRstep;
+            for (halfstep = 0; halfstep < *maxhalfP; halfstep++){
+               newpenalloglik = penalLogLik(newThetaMat, 1, 0*(halfstep == 0), false);
+               relatdiff = fabs(1 - (*penalloglikP/newpenalloglik));
+               if (relatdiff <= *epsP || newpenalloglik >= *penalloglikP) break;
+               newThetaMat = 0.5*(ThetaMat + newThetaMat);
+            }
+            if (halfstep == *maxhalfP){
+               if (info) REprintf("      STOP: Conditionally not converging.\n");
+               *failP = 64;
+               break;
+            }
 
-       // 2e) check the convergence and update the estimates
-         if (halfstep == 0 && relatdiff <= *epsP) stopRegres = true;
+          // 2e) check the convergence and update the estimates
+            if (halfstep == 0 && relatdiff <= *epsP) stopRegres = true;
 
-         if (info){
-             Rprintf("Iter.: %d(regres),  ", iteration);
-             Rprintf("Lp = %g = %g + (%g),  Rel.diff. = %g,  %d halfsteps\n",
-                  newpenalloglik, logLikelihood, penalty, relatdiff, halfstep);
-         }
+            if (info){
+                Rprintf("Iter.: %d(regres),  ", iteration);
+                Rprintf("Lp = %g = %g + (%g),  Rel.diff. = %g,  %d halfsteps\n",
+                     newpenalloglik, logLikelihood, penalty, relatdiff, halfstep);
+            }
 
-         ThetaMat = newThetaMat;
+            ThetaMat = newThetaMat;
 
-      // end of the regression update
+	 }   // end of the regression update
 
   // 3. CHECK THE CONDITIONAL CONVERGENCE
   // =====================================
          if (stopA && stopRegres){
-            if (info) REprintf("      Conditional convergence reached.\n");
+            if (info && n > 0) REprintf("      Conditional convergence reached.\n");
+            if (info && n <= 0) REprintf("     Convergence reached.\n");
             break;
          }
 
       }    // end of the loop over the iterations (for the first part of optimization)
 
- // SECOND, FULL OPTIMIZATION WITHOUT CONSTRAINTS (only if estA)
- // ============================================================
-    // Stop if problems in convergence of a's -> no output
-      if (*failP > 50 && *failP < 60){
-          *failP = 103;
-          delete [] ddCdAA;
-          delete [] ddCdDD;
-          return;
-      }
+ // SECOND, FULL OPTIMIZATION WITHOUT CONSTRAINTS (only if estA && n > 0)
+ // ======================================================================
+      if (n > 0){
 
-      if (estA){
-         *penalloglikP = penalLogLik(ThetaMat, 3, 0, false);   // this will set Acoef
+      // Stop if problems in convergence of a's -> no output
+        if (*failP > 50 && *failP < 60){
+            *failP = 103;
+            delete [] ddCdAA;
+            delete [] ddCdDD;
+            return;
+        }
 
-         nD = nSplines - 3;
-         nTheta = nRegres + nD;
-         nThetaSq = nTheta * nTheta;
+        if (estA){
+           *penalloglikP = penalLogLik(ThetaMat, 3, 0, false);   // this will set Acoef
 
-
-      // Find which knots should be the reference ones
-         Matrix<int> Aord = Matrix<int>(nSplines, 1, false);
-         Matrix<int> Ainvord = Matrix<int>(nSplines, 1, false);
-         Matrix<double> Asorted = sortOrder(Acoef, Aord, Ainvord);
-
-         lastThreeA[1] = (fabs(knotsMat[Ainvord[nSplines - 1]]) > 2e-1) ?
-                         Ainvord[nSplines - 1] : Ainvord[nSplines - 2];
-         lastThreeA[2] = -1;
-         for (i = nSplines - 1; i >= 0; i--){
-             if (Ainvord[i] == lastThreeA[1]) continue;
-             if (fabs(1 - sigmaZero * sigmaZero + knotsMat[lastThreeA[1]] * knotsMat[Ainvord[i]]) > 1e-4
-                    && fabs(knotsMat[Ainvord[i]] - knotsMat[lastThreeA[1]]) > 1e-4){
-                 lastThreeA[2] = Ainvord[i];
-                 break;
-             }
-         }
-         if (lastThreeA[2] < 0){
-             lastThreeA[2] = (lastThreeA[1] == Ainvord[nSplines - 1]) ?
-                             Ainvord[nSplines - 2] : Ainvord[nSplines - 3];
-         }
-
-         for (i = nSplines - 1; i >= 0; i--){
-             if (Ainvord[i] == lastThreeA[1] || Ainvord[i] == lastThreeA[2]) continue;
-             lastThreeA[0] = Ainvord[i];
-             break;
-         }
+           nD = nSplines - 3;
+           nTheta = nRegres + nD;
+           nThetaSq = nTheta * nTheta;
 
 
-      // Recalculate indeces of the reference knots
-         lastTwoAshort[0] = (lastThreeA[0] < lastThreeA[1] ? lastThreeA[1] - 1 : lastThreeA[1]);
-         lastTwoAshort[1] = (lastThreeA[0] < lastThreeA[2] ? lastThreeA[2] - 1 : lastThreeA[2]);
+        // Find which knots should be the reference ones
+           Matrix<int> Aord = Matrix<int>(nSplines, 1, false);
+           Matrix<int> Ainvord = Matrix<int>(nSplines, 1, false);
+           Matrix<double> Asorted = sortOrder(Acoef, Aord, Ainvord);
 
-         restA = Matrix<int>(nD, 1, false);
-         for (i = 0, k = 0; k < nD; i++){
-             if (i != lastThreeA[0] && i != lastThreeA[1] && i != lastThreeA[2]){
-                 restA[k] = i;
-                 k++;
-             }
-         }
-
-         restAshort = Matrix<int>(nD, 1, false);
-         for (i = 0, k = 0; k < nD; i++){
-             if (i != lastTwoAshort[0] && i != lastTwoAshort[1]){
-                 restAshort[k] = i;
-                 k++;
-             }
-         }
-
-
-      // Recalculate fixed derivative matrices
-         OmegaExpA2 = Matrix<double>(nSplines - 2, 2, false);
-         if (deriv_expAD(knotsMat, sigmaZero, lastThreeA, OmegaExpA2, false) != 0){
-            if (info) REprintf("      STOP: I cannot find the reference knots.\n");
-            *failP = 75;
-            // change number of parameters back to +2 higher value
-            nD = nSplines - 1;
-            nTheta = nRegres + nD;
-            nThetaSq = nTheta * nTheta;
-         }
-         else{
-            OmegaZeroExpA2 = t(OmegaExpA2(0, 0, 0, 1));
-            OmegaExpA2 = OmegaExpA2(1, 0, nD, 1);
-            tOmegaExpA2 = t(OmegaExpA2);
-
-        // block of minLamDDMat corresponding to the two special a's
-            minLamDD2 = Matrix<double>(2, 2, false);
-            minLamDD2(0, 0) = minLamDDMat(lastThreeA[1], lastThreeA[1]);
-            minLamDD2(0, 1) = minLamDDMat(lastThreeA[1], lastThreeA[2]);
-            minLamDD2(1, 0) = minLamDDMat(lastThreeA[2], lastThreeA[1]);
-            minLamDD2(1, 1) = minLamDDMat(lastThreeA[2], lastThreeA[2]);
-
-        // block of minLamDDMat corresponding to the cross-product of two a's and d's
-            minLamDD2g3 = Matrix<double>(2, nD, false);
-            for (i = 0; i < 2; i++)
-               for (j = 0; j < nD; j++)
-                   minLamDD2g3(i, j) = minLamDDMat(lastThreeA[i + 1], restA[j]);
-
-        // block of minLamDDMat corresponding to d's
-            minLamDDg3 = Matrix<double>(nD, nD, false);
-            for (i = 0; i < nD; i++)
-               for (j = 0; j < nD; j++)
-                   minLamDDg3(i, j) = minLamDDMat(restA[i], restA[j]);
-
-
-      // Re-initialize global variables which will be used in the following (often a dimension changed)
-            GMatLEFT = Matrix<double>(nTheta, nRegres, true, 0.0);
-            GMatUP = Matrix<double>(nRegres, nD, true, 0.0);
-
-            UMat = Matrix<double>(nTheta, 1, true, 0.0);
-            HMat = Matrix<double>(nTheta, nTheta, true, 0.0);
-            GMat = Matrix<double>(nTheta, nTheta, true, 0.0);
-            IMat = Matrix<double>(nTheta, nTheta, true, 0.0);
-
-
-      // Initialize derivative matrices (also change of the dimension)
-            for (i = 0; i < nSplines; i++){
-               ddCdAA[i] = Matrix<double>(nSplines - 1, nSplines - 1, true, 0.0);
-               ddCdDD[i] = Matrix<double>(nD, nD, true, 0.0);
-            }
-            dA2dD = Matrix<double>(nD, 2, true, 0.0);
-            ddAdDD1 = Matrix<double>(nD, nD, true, 0.0);
-            ddAdDD2 = Matrix<double>(nD, nD, true, 0.0);
-            dCdA2 = Matrix<double>(2, nSplines, true, 0.0);
-            dCdAg3 = Matrix<double>(nD , nSplines, true, 0.0);
-            dCdD = Matrix<double>(nD , nSplines, true, 0.0);
-
-
-      // Remove reference a's from the vector of parameters
-      //   and subtract from all a's the value which is now assigned to a[lastThreeA[0]]
-            dummydouble = Acoef[lastThreeA[0]];
-            Acoef -= dummydouble;
-
-            newThetaMat = Matrix<double>(nTheta, 1, true, 0.0);
-            for (i = 0; i < nBeta; i++) newThetaMat[i] = ThetaMat[i];
-            if (estScale) newThetaMat[i] = ThetaMat[i];
-            if (estA){
-               j = nBeta + nScale;
-               for (k = 0; k < nSplines; k++){
-                   if (k == lastThreeA[0] || k == lastThreeA[1] || k == lastThreeA[2]) continue;
-                   newThetaMat[j] = Acoef[k];
-                   j++;
+           lastThreeA[1] = (fabs(knotsMat[Ainvord[nSplines - 1]]) > 2e-1) ?
+                           Ainvord[nSplines - 1] : Ainvord[nSplines - 2];
+           lastThreeA[2] = -1;
+           for (i = nSplines - 1; i >= 0; i--){
+               if (Ainvord[i] == lastThreeA[1]) continue;
+               if (fabs(1 - sigmaZero * sigmaZero + knotsMat[lastThreeA[1]] * knotsMat[Ainvord[i]]) > 1e-4
+                      && fabs(knotsMat[Ainvord[i]] - knotsMat[lastThreeA[1]]) > 1e-4){
+                   lastThreeA[2] = Ainvord[i];
+                   break;
                }
-            }
-            ThetaMat = newThetaMat;
+           }
+           if (lastThreeA[2] < 0){
+               lastThreeA[2] = (lastThreeA[1] == Ainvord[nSplines - 1]) ?
+                               Ainvord[nSplines - 2] : Ainvord[nSplines - 3];
+           }
 
-         // Continue with iterations (full optimization)
-            break_for_loop = false;
-            NRstep = Matrix<double>(nTheta, 1, false);
-            double normU;
+           for (i = nSplines - 1; i >= 0; i--){
+               if (Ainvord[i] == lastThreeA[1] || Ainvord[i] == lastThreeA[2]) continue;
+               lastThreeA[0] = Ainvord[i];
+               break;
+           }
 
-            bool firstFull = true;
-            *failP = 0;
 
-            for (++iteration; iteration <= *maxiterP; iteration++){
-               stopA = false;
+        // Recalculate indeces of the reference knots
+           lastTwoAshort[0] = (lastThreeA[0] < lastThreeA[1] ? lastThreeA[1] - 1 : lastThreeA[1]);
+           lastTwoAshort[1] = (lastThreeA[0] < lastThreeA[2] ? lastThreeA[2] - 1 : lastThreeA[2]);
 
-  // 4. UPDATE THE WHOLE PARAMETERS VECTOR
-  // ======================================
-      // 4a) derivatives
-               *penalloglikP = penalLogLik(ThetaMat, 3, 2, true);
-               normU = EucNorm(UMat);
-
-               if (firstFull){
-                  if (info){
-                      Rprintf("Iter.: %d,  ", iteration - 1);
-                      Rprintf("Lp = %g = %g + (%g),  Norm(U) = %g\n",
-                           newpenalloglik, logLikelihood, penalty, normU);
-                  }
-                  firstFull = false;
+           restA = Matrix<int>(nD, 1, false);
+           for (i = 0, k = 0; k < nD; i++){
+               if (i != lastThreeA[0] && i != lastThreeA[1] && i != lastThreeA[2]){
+                   restA[k] = i;
+                   k++;
                }
-               useHMat = HMat;       // I need original Hessian to make it positive definite if it is not
+           }
 
-      // 4b) Cholesky decomposition and compute H^{-1}U
-      //      (if necessary modify the second derivative matrix to have it pos. def.)
-               kk = -1;
-               do{
-                  ierrQP = 0;
-                  // if HMat is positive def. UMatRegres contains NR step
-                  //                          NRstepRegres contains the same NR step
-                  qpgen1CPP(useHMat.getArray(), UMat.getArray(), &nTheta, &nTheta,
-                      NRstep.getArray(), &crvalQP,
-                      &dummydouble, &dummyint, &dummydouble,
-                      &zeroint, &zeroint, &zeroint,
-                      &dummyint, &dummyint,
-                      iterQP.getArray(), workQP.getArray(),
-                      &ierrQP, tolCholP);
-
-                      switch (ierrQP){
-                         case 0:         // OK
-                         break;
-                         case 2:         // problems to decompose the second derivative matrix
-                            kk++;
-//                            if (info && kk == 0) REprintf("      WARNING: Minus Hessian was not positive definite.\n");
-                            useHMat = HMat;
-                            k = createPosDef(useHMat.getArray(), nTheta, *tolEigenP * pow(10.0, kk));
-                            if (k != 0){
-                               if (info) REprintf("      STOP: Problems with eigen values decomposition.\n");
-                               *failP = 73;
-                               break_for_loop = true;
-                               ierrQP = 1;   // to leave the 'do' sequence
-                            }
-                         break;
-                     }
-               } while (ierrQP == 2);
-               if (break_for_loop) break;
-
-      // 4d) find the length of the step that increases the objective function
-      //    (use all the time old lagrangians!!!)
-               newThetaMat = ThetaMat + NRstep;
-               for (halfstep = 0; halfstep < *maxhalfP; halfstep++){
-                  newpenalloglik = penalLogLik(newThetaMat, 3, 1*(halfstep == 0), true);
-                    relatdiff = fabs(1 - (*penalloglikP/newpenalloglik));
-                  if (relatdiff <= *epsP || newpenalloglik >= *penalloglikP) break;
-//                  if (halfstep == 0) normU = EucNorm(UMat);
-//                  if (newpenalloglik >= *penalloglikP) break;
-                  newThetaMat = 0.5*(ThetaMat + newThetaMat);
+           restAshort = Matrix<int>(nD, 1, false);
+           for (i = 0, k = 0; k < nD; i++){
+               if (i != lastTwoAshort[0] && i != lastTwoAshort[1]){
+                   restAshort[k] = i;
+                   k++;
                }
-               if (halfstep == *maxhalfP){
-                  if (info) REprintf("      STOP: Not converging.\n");
-                  *failP = 74;
-                  break;
-               }
+           }
 
-       // 4e) check the convergence and update the estimates
-//               if (halfstep == 0 && normU <= 10*nTheta*(*epsP)) stopA = true;
-               if (halfstep == 0 && relatdiff <= *epsP) stopA = true;
 
-               if (info){
-                   Rprintf("Iter.: %d,  ", iteration);
-//                   Rprintf("Lp = %g = %g + (%g),  Norm(U) = %g,  %d halfsteps\n",
-//                        newpenalloglik, logLikelihood, penalty, normU, halfstep);
-                   Rprintf("Lp = %g = %g + (%g),  Rel.diff. = %g,  %d halfsteps\n",
-                        newpenalloglik, logLikelihood, penalty, relatdiff, halfstep);
-               }
+        // Recalculate fixed derivative matrices
+           OmegaExpA2 = Matrix<double>(nSplines - 2, 2, false);
+           if (deriv_expAD(knotsMat, sigmaZero, lastThreeA, OmegaExpA2, false) != 0){
+              if (info) REprintf("      STOP: I cannot find the reference knots.\n");
+              *failP = 75;
+              // change number of parameters back to +2 higher value
+              nD = nSplines - 1;
+              nTheta = nRegres + nD;
+              nThetaSq = nTheta * nTheta;
+           }
+           else{
+              OmegaZeroExpA2 = t(OmegaExpA2(0, 0, 0, 1));
+              OmegaExpA2 = OmegaExpA2(1, 0, nD, 1);
+              tOmegaExpA2 = t(OmegaExpA2);
 
-               ThetaMat = newThetaMat;
+          // block of minLamDDMat corresponding to the two special a's
+              minLamDD2 = Matrix<double>(2, 2, false);
+              minLamDD2(0, 0) = minLamDDMat(lastThreeA[1], lastThreeA[1]);
+              minLamDD2(0, 1) = minLamDDMat(lastThreeA[1], lastThreeA[2]);
+              minLamDD2(1, 0) = minLamDDMat(lastThreeA[2], lastThreeA[1]);
+              minLamDD2(1, 1) = minLamDDMat(lastThreeA[2], lastThreeA[2]);
 
-  // 5. CHECK THE FULL CONVERGENCE
-  // =====================================
-               if (stopA){
-                  if (info) REprintf("      Full convergence reached.\n");
-                  break;
-               }
+          // block of minLamDDMat corresponding to the cross-product of two a's and d's
+              minLamDD2g3 = Matrix<double>(2, nD, false);
+              for (i = 0; i < 2; i++)
+                 for (j = 0; j < nD; j++)
+                     minLamDD2g3(i, j) = minLamDDMat(lastThreeA[i + 1], restA[j]);
 
-            }   // end of all iterations
+          // block of minLamDDMat corresponding to d's
+              minLamDDg3 = Matrix<double>(nD, nD, false);
+              for (i = 0; i < nD; i++)
+                 for (j = 0; j < nD; j++)
+                     minLamDDg3(i, j) = minLamDDMat(restA[i], restA[j]);
 
-         }   // end of else (it was possible to find reference knots)
 
-      }   // end of the second part of optimization (if (estA))
+        // Re-initialize global variables which will be used in the following (often a dimension changed)
+              if (n > 0){
+                GMatLEFT = Matrix<double>(nTheta, nRegres, true, 0.0);
+                GMatUP = Matrix<double>(nRegres, nD, true, 0.0);
+              }
+              UMat = Matrix<double>(nTheta, 1, true, 0.0);
+              HMat = Matrix<double>(nTheta, nTheta, true, 0.0);
+              GMat = Matrix<double>(nTheta, nTheta, true, 0.0);
+              IMat = Matrix<double>(nTheta, nTheta, true, 0.0);
+
+
+        // Initialize derivative matrices (also change of the dimension)
+              for (i = 0; i < nSplines; i++){
+                 ddCdAA[i] = Matrix<double>(nSplines - 1, nSplines - 1, true, 0.0);
+                 ddCdDD[i] = Matrix<double>(nD, nD, true, 0.0);
+              }
+              dA2dD = Matrix<double>(nD, 2, true, 0.0);
+              ddAdDD1 = Matrix<double>(nD, nD, true, 0.0);
+              ddAdDD2 = Matrix<double>(nD, nD, true, 0.0);
+              dCdA2 = Matrix<double>(2, nSplines, true, 0.0);
+              dCdAg3 = Matrix<double>(nD , nSplines, true, 0.0);
+              dCdD = Matrix<double>(nD , nSplines, true, 0.0);
+
+
+        // Remove reference a's from the vector of parameters
+        //   and subtract from all a's the value which is now assigned to a[lastThreeA[0]]
+              dummydouble = Acoef[lastThreeA[0]];
+              Acoef -= dummydouble;
+  
+              newThetaMat = Matrix<double>(nTheta, 1, true, 0.0);
+              for (i = 0; i < nBeta; i++) newThetaMat[i] = ThetaMat[i];
+              if (estScale){
+                for (j = i; j < i+nGamma; j++) newThetaMat[j] = ThetaMat[j];
+              }
+              if (estA){
+                 j = nBeta + nScale;
+                 for (k = 0; k < nSplines; k++){
+                     if (k == lastThreeA[0] || k == lastThreeA[1] || k == lastThreeA[2]) continue;
+                     newThetaMat[j] = Acoef[k];
+                     j++;
+                 }
+              }
+              ThetaMat = newThetaMat;
+
+           // Continue with iterations (full optimization)
+              break_for_loop = false;
+              NRstep = Matrix<double>(nTheta, 1, false);
+              double normU;
+
+              bool firstFull = true;
+              *failP = 0;
+ 
+              for (++iteration; iteration <= *maxiterP; iteration++){
+                 stopA = false;
+
+    // 4. UPDATE THE WHOLE PARAMETERS VECTOR
+    // ======================================
+        // 4a) derivatives
+                 *penalloglikP = penalLogLik(ThetaMat, 3, 2, true);
+                 normU = EucNorm(UMat);
+
+                 if (firstFull){
+                    if (info){
+                        Rprintf("Iter.: %d,  ", iteration - 1);
+                        Rprintf("Lp = %g = %g + (%g),  Norm(U) = %g\n",
+                             newpenalloglik, logLikelihood, penalty, normU);
+                    }
+                    firstFull = false;
+                 }
+                 useHMat = HMat;       // I need original Hessian to make it positive definite if it is not
+
+        // 4b) Cholesky decomposition and compute H^{-1}U
+        //      (if necessary modify the second derivative matrix to have it pos. def.)
+                 kk = -1;
+                 do{
+                    ierrQP = 0;
+                    // if HMat is positive def. UMatRegres contains NR step
+                    //                          NRstepRegres contains the same NR step
+                    qpgen1CPP(useHMat.getArray(), UMat.getArray(), &nTheta, &nTheta,
+                        NRstep.getArray(), &crvalQP,
+                        &dummydouble, &dummyint, &dummydouble,
+                        &zeroint, &zeroint, &zeroint,
+                        &dummyint, &dummyint,
+                        iterQP.getArray(), workQP.getArray(),
+                        &ierrQP, tolCholP);
+
+                        switch (ierrQP){
+                           case 0:         // OK
+                           break;
+                           case 2:         // problems to decompose the second derivative matrix
+                              kk++;
+//                              if (info && kk == 0) REprintf("      WARNING: Minus Hessian was not positive definite.\n");
+                              useHMat = HMat;
+                              k = createPosDef(useHMat.getArray(), nTheta, *tolEigenP * pow(10.0, kk));
+                              if (k != 0){
+                                 if (info) REprintf("      STOP: Problems with eigen values decomposition.\n");
+                                 *failP = 73;
+                                 break_for_loop = true;
+                                 ierrQP = 1;   // to leave the 'do' sequence
+                              }
+                           break;
+                       }
+                 } while (ierrQP == 2);
+                 if (break_for_loop) break;
+
+        // 4d) find the length of the step that increases the objective function
+        //    (use all the time old lagrangians!!!)
+                 newThetaMat = ThetaMat + NRstep;
+                 for (halfstep = 0; halfstep < *maxhalfP; halfstep++){
+                    newpenalloglik = penalLogLik(newThetaMat, 3, 1*(halfstep == 0), true);
+                      relatdiff = fabs(1 - (*penalloglikP/newpenalloglik));
+                    if (relatdiff <= *epsP || newpenalloglik >= *penalloglikP) break;
+//                    if (halfstep == 0) normU = EucNorm(UMat);
+//                    if (newpenalloglik >= *penalloglikP) break;
+                    newThetaMat = 0.5*(ThetaMat + newThetaMat);
+                 }
+                 if (halfstep == *maxhalfP){
+                    if (info) REprintf("      STOP: Not converging.\n");
+                    *failP = 74;
+                    break;
+                 }
+
+         // 4e) check the convergence and update the estimates
+//                 if (halfstep == 0 && normU <= 10*nTheta*(*epsP)) stopA = true;
+                 if (halfstep == 0 && relatdiff <= *epsP) stopA = true;
+
+                 if (info){
+                     Rprintf("Iter.: %d,  ", iteration);
+//                     Rprintf("Lp = %g = %g + (%g),  Norm(U) = %g,  %d halfsteps\n",
+//                          newpenalloglik, logLikelihood, penalty, normU, halfstep);
+                     Rprintf("Lp = %g = %g + (%g),  Rel.diff. = %g,  %d halfsteps\n",
+                          newpenalloglik, logLikelihood, penalty, relatdiff, halfstep);
+                 }
+
+                 ThetaMat = newThetaMat;
+
+    // 5. CHECK THE FULL CONVERGENCE
+    // =====================================
+                 if (stopA){
+                    if (info) REprintf("      Full convergence reached.\n");
+                    break;
+                 }
+
+              }   // end of all iterations
+
+           }   // end of else (it was possible to find reference knots)
+
+        }   // end of the second part of optimization (if (estA))
+      }   // end of if (n > 0)
 
    }   // end of if (*maxiterP > 0)
 
@@ -983,36 +1037,40 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
    if (iteration > *maxiterP) *failP = 16;
    else                       *maxiterP = iteration;
 
-   if (*failP == 75){      // I could not find the reference knots -> no 'd' parametrization
-      *penalloglikP = penalLogLik(ThetaMat, 3, 0, false);
-      *nonPosDefHP = 1;
+   if (n > 0){
+     if (*failP == 75){      // I could not find the reference knots -> no 'd' parametrization
+        *penalloglikP = penalLogLik(ThetaMat, 3, 0, false);
+        *nonPosDefHP = 1;
+     }
+     else{
+        *penalloglikP = penalLogLik(ThetaMat, 3, 2, true);
+
+        // test whether H is positive definite
+        useHMat = HMat;
+        dpofaCPP(useHMat.getArray(), nTheta, nTheta, nonPosDefHP, *tolCholP);
+
+        for (i = 0; i < nTheta; i++) UP[i] = UMat[i];
+
+        for (i = 0; i < nThetaSq; i++){
+           HP[i] = HMat[i];
+           GP[i] = GMat[i];
+           IP[i] = IMat[i];
+        }
+
+        for (i = 0; i < 3; i++) lastThreeAP[i] = lastThreeA[i] + 1;   // give S indeces (i.e. starting from 1)
+
+        dCdD = t(dCdD);
+        for (i = 0; i < nSplines * nD; i++) dCdDP[i] = dCdD[i];
+     }    // end of if (*failP == 75)
+
+     *loglikP = logLikelihood;
    }
-   else{
-      *penalloglikP = penalLogLik(ThetaMat, 3, 2, true);
-
-      // test whether H is positive definite
-      useHMat = HMat;
-      dpofaCPP(useHMat.getArray(), nTheta, nTheta, nonPosDefHP, *tolCholP);
-
-      for (i = 0; i < nTheta; i++) UP[i] = UMat[i];
-
-      for (i = 0; i < nThetaSq; i++){
-         HP[i] = HMat[i];
-         GP[i] = GMat[i];
-         IP[i] = IMat[i];
-      }
-
-      for (i = 0; i < 3; i++) lastThreeAP[i] = lastThreeA[i] + 1;   // give S indeces (i.e. starting from 1)
-
-      dCdD = t(dCdD);
-      for (i = 0; i < nSplines * nD; i++) dCdDP[i] = dCdD[i];
-   }    // end of if (*failP == 75)
-
-   *loglikP = logLikelihood;
    *penaltyP = penalty;
 
    for (i = 0; i < nBeta; i++) BetaP[i] = ThetaMat[i];
-   if (estScale) *GammaP = ThetaMat[nBeta];
+   if (estScale){
+     for (j = i; j < i+nGamma; j++) GammaP[j-i] = ThetaMat[j];
+   }
 
    for (i = 0; i < nSplines; i++){
       AcoefP[i] = Acoef[i];
@@ -1021,7 +1079,7 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
 
 // Compute matrices used to get df
 //  - back only 'a' parametrization
-   if (estA){
+   if (estA && n > 0){
 
    // Re-initialize some global variables
       nD = nSplines - 1;
@@ -1058,7 +1116,9 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
    // Add the two a's back to the vector of parameters
       newThetaMat = Matrix<double>(nTheta, 1, true, 0.0);
       for (i = 0; i < nBeta; i++) newThetaMat[i] = ThetaMat[i];
-      if (estScale) newThetaMat[i] = ThetaMat[i];
+      if (estScale){
+        for (j = i; j < i+nGamma; j++) newThetaMat[j] = ThetaMat[j];
+      }
       if (estA){
          j = nBeta + nScale;
          for (k = 0; k < nSplines; k++){
@@ -1105,7 +1165,7 @@ smoothSurvReg83(int *nP,   int *nyP,   int *nBetaP,   int *nSplinesP,
 
    return;
 
-}     // end of smoothSurvReg83 function
+}     // end of smoothSurvReg84 function
 
 }     // end of extern "C"
 

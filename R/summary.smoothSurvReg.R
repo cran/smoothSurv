@@ -1,6 +1,6 @@
 #############################################
 #### AUTHOR:    Arnost Komarek           ####
-####            (2003)                   ####
+####            01/05/2004               ####
 ####                                     ####
 #### FILE:      summary.smoothSurvReg.R  ####
 ####                                     ####
@@ -14,7 +14,7 @@
 ## spline ..... T/F, do I want to print an information concerning the fitted spline?
 ## digits ..... # of printed digits
 ## ... ........ other arguments passed to 'print' function
-summary.smoothSurvReg <- function(object, spline = NULL, digits = min(options()$digits, 4), ...)
+summary.smoothSurvReg <- function(object, spline, digits = min(options()$digits, 4), ...)
 {
    print.smoothSurvReg(object, spline, digits, ...)
 }

@@ -12,8 +12,9 @@
    method.
 }
 \usage{
-smoothSurvReg(formula = formula(data), data = parent.frame(), subset, na.action,
-   init.beta = NULL, init.scale = NULL, init.c = NULL, init.dist = "best",
+smoothSurvReg(formula = formula(data), logscale = ~1, 
+   data = parent.frame(), subset, na.action = na.fail,
+   init.beta, init.logscale, init.c, init.dist = "best",
    update.init = TRUE, aic = TRUE, lambda = exp(2:(-9)),
    model = FALSE, control = smoothSurvReg.control(), \dots)
 }
@@ -23,6 +24,10 @@ smoothSurvReg(formula = formula(data), data = parent.frame(), subset, na.action,
       See the documentation for \code{\link{lm}} and \code{\link{formula}} for details.
       Use \code{\link{Surv}} on the left hand side of the formula.
    }
+   \item{logscale}{
+      A formula expression to determine a possible dependence of the
+      log-scale on covariates.
+   }     
    \item{data}{
       Optional data frame in which to interpret the variables occurring in the
       formula.
@@ -31,14 +36,17 @@ smoothSurvReg(formula = formula(data), data = parent.frame(), subset, na.action,
       Subset of the observations to be used in the fit.
    }
    \item{na.action}{
-      Function to be used to handle any NAs in the data.
+      Function to be used to handle any NAs in the data. It's default
+      value is \code{na.fail}. It is not recommended to change it in the
+      case when \code{logscale} depends on covariates.
    }
    \item{init.beta}{
       Optional vector of the initial values of the regression parameter \eqn{\beta}{beta}
       (intercept and regression itself).
    }
-   \item{init.scale}{
-      Optional value of the initial value of the scale parameter \eqn{\sigma}{sigma}.
+   \item{init.logscale}{
+      Optional value of the initial value of the parameters that
+      determines the log-scale parameter \eqn{\log(\sigma)}{log(sigma)}.
    }
    \item{init.c}{
       Optional vector of the initial values for the G-spline
@@ -107,7 +115,7 @@ smoothSurvReg(formula = formula(data), data = parent.frame(), subset, na.action,
 }
 \references{
   \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2004)}}{Komarek, A., Lesaffre, E., and Hilton, J. F. (2004)}
-  Accelerated Failure Time Model for Arbitrarily censored Data
+  Accelerated Failure Time Model for Arbitrarily Censored Data
   with Smoothed Error Distribution.
   \emph{?????}, \bold{??}, ???--???.
 }
@@ -124,7 +132,7 @@ t2 <- t1 + rgamma(50, 1, 1)                                      ## right limit 
 surv <- Surv(t1, t2, type = "interval2")                         ## survival object
 
 ## Fit the model with an interaction
-fit1 <- smoothSurvReg(surv ~ x1 * x2, info = FALSE, lambda = exp(2:(-1)))
+fit1 <- smoothSurvReg(surv ~ x1 * x2, logscale = ~1, info = FALSE, lambda = exp(2:(-1)))
 
 ## Print the summary information
 summary(fit1, spline = TRUE)
@@ -138,15 +146,28 @@ plot(fit1, components = TRUE)
 ## Plot the cumulative distribution function corresponding to the error density
 survfit(fit1, cdf = TRUE)
 
-## Plot survivor curves for persons with (x1, x2) = (0, 180) and (1, 180)
-survfit(fit1, matrix(c(0, 1, 180, 180, 0, 180), ncol = 3))
+## Plot predictive survivor curves for persons with (x1, x2) = (0, 180) and (1, 180)
+cov <- matrix(c(0, 180, 0,   1, 180, 180), ncol = 3, byrow = TRUE)
+survfit(fit1, cov = cov)
+
+## Plot predictive hazard curves for persons with (x1, x2) = (0, 180) and (1, 180)
+cov <- matrix(c(0, 180, 0,   1, 180, 180), ncol = 3, byrow = TRUE)
+hazard(fit1, cov = cov)
+
+## Plot predictive densities for persons with (x1, x2) = (0, 180) and (1, 180)
+cov <- matrix(c(0, 180, 0,   1, 180, 180), ncol = 3, byrow = TRUE)
+fdensity(fit1, cov = cov)
 
 ## More involved examples can be found in script files
 ## used to perform analyses  and draw pictures 
-## presented in /inst/doc/paper.pdf of this library.
-## These script files together with data for Signal Tandmobiel
-## example (section 6.1 of paper.pdf) can be obtained from
-## arnost.komarek@med.kuleuven.ac.be
+## presented in /doc/paper1.pdf and /doc/paper2.pdf of this library.
+## These scripts can be found as *.tar.gz files in the same directory.
+##
+## I am not sure whether Windows precombiled binary distributions
+## of contributed packages contain this directory.
+## If not, download source version of the library from CRAN
+## (tar.gz file), unpack it and you find it.
+
 }
 \keyword{survival}
 \keyword{smooth}

@@ -8,12 +8,15 @@
    This function is not to be called by the user.
 }
 \usage{
-smoothSurvReg.fit(x, y, offset = NULL, correctlik, init, controlvals)
+smoothSurvReg.fit(x, z, y, offset = NULL, correctlik, init, controlvals, common.logscale)
 }
 \arguments{
    \item{x}{
        A covariate matrix.
    }
+   \item{z}{
+       A covariate matrix for log(scale).
+   }     
    \item{y}{
        A two- or three- column matrix with response. The last column
        indicate the type of censoring. See \code{\link{Surv}} for details.
@@ -31,9 +34,14 @@ smoothSurvReg.fit(x, y, offset = NULL, correctlik, init, controlvals)
    \item{controlvals}{
        A list returned by \code{\link{smoothSurvReg.control}}.
    }
+   \item{common.logscale}{
+       Indicator (TRUE/FALSE) indicating whether the log-scale is same for all observations 
+       or whether it depends on covariates.
+   }
 }
 \value{
-   A list with components \code{regres, spline, loglik, aic, degree.smooth, var, var2,
+   A list with components \code{regres, spline, loglik, aic,
+     degree.smooth, var, var2, dCdC,
    iter, estimated, warning, fail, H, I, G, U}.
 }
 \note{

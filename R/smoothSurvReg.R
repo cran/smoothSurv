@@ -1,6 +1,6 @@
 ###########################################
 #### AUTHOR:    Arnost Komarek         ####
-####            (2003)                 ####
+####            29/04/2004             ####
 ####                                   ####
 #### FILE:      smoothSurvReg.R        ####
 ####                                   ####
@@ -17,7 +17,8 @@
 ## formula
 ## data
 ## subset
-## na.action
+## na.action ... na.fail is default, it is not recommended to change it when logscale
+##               depends on covariates
 ## init.beta ... c(initial intercept, initial betas)
 ##                  give NA's for values whose initials are to be found automatically
 ## init.scale ... initial value for scale
@@ -35,12 +36,13 @@
 ## control
 ## ...
 smoothSurvReg <- function(formula = formula(data),
+                          logscale = ~1,
                           data = parent.frame(),
                           subset,
-                          na.action,
-                          init.beta = NULL,
-                          init.scale = NULL,
-                          init.c = NULL,
+                          na.action = na.fail,
+                          init.beta,
+                          init.logscale,
+                          init.c,
                           init.dist = "best",
                           update.init = TRUE,
                           aic = TRUE,
@@ -143,6 +145,7 @@ smoothSurvReg <- function(formula = formula(data),
    ## function call?
    ## Store in m only these, throw away remaining ones.
    ## "" states actually for a name of the function.
+   m.keep <- m
    temp <- c("", "formula", "data", "subset", "na.action")
    m <- m[match(temp, names(m), nomatch=0)]
 
@@ -227,12 +230,53 @@ smoothSurvReg <- function(formula = formula(data),
 
      if (!all(is.finite(Y))) stop("Invalid survival times for this distribution (infinity on log-scale not allowed). ")
 
+   
+   ## Design matrix for logscale
+     common.logscale <- FALSE                            ## indicator whether only intercept is included in log(scale) formula
+     if (!control$est.scale) common.logscale <- TRUE
+     else{
+       if (!match("logscale", names(m.keep), nomatch = 0)) common.logscale <- TRUE
+       else{
+         tempR <- c("", "logscale", "data", "subset", "na.action")
+         mR <- m.keep[match(tempR, names(m.keep), nomatch=0)]
+         mR[[1]] <- as.name("model.frame")
+         names(mR)[2] <- "formula"
+         TermsR <- if(missing(data)) terms(logscale)
+                   else              terms(logscale, data = data)
+         lTR <- length(attr(TermsR, "variables"))
+         if (lTR == 1 & !attr(TermsR, "intercept")){        ## nothing specified, include at least intercept
+           attr(TermsR, "intercept") <- 1
+           common.logscale <- TRUE
+         }
+         else{
+           if (lTR == 1 & attr(TermsR, "intercept")){        ## the only term is the intercept
+             common.logscale <- TRUE
+           }
+           else{
+             mR$formula <- TermsR
+             mR <- eval(mR, parent.frame())
+             if (attr(TermsR, "intercept")){    ## the intercept in included
+               ## HERE: DO NOTHING
+             }
+             Z <- model.matrix(TermsR, mR)
+           }
+         }
+       }
+     }       
+     if (common.logscale){
+       Z <- matrix(rep(1, n), ncol = 1)
+       colnames(Z) <- "(Intercept)"
+     }
+     names.logscale <- colnames(Z)   
+     n.logscale <- length(names.logscale)     
+
+   
 ## Initial values for BETA coefficients and the INTERCEPT
 ## ------------------------------------------------------
    ninit.beta <- dim(X)[2]      ## number of initial values for beta parameters
 
       # All initial values from survreg
-   if (is.null(init.beta)){
+   if (missing(init.beta) || is.null(init.beta)){
        init.beta <- fit0$coefficients
        if (is.intercept){
           if (dist.now %in% 1:3)      ## lognormal or loglogistic initial distribution
@@ -285,31 +329,33 @@ smoothSurvReg <- function(formula = formula(data),
        }
    }
 
-### Initial values for SCALE
-### ------------------------
+### Initial values for log(SCALE) parameters
+### ----------------------------------------
       # Initial value from survreg
-   if (is.null(init.scale) || is.na(init.scale)){
-       if (fit0$scale <= 0)
-          init.scale <- 0.01
-       else
-          if (dist.now %in% 1:2)           ## lognormal initial distribution
-            init.scale <- fit0$scale
-          else
-            if (dist.now == 3)             ## loglogistic initial distribution
-               init.scale <- fit0$scale * (pi/sqrt(3))
-            else
-                if (dist.now %in% 4:6)     ## weibull initial distribution
-                   init.scale <- fit0$scale * (pi/sqrt(6))
-                else
-                   stop("Unknown initial distribution ")
-   }
+   if (fit0$scale <= 0)
+      temp.logscale <- log(0.01)
+   else
+      if (dist.now %in% 1:2)           ## lognormal initial distribution
+        temp.logscale <- log(fit0$scale)
+      else
+        if (dist.now == 3)             ## loglogistic initial distribution
+           temp.logscale <- log(fit0$scale * (pi/sqrt(3)))
+        else
+           if (dist.now %in% 4:6)     ## weibull initial distribution
+              temp.logscale <- log(fit0$scale * (pi/sqrt(6)))
+           else
+              stop("Unknown initial distribution ")
+   
+   if (missing(init.logscale) || is.null(init.logscale) || sum(is.na(init.logscale))){       
+       init.logscale <- c(temp.logscale, rep(0, n.logscale - 1))
+   }   
 
       # Initial value from the user
    else{
-       init.scale <- ifelse(init.scale <= 0, 0.01, init.scale)
+       if (length(init.logscale) != n.logscale) init.logscale <- c(temp.logscale, rep(0, n.logscale - 1))
+       else                                     init.logscale <- init.logscale
    }
-   names(init.scale) <- "Scale"
-
+   names(init.logscale) <- names.logscale
 
 ## Initial values for G-SPLINE coefficients
 ## (if given by the user and est.c I use only the first g-3 ones
@@ -317,7 +363,7 @@ smoothSurvReg <- function(formula = formula(data),
 ## --------------------------------------------------------------
    if (control$est.c){     ## nsplines is also at least 4
 
-      if (is.null(init.c)){
+      if (missing(init.c) || is.null(init.c)){
              ## try to approximate the "best" distribution according to 'survreg'
              ## or the distribution required by the user
              best.dens <- switch(dist.user, "dnorm", "dstlogis", "dstextreme")
@@ -345,7 +391,7 @@ smoothSurvReg <- function(formula = formula(data),
    }
 
    else{          ## c's are not estimated
-      if (is.null(init.c))
+      if (missing(init.c) || is.null(init.c))
             if (control$nsplines == 1) init.c <- 1
             else                       stop("Initial a's or c's must be given. ")
       else{
@@ -356,7 +402,7 @@ smoothSurvReg <- function(formula = formula(data),
    }
 
 ## Put all initials into a list
-   initials <- list(beta = init.beta, scale = init.scale, ccoef = init.c)
+   initials <- list(beta = init.beta, logscale = init.logscale, ccoef = init.c)
 
    if (control$debug == 1){
       cat("\ncontrol:\n"); print(control)
@@ -364,6 +410,7 @@ smoothSurvReg <- function(formula = formula(data),
       cat("\n"); print(summary(fit0))
    }
 
+   
 ## Do not use searching for the best lambda if !est.c or if maxiter == 0
 ## ---------------------------------------------------------------------
    if (!control$est.c)         aic <- FALSE     ## all real lambda's give same fit
@@ -378,6 +425,7 @@ smoothSurvReg <- function(formula = formula(data),
    fit.aic <- list()
    aic.values <- numeric()
    df.previous <- -1e40
+   fail.previous <- 0
    df.values <- numeric()
    pll.values <- numeric()
    ll.values <- numeric()
@@ -396,8 +444,9 @@ smoothSurvReg <- function(formula = formula(data),
       }
       cat("\nFit with Log(Lambda) = ", log(lambda[m]), sep="")
       if (!control$info) cat(",  ")
-      fitA <- smoothSurvReg.fit(X, Y, offset, correctlik = logcorrect,
-                                     init = initials.aic, controlvals = control)
+      
+      fitA <- smoothSurvReg.fit(X, Z, Y, offset, correctlik = logcorrect,
+                                     init = initials.aic, controlvals = control, common.logscale = common.logscale)
       fit.aic[[m]] <- fitA
 
       if (fitA$fail >= 99){
@@ -413,12 +462,14 @@ smoothSurvReg <- function(formula = formula(data),
          sd2.regres <- as.numeric(fitA$regres[["Std.Error2"]])
          sd.nans <- sum(is.na(sd.regres))
          sd2.nans <- sum(is.na(sd2.regres))
-         if(control$est.scale && sd.nans >= 2) fitA$fail <- fitA$fail + 40
-         if(!control$est.scale && sd.nans >= 1) fitA$fail <- fitA$fail + 40
-#         if (fitA$fail < 40){
-#            if(control$est.scale && sd2.nans >= 2) fitA$fail <- fitA$fail + 40
-#            if(!control$est.scale && sd2.nans >= 1) fitA$fail <- fitA$fail + 40
-#         }
+         if (n.logscale <= 1){
+           if(control$est.scale && sd.nans >= 2) fitA$fail <- fitA$fail + 40
+           if(!control$est.scale && sd.nans >= 1) fitA$fail <- fitA$fail + 40
+         }
+         else{
+           if(control$est.scale && sd.nans >= 1) fitA$fail <- fitA$fail + 40
+           if(!control$est.scale && sd.nans >= 0) fitA$fail <- fitA$fail + 40
+         }           
       }
 
       aic.values <- c(aic.values, fitA$aic)
@@ -441,15 +492,19 @@ smoothSurvReg <- function(formula = formula(data),
       if (fitA$fail < 99){
          if (update.init && fitA$fail == 0 && fitA$degree.smooth$df > df.previous){   ## update the initials
              initials.aic$beta <- as.numeric(fitA$regres[1:ninit.beta, 1])
-             if (control$est.scale) initials.aic$scale <- as.numeric(fitA$regres[ninit.beta+2, 1])
+             if (control$est.scale){
+               if (n.logscale == 1) initials.aic$logscale <- as.numeric(fitA$regres[ninit.beta+2, 1])
+               else                 initials.aic$logscale <- as.numeric(fitA$regres[(ninit.beta+1):(ninit.beta+n.logscale), 1])
+             }               
              if (control$est.c)     initials.aic$ccoef <- as.numeric(fitA$spline[, "c coef."])
          }
 
-         if (fitA$fail == 0 && fitA$degree.smooth$df < df.previous - 1)
+         if (fitA$fail == 0 && fitA$degree.smooth$df < df.previous - 1 && fail.previous == 0)
              problem.look[length(problem.look)] <- 99
          else
              df.previous <- fitA$degree.smooth$df
       }
+      fail.previous <- fitA$fail
 
       m <- m + 1
       if (m > nlam) search <- FALSE
@@ -515,6 +570,7 @@ smoothSurvReg <- function(formula = formula(data),
    if (model) fit.smooth$model <- m
    fit.smooth$x <- X
    fit.smooth$y <- Y
+   fit.smooth$z <- Z
 
    ## Initial c coefficients
    knotname <- paste("knot[",1:control$nsplines,"]", sep = "")
@@ -526,9 +582,16 @@ smoothSurvReg <- function(formula = formula(data),
    rownames(fit.smooth$init.spline) <- knotname
    colnames(fit.smooth$init.spline) <- c("Knot", "SD basis", "c coef.")
 
-   ## Put initial alpha, beta and log(scale) estimates into the resulting object
-   fit.smooth$init.regres <- c(initials$beta, log(initials$scale), initials$scale)
-   names(fit.smooth$init.regres) <- c(names(initials$beta), "Log(scale)", "Scale")
+   
+   ## Put initial alpha, beta and log(scale) pars. estimates into the resulting object
+   if (common.logscale){
+     fit.smooth$init.regres <- c(initials$beta, initials$logscale, exp(initials$logscale))
+     names(fit.smooth$init.regres) <- c(names(initials$beta), "Log(scale)", "Scale")
+   }
+   else{
+     fit.smooth$init.regres <- c(initials$beta, initials$logscale)
+     names(fit.smooth$init.regres) <- c(names(initials$beta), paste("LScale.", names.logscale, sep = ""))     
+   }     
    fit.smooth$init.regres <- data.frame(Value = fit.smooth$init.regres)
 
    ## Compute mean and variance of the error distribution
@@ -545,11 +608,20 @@ smoothSurvReg <- function(formula = formula(data),
    else
       mu0 <- 0
 
-   if (control$est.scale) s0 <- fit.smooth$regres["Scale","Value"]
-   else                   s0 <- initials$scale
+   if (control$est.scale)
+     if(common.logscale) s0 <- fit.smooth$regres["Scale","Value"]
+     else                s0 <- NA
+   else
+     s0 <- fit.smooth$init.regres["Scale", "Value"]
 
-   int.adj <- mu0 + (s0 * mean.error)
-   scale.adj <- s0 * sd.error
+   if (common.logscale){
+     int.adj <- mu0 + (s0 * mean.error)
+     scale.adj <- s0 * sd.error
+   }
+   else{
+     int.adj <- NA
+     scale.adj <- NA
+   }
 
    fit.smooth$adjust <- data.frame(Value = c(int.adj, scale.adj))
    rownames(fit.smooth$adjust) <- c("(Intercept)", "Scale")
@@ -558,6 +630,10 @@ smoothSurvReg <- function(formula = formula(data),
    rownames(fit.smooth$error.dist) <- "Error distribution:  "
 
    fit.smooth$searched <- searched
+
+   ## Add indicator of the presence of the intercept in the model to estimated
+   fit.smooth$estimated <- c(is.intercept, fit.smooth$estimated)
+   names(fit.smooth$estimated) <- c("(Intercept)", "Scale", "ccoef", "common.logscale")
 
    class(fit.smooth) <- 'smoothSurvReg'
    return(fit.smooth)

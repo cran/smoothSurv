@@ -1,6 +1,6 @@
 ###########################################
 #### AUTHOR:    Arnost Komarek         ####
-####            (2003)                 ####
+####            29/04/2004             ####
 ####                                   ####
 #### FILE:      smoothSurvReg.fit.R    ####
 ####                                   ####
@@ -19,11 +19,11 @@
 ##                 = 6,   not converging because of too many iterations
 ##                 +10     final H is not positive definite
 ##                 +20     df <= 0 or not defined because I do not have H^{-1}
-smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
-                              init, controlvals)
+smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
+                              init, controlvals, common.logscale)
 {
     ## Main C++ fitter
-    fitterc <- "smoothSurvReg83"    ## C++ function used to fit the model
+    fitterc <- "smoothSurvReg84"    ## C++ function used to fit the model
     packagec <- "smoothSurv"        ## name of R library
 
     ## Get a list of control values for iteration process.
@@ -50,7 +50,7 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
     ## !!! I do not assume this function will be used directly by the user
     ## !!! If the user wishes to use it, it is his/her responsibility to give a proper list of initials
     beta <- init$beta
-    gama <- log(init$scale)
+    gama <- init$logscale
     ccoef <- init$ccoef
     acoef <- c.to.a(init$ccoef, last.three[1])
 
@@ -60,6 +60,13 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
     namesx <- dimnames(x)[[2]]
     nvarx <- ncol(x)
 
+    ## Design matrix for log(scale) (usually created in smoothSurvReg())
+    if (!is.matrix(z)) stop("Invalid z matrix ")
+    nz <- nrow(x)
+    if (nz != n) stop("x and z matrices have different number of rows ")
+    namesz <- dimnames(z)[[2]]
+    nvarz <- ncol(z)
+    
     ## This will determine a type of response (later).
     ## 3 columns for interval censored data, 2 columns for only right/left censored data.
     if (!is.matrix(y)) stop("Invalid y matrix ")
@@ -75,7 +82,8 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
     iinfo <- 1*info
 
     ## Dimensions of regression parameters (beta + scale) to be estimated
-    nUregres <- ifelse(est.scale, nvarx + 1, nvarx)
+    nUregres <- ifelse(est.scale, nvarx + nvarz, nvarx)
+    nestScale <- ifelse(est.scale, nvarz, 0)
 
     ## Dimension of d's (g - 3 or 0) to be estimated
     nUa <- ifelse(est.c, nknots - 3, 0)
@@ -92,50 +100,52 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
     if (nparam == 0) stop("Nothing to be estimated... ")   # this should never occure but one never knows...
 
     ## Fit the model
-       fit <- .C(fitterc,
-                                as.integer(n),
-                                as.integer(ny),
-                                as.integer(nvarx),
-                                as.integer(nknots),
-                                as.double(x),
-                                as.double(y),
-                                as.double(offset),
-                                as.double(knots),              # original sequence of knots (also on output)
-                                as.double(sdspline),
-                 lastThree =    as.integer(last.three - 1),    # C++ indeces of a coefficients which are expressed as the function of the remaining ones
-                                as.integer(eest.scale),
-                                as.integer(eest.c),
-                 beta =         as.double(beta),
-                 logscale =     as.double(gama),
-                 acoef =        as.double(acoef),              # on OUTPUT: all a coefficients (ZERO's included)
-                 ccoef =        double(nknots),                # on OUTPUT: c's corresponding to a's
-                 penalloglik =  double(1),
-                 loglik =       double(1),
-                                as.double(correctlik),
-                 penalty =      double(1),
-                 H =            double(nparam*nparam),         # minus Hessian of the penalized log-likelihood
-                 I =            double(nparam*nparam),         # minus Hessian of the un-penalized log-likelihood
-                 G =            double(nparam*nparam),         # minus Hessian of the penalty term => H = I + G
-                 U =            double(nparam),                # score vector at the convergence
-                 dCdD =         double(ndcdd),                 # s of c's w.r.t. d's
-                 Ha =           double(ndfm*ndfm),
-                 Ia =           double(ndfm*ndfm),
-                 Ga =           double(ndfm*ndfm),
-                 dCon =         double(2 * ndfm),
-                                as.double(lambda.use),
-                                as.integer(difforder),
-                 iter =         as.integer(maxiter),
-                                as.integer(firstiter),
-                                as.double(eps),
-                                as.double(tolChol),
-                                as.double(tolEigen),
-                                as.integer(maxhalf),
-                                as.integer(iinfo),
-                                as.integer(debug),
-                 fail =         integer(1),
-                 nonPosDefH =   integer(1),
-                 PACKAGE = packagec
-       )
+    fit <- .C(fitterc,
+                     as.integer(n),
+                     as.integer(ny),
+                     as.integer(nvarx),
+                     as.integer(nvarz),
+                     as.integer(nknots),
+                     as.double(x),
+                     as.double(y),
+                     as.double(offset),
+                     as.double(z),
+                     as.double(knots),              # original sequence of knots (also on output)
+                     as.double(sdspline),
+      lastThree =    as.integer(last.three - 1),    # C++ indeces of a coefficients which are expressed as the function of the remaining ones
+                     as.integer(eest.scale),
+                     as.integer(eest.c),
+      beta =         as.double(beta),
+      logscale =     as.double(gama),
+      acoef =        as.double(acoef),              # on OUTPUT: all a coefficients (ZERO's included)
+      ccoef =        double(nknots),                # on OUTPUT: c's corresponding to a's
+      penalloglik =  double(1),
+      loglik =       double(1),
+                     as.double(correctlik),
+      penalty =      double(1),
+      H =            double(nparam*nparam),         # minus Hessian of the penalized log-likelihood
+      I =            double(nparam*nparam),         # minus Hessian of the un-penalized log-likelihood
+      G =            double(nparam*nparam),         # minus Hessian of the penalty term => H = I + G
+      U =            double(nparam),                # score vector at the convergence
+      dCdD =         double(ndcdd),                 # s of c's w.r.t. d's
+      Ha =           double(ndfm*ndfm),
+      Ia =           double(ndfm*ndfm),
+      Ga =           double(ndfm*ndfm),
+      dCon =         double(2 * ndfm),
+                     as.double(lambda.use),
+                     as.integer(difforder),
+      iter =         as.integer(maxiter),
+                     as.integer(firstiter),
+                     as.double(eps),
+                     as.double(tolChol),
+                     as.double(tolEigen),
+                     as.integer(maxhalf),
+                     as.integer(iinfo),
+                     as.integer(debug),
+      fail =         integer(1),
+      nonPosDefH =   integer(1),
+    PACKAGE = packagec
+    )
 
     warn <- ""
     warn2 <- ""
@@ -338,6 +348,7 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
     else{
       var.c <- rep(NA, nknots)
       var2.c <- rep(NA, nknots)
+      dCdD <- NA
     }
 
     sd.a <- sqrt(var.a)
@@ -366,23 +377,34 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
          names(regres.est) <- regresname2
 
          if (est.scale){
-            regresname <- c(regresname, "Log(scale)")
-            regresname2 <- c(regresname, "Scale")
-            regres.est <- c(regres.est, fit$logscale, exp(fit$logscale))
-            names(regres.est) <- regresname2
-            sd.regres <- c(sd.regres, NA)
-            names(sd.regres) <- regresname2
-            sd2.regres <- c(sd2.regres, NA)
-            names(sd2.regres) <- regresname2
+            if (is.null(namesz)) namesz <- paste("z", 1:nvarz, sep = "")
+            if (common.logscale){
+              regresname <- c(regresname, "Log(scale)")
+              regresname2 <- c(regresname, "Scale")
+              regres.est <- c(regres.est, fit$logscale, exp(fit$logscale))
+              sd.regres <- c(sd.regres, NA)
+              sd2.regres <- c(sd2.regres, NA)
+              names(regres.est) <- regresname2
+              names(sd.regres) <- regresname2
+              names(sd2.regres) <- regresname2              
+            }
+            else{
+              regresname <- c(regresname, paste("LScale.", namesz, sep = ""))
+              regres.est <- c(regres.est, fit$logscale)
+              names(regres.est) <- regresname
+              names(sd.regres) <- regresname
+              names(sd2.regres) <- regresname                            
+            }                          
          }
          else{
-            names(sd.regres) <- regresname2
-            names(sd2.regres) <- regresname2
+            names(regres.est) <- regresname
+            names(sd.regres) <- regresname
+            names(sd2.regres) <- regresname
          }
     }
 
 
-## Beta and log(scale) estimates with sd
+## Beta and log(scale) pars. estimates with sd
     if(nUregres > 0){
       regres <- data.frame(Value = regres.est,
                           Std.Error = sd.regres,
@@ -438,6 +460,7 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
     dimnames(var) <- list(allname, allname)
     dimnames(var2) <- list(allname, allname)
     names(U) <- allname
+    if (est.c) dimnames(dCdD) <- list(dname, cname)
 
 
 ## Loglikelihood, penalty etc.
@@ -450,14 +473,16 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
 
 
 ## Degree of smooth
-    degree.smooth <- data.frame(lambda.use, log(lambda.use), df, nparam, nUregres, nUa)
+    degree.smooth <- data.frame(lambda.use, log(lambda.use), df, nparam, 
+                                nUregres-nestScale, nestScale, nUa)
     colnames(degree.smooth) <- c("Lambda", "Log(Lambda)", "df",
-                  "Number of parameters", "Regression param.", "Spline param.")
+                  "Number of parameters", "Mean param.", "Scale param.", "Spline param.")
     rownames(degree.smooth) <- "  "
 
-#    degree.smooth <- data.frame(lambda.use, df, df2, nparam, nUregres, nUa)
+#    degree.smooth <- data.frame(lambda.use, df, df2, nparam, 
+#                                nUregres-nestScale, nestScale, nUa)
 #    colnames(degree.smooth) <- c("lambda", "df", "df2",
-#                  "Number of parameters", "Regression param.", "Spline param.")
+#                  "Number of parameters", "Mean param.", "Scale param.", "Spline param.")
 #    rownames(degree.smooth) <- "  "
 
 
@@ -466,9 +491,8 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
 
 
 ## indicators of estimated components
-    estimated <- c(est.scale, est.c)
-    names(estimated) <- c("Scale", "ccoef")
-
+    estimated <- c(est.scale, est.c, common.logscale)
+    names(estimated) <- c("Scale", "ccoef", "common.logscale")
 
     temp <- list(regres = regres,
                  spline = spline,
@@ -477,6 +501,7 @@ smoothSurvReg.fit <- function(x, y, offset = NULL, correctlik,
                  degree.smooth = degree.smooth,
                  var = var,
                  var2 = var2,
+                 dCdD = dCdD,
                  iter = fit$iter,
                  estimated = estimated,
                  warning = warn.all,
