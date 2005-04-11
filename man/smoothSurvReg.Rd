@@ -22,7 +22,7 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
    \item{formula}{
       A formula expression as for other regression models.
       See the documentation for \code{\link{lm}} and \code{\link{formula}} for details.
-      Use \code{\link{Surv}} on the left hand side of the formula.
+      Use \code{\link[survival]{Surv}} on the left hand side of the formula.
    }
    \item{logscale}{
       A formula expression to determine a possible dependence of the
@@ -54,10 +54,10 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
       and must sum up to 1.
    }
    \item{init.dist}{
-      A character string specifying the distribution used by \code{\link{survreg}}
+      A character string specifying the distribution used by \code{\link[survival]{survreg}}
       to find the initial values for parameters (if not given by the user).
       It is assumed to name \code{"best"} or an
-      element from \code{\link{survreg.distributions}}. These include
+      element from \code{\link[survival]{survreg.distributions}}. These include
       \code{"weibull"}, \code{"exponential"}, \code{"gaussian"},
       \code{"logistic"}, \code{"lognormal"} and \code{"loglogistic"}.
       If "best" is specified one of \code{"lognormal"},
@@ -69,7 +69,7 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
       parameter giving the optimal AIC. Otherwise, fits with all lambdas during the
       grid search start with same initials determine at the beginning either
       from the values of \code{init.beta, init.scale, init.c} or from the initial
-      \code{\link{survreg}} fit as determined by the parameter
+      \code{\link[survival]{survreg}} fit as determined by the parameter
       \code{init.dist}.
    }
    \item{aic}{
@@ -114,10 +114,9 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
    See \code{\link{smoothSurvReg.object}} for details.
 }
 \references{
-  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2004)}}{Komarek, A., Lesaffre, E., and Hilton, J. F. (2004)}
-  Accelerated Failure Time Model for Arbitrarily Censored Data
-  with Smoothed Error Distribution.
-  \emph{?????}, \bold{??}, ???--???.
+  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005)}}{Komarek, A., Lesaffre, E., and Hilton, J. F. (2005)}
+  Accelerated Failure Time Model for Arbitrarily censored Data with Smoothed Error Distribution. 
+  \emph{To appear in Journal of Computational and Graphical Statistics.}
 }
 \author{
   \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
@@ -146,17 +145,25 @@ plot(fit1, components = TRUE)
 ## Plot the cumulative distribution function corresponding to the error density
 survfit(fit1, cdf = TRUE)
 
-## Plot predictive survivor curves for persons with (x1, x2) = (0, 180) and (1, 180)
+## Plot survivor curves for persons with (x1, x2) = (0, 180) and (1, 180)
 cov <- matrix(c(0, 180, 0,   1, 180, 180), ncol = 3, byrow = TRUE)
 survfit(fit1, cov = cov)
 
-## Plot predictive hazard curves for persons with (x1, x2) = (0, 180) and (1, 180)
+## Plot hazard curves for persons with (x1, x2) = (0, 180) and (1, 180)
 cov <- matrix(c(0, 180, 0,   1, 180, 180), ncol = 3, byrow = TRUE)
 hazard(fit1, cov = cov)
 
-## Plot predictive densities for persons with (x1, x2) = (0, 180) and (1, 180)
+## Plot densities for persons with (x1, x2) = (0, 180) and (1, 180)
 cov <- matrix(c(0, 180, 0,   1, 180, 180), ncol = 3, byrow = TRUE)
 fdensity(fit1, cov = cov)
+
+## Compute estimates expectations of survival times for persons with
+## (x1, x2) = (0, 180), (1, 180), (0, 190), (1, 190), (0, 200), (1, 200)
+## and estimates of a difference of these expectations:
+## T(0, 180) - T(1, 180), T(0, 190) - T(1, 190), T(0, 200) - T(1, 200),
+cov1 <- matrix(c(0, 180, 0,   0, 190, 0,   0, 200, 0), ncol = 3, byrow = TRUE)
+cov2 <- matrix(c(1, 180, 180,   1, 190, 190,   1, 200, 200), ncol = 3, byrow = TRUE)
+print(estimTdiff(fit1, cov1 = cov1, cov2 = cov2))
 
 ## More involved examples can be found in script files
 ## used to perform analyses  and draw pictures 

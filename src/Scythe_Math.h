@@ -134,8 +134,8 @@ namespace SCYTHE {
 	Matrix<T> exp (Matrix<T>);
 
 	/* expm1 - exponent minus 1 */
-	template <class T>
-	Matrix<T> expm1 (Matrix<T>);
+//	template <class T>
+//	Matrix<T> expm1 (Matrix<T>);
 	
 	/* fabs - Calculate the absolute value of each Matrix element */
 	template <class T>

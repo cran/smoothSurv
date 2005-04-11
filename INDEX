@@ -1,6 +1,9 @@
 dextreme                Density of the Extreme Value Distribution of a
                         Minimum.
 dstlogis                Density of Standardized Logistic Distribution.
+estimTdiff              Estimate expectation of survival times and
+                        their difference from the results given by
+                        survival regression function
 eval.Gspline            Evaluate a G-spline in a grid of values
 fdensity.smoothSurvReg
                         Density for Objects of Class 'smoothSurvReg'

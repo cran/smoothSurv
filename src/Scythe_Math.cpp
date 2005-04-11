@@ -256,15 +256,15 @@ namespace SCYTHE {
 	}
 	
 	/* calc the exponent - 1 of each element of a Matrix */
-	template <class T>
-	Matrix<T>
-	expm1 (Matrix<T> A)
-	{
-		for (int i = 0; i < A.size(); ++i)
-			A[i] = ::expm1(A[i]);
-
-		return A;
-	}
+//	template <class T>
+//	Matrix<T>
+//	expm1 (Matrix<T> A)
+//	{
+//		for (int i = 0; i < A.size(); ++i)
+//			A[i] = ::expm1(A[i]);
+//
+//		return A;
+//	}
 	
 	/* calc the absval of each element of a Matrix */
 	template <class T>

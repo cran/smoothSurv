@@ -19,7 +19,7 @@ smoothSurvReg.fit(x, z, y, offset = NULL, correctlik, init, controlvals, common.
    }     
    \item{y}{
        A two- or three- column matrix with response. The last column
-       indicate the type of censoring. See \code{\link{Surv}} for details.
+       indicate the type of censoring. See \code{\link[survival]{Surv}} for details.
    }
    \item{offset}{
        A vector with possible offset term.
