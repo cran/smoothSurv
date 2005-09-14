@@ -33,7 +33,7 @@
   values).
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \examples{
   spline <- minPenalty(knots=seq(-4.2, 4.2, by=0.3), sdspline=0.2, difforder=3)$spline

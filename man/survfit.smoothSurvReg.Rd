@@ -71,7 +71,7 @@
    and \code{y} the values of the survivor/cum. distribution function at that grid.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \seealso{
    \code{\link{smoothSurvReg}}, \code{\link{plot}}

@@ -114,12 +114,17 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
    See \code{\link{smoothSurvReg.object}} for details.
 }
 \references{
-  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005)}}{Komarek, A., Lesaffre, E., and Hilton, J. F. (2005)}
-  Accelerated Failure Time Model for Arbitrarily censored Data with Smoothed Error Distribution. 
-  \emph{To appear in Journal of Computational and Graphical Statistics.}
+  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005).}}{Komarek, A., Lesaffre, E., and Hilton, J. F. (2005).}
+  Accelerated failure time model for arbitrarily censored data with smoothed error distribution. 
+  \emph{Journal of Computational and Graphical Statistics}, \bold{14},
+  726--745.
+
+  \eqn{\mbox{Lesaffre, E., Kom\'arek, A., and Declerck, D. (2005).}}{Lesaffre, E., Komarek, A., and Declerck, D. (2005).}
+  An overview of methods for interval-censored data with an emphasis on applications in dentistry.
+  \emph{To appear in Stattistical Methods in Medical Research.}
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \examples{
 ### We generate interval censored data and fit a model with few artificial covariates

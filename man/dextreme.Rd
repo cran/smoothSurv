@@ -38,7 +38,7 @@ dstextreme(x)
    The value of the density.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \examples{
 dextreme(1, (sqrt(6)/pi)*0.5772, sqrt(6)/pi)

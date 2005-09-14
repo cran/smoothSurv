@@ -34,7 +34,7 @@ find.c(knots, sdspline, dist = "dnorm")
    if there are problems to find them.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \examples{
 knots <- seq(-4, 4, 0.5)

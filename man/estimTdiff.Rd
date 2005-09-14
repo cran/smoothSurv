@@ -68,7 +68,7 @@ estimTdiff(x, \dots)
    and their standard errors.
 }   
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \seealso{
    \code{\link{smoothSurvReg}}

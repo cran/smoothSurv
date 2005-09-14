@@ -33,7 +33,7 @@ c.to.a(ccoef, which.zero = which.max(ccoef), toler = 1e-6)
    A vector of same length as \code{ccoef} with 'a' G-spline coefficients.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \seealso{\code{\link{a.to.c}}}
 \examples{

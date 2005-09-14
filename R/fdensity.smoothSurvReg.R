@@ -1,6 +1,6 @@
 ###############################################
 #### AUTHOR:    Arnost Komarek             ####
-####            (2004)                     ####
+####            (2005)                     ####
 ####                                       ####
 #### FILE:      fdensity.smoothSurvReg.R   ####
 ####                                       ####
@@ -160,7 +160,7 @@ fdensity.smoothSurvReg <-
    for (i in 1:row.cov){
       grid3 <- matrix(grid2[,i], ncol = 1)
       dfun <- apply(grid3, 1, "dfitted.un")
-      dens[[i]] <- (1/(grid - time0)) * dfun
+      dens[[i]] <- (1/(s0[i]*(grid - time0))) * dfun    ### corrected by AK on 14/09/2005 (added s0[i]*)
    }
 
    ## ylim

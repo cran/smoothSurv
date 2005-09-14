@@ -204,7 +204,7 @@ A data frame with columns named ``Lambda'', ``Log(Lambda)'', ``AIC'', ``df'',
 }
 }
 \author{
-\eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.ac.be}
+\eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
 \keyword{survival}
 \keyword{smooth}

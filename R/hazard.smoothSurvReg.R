@@ -187,7 +187,7 @@ hazard.smoothSurvReg <-
       Sfun <- apply(grid3, 1, "sfitted.un")
       dfun <- apply(grid3, 1, "dfitted.un")
       Sfun[Sfun <= 0] <- NA
-      haz[[i]] <- (1/(grid - time0)) * (dfun/Sfun)
+      haz[[i]] <- (1/(s0[i]*(grid - time0))) * (dfun/Sfun)    ### corrected by AK on 14/09/2005 (added s0[i]*)
    }
 
    ## ylim
