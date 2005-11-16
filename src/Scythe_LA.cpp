@@ -214,7 +214,7 @@ namespace SCYTHE {
 		}
  	 
 		// See how many rows are true
-		int N = accumulate(e.begin(), e.end(), (int) 0);
+		int N = std::accumulate(e.begin(), e.end(), (int) 0);
  	 
 		// declare and form output Matrix
 		Matrix<T> temp(N, A.cols(), false);
