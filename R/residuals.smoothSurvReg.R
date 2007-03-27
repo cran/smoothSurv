@@ -21,6 +21,7 @@ residuals.smoothSurvReg <- function(object, ...){
    est.scale <- object$estimated["Scale"]
    common.logscale <- object$estimated["common.logscale"]
    regres <- object$regres[, "Value"]
+   names(regres) <- rownames(object$regres)
    beta <- regres[1:nx]
    if (common.logscale){
      if (est.scale) scale <- regres["Scale"]

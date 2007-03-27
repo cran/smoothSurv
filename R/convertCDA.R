@@ -4,8 +4,8 @@
 ####                                   ####
 #### FILE:      convertCDA.R           ####
 ####                                   ####
-#### FUNCTIONS: c.to.a                 ####
-####            a.to.c                 ####
+#### FUNCTIONS: c2a                    ####
+####            a2c                    ####
 ####            derivative.expAD       ####
 ####            find.c                 ####
 ####            give.c                 ####
@@ -13,9 +13,9 @@
 ###########################################
 
 ### ========================================
-### c.to.a: Compute a coefficients from c's
+### c2a: Compute a coefficients from c's
 ### ========================================
-c.to.a <- function(ccoef, which.zero = which.max(ccoef), toler = 1e-6){
+c2a <- function(ccoef, which.zero = which.max(ccoef), toler = 1e-6){
    ccoef[ccoef < toler] <- toler
    c.zero <- ccoef[which.zero]
 
@@ -25,9 +25,9 @@ c.to.a <- function(ccoef, which.zero = which.max(ccoef), toler = 1e-6){
 
 
 ### ========================================
-### a.to.c: Function to compute c's from a's
+### a2c: Function to compute c's from a's
 ### =========================================
-a.to.c <- function(acoef){
+a2c <- function(acoef){
    ccoef <- exp(acoef)
    sum.exp.a <- sum(ccoef)
    if (is.nan(sum.exp.a)) return(NULL)

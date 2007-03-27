@@ -1,17 +1,24 @@
-\name{a.to.c}
-\alias{a.to.c}
+\name{c2a}
+\alias{c2a}
 \title{
    Work Function for 'smoothSurvReg'
 }
 \description{
-   Compute the 'c' G-spline coefficients from 'a' G-spline coefficients.
+   Compute the 'a' G-spline coefficients from 'c' G-spline coefficients.
 }
 \usage{
-a.to.c(acoef)
+c2a(ccoef, which.zero = which.max(ccoef), toler = 1e-6)
 }
 \arguments{
-   \item{acoef}{
-       A vector of 'a' G-spline coefficients.
+   \item{ccoef}{
+       A vector of 'c' G-spline coefficients.
+   }
+   \item{which.zero}{
+       An index of the 'a' G-spline coefficient which will be zero (the reference one).
+   }
+   \item{toler}{
+       All 'c' coefficients smaller in absolute value than \code{toler}
+       are changed into \code{toler} (to avoid \code{log(0)}).
    }
 }
 \details{
@@ -23,21 +30,21 @@ a.to.c(acoef)
 
 }
 \value{
-   A vector of same length as \code{acoef} with 'c' G-spline coefficients.
+   A vector of same length as \code{ccoef} with 'a' G-spline coefficients.
 }
 \author{
   \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
 }
-\seealso{\code{\link{c.to.a}}}
+\seealso{\code{\link{a2c}}}
 \examples{
 ccoef <- c(0.1, 0.2, 0.15, 0.3, 0.25)
 
 ### Compute 'a' counterparts
-acoef <- c.to.a(ccoef, 1)
+acoef <- c2a(ccoef, 1)
 print(acoef)
 
 ### And back 'c', ccoef2 should be same as ccoef
-ccoef2 <- a.to.c(acoef)
+ccoef2 <- a2c(acoef)
 print(ccoef2)
 }
 \keyword{internal}

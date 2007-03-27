@@ -52,7 +52,7 @@ smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
     beta <- init$beta
     gama <- init$logscale
     ccoef <- init$ccoef
-    acoef <- c.to.a(init$ccoef, last.three[1])
+    acoef <- c2a(init$ccoef, last.three[1])
 
     ## Design matrix (usually created in smoothSurvReg())
     if (!is.matrix(x)) stop("Invalid x matrix ")

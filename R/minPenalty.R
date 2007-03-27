@@ -66,7 +66,7 @@ minPenalty <- function(knots = NULL,
      init.c <- give.c(pars$knots, pars$sdspline, pars$last.three, init.c[-control$last.three])
      init.c[init.c < 1e-5] <- 1e-5
   }
-  acoef <- c.to.a(init.c, pars$last.three[1])  
+  acoef <- c2a(init.c, pars$last.three[1])  
 
   ### Optimize the penalty
   ### ---------------------

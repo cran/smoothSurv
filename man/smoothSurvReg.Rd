@@ -95,7 +95,7 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
    }
 }
 \details{
-   Read the paper paper.pdf found in /inst/doc directory of this library.
+   Read the papers referred below.
 
    There is a slight difference in the definition of the penalty used by the R function compared
    to what is written in the paper.
@@ -121,7 +121,8 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
 
   \eqn{\mbox{Lesaffre, E., Kom\'arek, A., and Declerck, D. (2005).}}{Lesaffre, E., Komarek, A., and Declerck, D. (2005).}
   An overview of methods for interval-censored data with an emphasis on applications in dentistry.
-  \emph{To appear in Stattistical Methods in Medical Research.}
+  \emph{Statistical Methods in Medical Research}, \bold{14}, 
+  539--552.  
 }
 \author{
   \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
