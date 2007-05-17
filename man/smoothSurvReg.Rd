@@ -173,10 +173,10 @@ print(estimTdiff(fit1, cov1 = cov1, cov2 = cov2))
 
 ## More involved examples can be found in script files
 ## used to perform analyses  and draw pictures 
-## presented in /doc/paper1.pdf and /doc/paper2.pdf of this library.
-## These scripts can be found as *.tar.gz files in the same directory.
+## presented in above mentioned references.
+## These scripts and some additional files can be found as *.tar.gz files in the same directory.
 ##
-## I am not sure whether Windows precombiled binary distributions
+## I am not sure whether Windows precompiled binary distributions
 ## of contributed packages contain this directory.
 ## If not, download source version of the library from CRAN
 ## (tar.gz file), unpack it and you find it.
