@@ -26,7 +26,7 @@ a2c(acoef)
    A vector of same length as \code{acoef} with 'c' G-spline coefficients.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek@med.kuleuven.be}
 }
 \seealso{\code{\link{c2a}}}
 \examples{

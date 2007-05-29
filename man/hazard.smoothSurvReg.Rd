@@ -68,7 +68,7 @@
    and \code{y} the values of the hazard function at that grid.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek@med.kuleuven.be}
 }
 \seealso{
    \code{\link{smoothSurvReg}}, \code{\link{plot}}

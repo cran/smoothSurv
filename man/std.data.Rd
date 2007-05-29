@@ -26,9 +26,12 @@ std.data(datain, cols)
 \value{
    A \code{data.frame} with same variables as the input \code{data.frame}.
    Chosen columns are standardized.
-}
+ }
+ \seealso{
+   \code{\link{scale}}
+ }  
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek@med.kuleuven.be}
 }
 \examples{
 variable1 <- rnorm(30)

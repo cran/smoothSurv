@@ -66,7 +66,7 @@ WARNING: This function was primarily used inside \code{\link{smoothSurvReg}}.
 Consequently, it has very few error checks on its input arguments.
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek@med.kuleuven.be}
 }
 \keyword{internal}
 \keyword{utilities}

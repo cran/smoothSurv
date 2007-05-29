@@ -114,18 +114,18 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
    See \code{\link{smoothSurvReg.object}} for details.
 }
 \references{
-  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005).}}{Komarek, A., Lesaffre, E., and Hilton, J. F. (2005).}
+  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005).}}{Kom&#225rek, A., Lesaffre, E., and Hilton, J. F. (2005).}
   Accelerated failure time model for arbitrarily censored data with smoothed error distribution. 
   \emph{Journal of Computational and Graphical Statistics}, \bold{14},
   726--745.
 
-  \eqn{\mbox{Lesaffre, E., Kom\'arek, A., and Declerck, D. (2005).}}{Lesaffre, E., Komarek, A., and Declerck, D. (2005).}
+  \eqn{\mbox{Lesaffre, E., Kom\'arek, A., and Declerck, D. (2005).}}{Lesaffre, E., Kom&#225rek, A., and Declerck, D. (2005).}
   An overview of methods for interval-censored data with an emphasis on applications in dentistry.
   \emph{Statistical Methods in Medical Research}, \bold{14}, 
   539--552.  
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arnost Komarek} \email{arnost.komarek@med.kuleuven.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek@med.kuleuven.be}
 }
 \examples{
 ### We generate interval censored data and fit a model with few artificial covariates
@@ -174,13 +174,9 @@ print(estimTdiff(fit1, cov1 = cov1, cov2 = cov2))
 ## More involved examples can be found in script files
 ## used to perform analyses  and draw pictures 
 ## presented in above mentioned references.
-## These scripts and some additional files can be found as *.tar.gz files in the same directory.
+## These scripts and some additional files can be found as *.tar.gz files
+## in the /inst/doc directory of this package.
 ##
-## I am not sure whether Windows precompiled binary distributions
-## of contributed packages contain this directory.
-## If not, download source version of the library from CRAN
-## (tar.gz file), unpack it and you find it.
-
 }
 \keyword{survival}
 \keyword{smooth}
