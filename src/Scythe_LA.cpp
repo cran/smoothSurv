@@ -74,7 +74,7 @@ namespace SCYTHE {
 	ones (const int& rows, const int& cols)
 	{
   	if (rows < 1 || cols < 1) {
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, std::string("Improper row (") & rows
 					& ") or column (" & cols & ") dimension");
   	}
@@ -140,7 +140,7 @@ namespace SCYTHE {
 	cbind (const Matrix<T> &A, const Matrix<T> &B)
 	{
 		if (A.rows() != B.rows()) {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrices have different number of rows");
 		}
 		
@@ -164,7 +164,7 @@ namespace SCYTHE {
 	rbind (const Matrix<T> &A, const Matrix<T> &B)
 	{
 		if (A.cols() != B.cols()) {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrices have different number of rows");
 		}
 		
@@ -185,7 +185,7 @@ namespace SCYTHE {
 	Matrix<int>
 	order(const Matrix<T> &A){
 		if (! A.isColVector()) {
-			throw scythe_dimension_error (__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error (__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A not a column vector");
 		}
 		Matrix<int> temp(A.rows(), 1, false);
@@ -204,12 +204,12 @@ namespace SCYTHE {
 	selif(const Matrix<T> &A, const Matrix<bool> &e)
 	{
 		if (A.rows() != e.rows()) {
-			throw scythe_dimension_error (__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error (__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A and e have different number of rows");
 		}
 	
 		if (! e.isColVector()) {
-			throw scythe_dimension_error (__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error (__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "e not a column vector");
 		}
  	 
@@ -247,7 +247,7 @@ namespace SCYTHE {
 	reshape(const Matrix<T> &A, const int &r, const int &c) 
 	{
 		if (A.size() != r * c)
-			throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+			throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 					std::string("Input dimensions (") & r & "," & c & ") not" &
 					" consistent with size of input matrix (" & A.size() & ")");
 	
@@ -263,7 +263,7 @@ namespace SCYTHE {
 	vech(const Matrix<T> &A)
 	{
 		if (! A.isSquare()) {
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrix not square");
   	}
 		Matrix<T> temp ((int) (0.5 * (A.size() - A.rows())) + A.rows(), 1,
@@ -284,7 +284,7 @@ namespace SCYTHE {
 	{
 	  double newrowsize_d = -.5 + .5 * ::sqrt(1 + 8 * A.size());      
 	  if (std::fmod(newrowsize_d, 1.0) != 0.0)
-			throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+			throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 					"Can't turn input vector into a square matrix");
 		
 		int newrowsize = (int) newrowsize_d;
@@ -305,7 +305,7 @@ namespace SCYTHE {
 	diag(const Matrix<T> &A)
 	{
 		if (A.rows() != A.cols())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrix not square");
 	
 		Matrix<T> temp(A.rows(), 1, false);
@@ -351,7 +351,7 @@ namespace SCYTHE {
 			}
 
 		} else {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, std::string("Expects (m x n  *  1 x 1  +  m x n)") &
 						"or (1 x 1  *  n x k  +  n x k) or (m x n  *  n x k  +" &
 						"  m x k");

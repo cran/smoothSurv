@@ -53,6 +53,27 @@
 #include <sstream>
 #include <iostream>
 
+/***** The following piece of code has been motivated by /usr/include/assert.h (in Debian Linux) *****/
+/***** and has been added by Arnost Komarek on 14/08/2007                                        *****/
+/***** ========================================================================================= *****/
+
+/* Version 2.4 and later of GCC define a magical variable `__PRETTY_FUNCTION__'
+   which contains the name of the function currently being defined.
+   This is broken in G++ before version 2.6.
+   C9x has a similar variable called __func__, but prefer the GCC one since
+   it demangles C++ function names.  */
+# if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
+#   define __AK_PRETTY_FUNCTION__ __PRETTY_FUNCTION__
+# else
+#  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#   define __AK_PRETTY_FUNCTION__ __func__
+#  else
+#   define __AK_PRETTY_FUNCTION__ ((__const char *) 0)
+#  endif
+# endif
+
+/***** ======================================================================================== *****/
+
 namespace SCYTHE {
 
         /**** This file-local variable holds the output of the last
@@ -141,12 +162,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_alloc_error (const std::string &file,
-													const std::string &function,
-													const unsigned int &line,
-													const std::string &message = "",
-													const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE_ALLOCATION_ERROR", file, function,
-														line, message, halt)
+					    const std::string &function,
+					    const unsigned int &line,
+					    const std::string &message = "",
+					    const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE_ALLOCATION_ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -154,12 +174,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_invalid_arg (	const std::string &file,
-														const std::string &function,
-														const unsigned int &line,
-														const std::string &message = "",
-														const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE_INVALID ARGUMENT", file, function,
-														line, message, halt)
+						const std::string &function,
+						const unsigned int &line,
+						const std::string &message = "",
+						const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE_INVALID ARGUMENT", file, function, line, message, halt)
 			{}
 	};
 	
@@ -167,12 +186,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_file_error (	const std::string &file,
-													const std::string &function,
-													const unsigned int &line,
-													const std::string &message = "",
-													const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE FILE ERROR", file, function,
-														line, message, halt)
+						const std::string &function,
+						const unsigned int &line,
+						const std::string &message = "",
+						const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE FILE ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -180,12 +198,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_conformation_error (	const std::string &file,
-																	const std::string &function,
-																	const unsigned int &line,
-																	const std::string &message = "",
-																	const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE CONFORMATION ERROR", file, function,
-														line, message, halt)
+							const std::string &function,
+							const unsigned int &line,
+							const std::string &message = "",
+							const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE CONFORMATION ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -193,12 +210,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_dimension_error (const std::string &file,
-															const std::string &function,
-															const unsigned int &line,
-															const std::string &message = "",
-															const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE DIMENSION ERROR", file, function,
-														line, message, halt)
+						const std::string &function,
+						const unsigned int &line,
+						const std::string &message = "",
+						const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE DIMENSION ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -206,12 +222,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_null_error (	const std::string &file,
-													const std::string &function,
-													const unsigned int &line,
-													const std::string &message = "",
-													const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE NULL ERROR", file, function,
-														line, message, halt)
+						const std::string &function,
+						const unsigned int &line,
+						const std::string &message = "",
+						const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE NULL ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -219,12 +234,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_type_error (	const std::string &file,
-													const std::string &function,
-													const unsigned int &line,
-													const std::string &message = "",
-													const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE TYPE ERROR", file, function,
-														line, message, halt)
+						const std::string &function,
+						const unsigned int &line,
+						const std::string &message = "",
+						const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE TYPE ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -236,8 +250,7 @@ namespace SCYTHE {
                                             const unsigned int &line,
                                             const std::string &message = "",
                                             const bool &halt = false) throw()
-                    :   scythe_exception("SCYTHE OUT OF RANGE ERROR", file, function,
-                                         line, message, halt)
+                    :   scythe_exception("SCYTHE OUT OF RANGE ERROR", file, function, line, message, halt)
                  {}
         };
 	
@@ -245,12 +258,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_convergence_error (	const std::string &file,
-																	const std::string &function,
-																	const unsigned int &line,
-																	const std::string &message = "",
-																	const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE CONVERGENCE ERROR", file, function,
-														line, message, halt)
+               						const std::string &function,
+		                			const unsigned int &line,
+				            		const std::string &message = "",
+						        const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE CONVERGENCE ERROR", file, function, line, message, halt)
 			{}
 	};
 	
@@ -258,12 +270,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_range_error(	const std::string &file,
-													const std::string &function,
-													const unsigned int &line,
-													const std::string &message = "",
-													const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE RANGE ERROR", file, function,
-														line, message, halt)
+						const std::string &function,
+             					const unsigned int &line,
+		             			const std::string &message = "",
+				        	const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE RANGE ERROR", file, function, line, message, halt)
 			{}
 	};
 
@@ -271,12 +282,11 @@ namespace SCYTHE {
 	{
 		public:
 			scythe_precision_error(	const std::string &file,
-															const std::string &function,
-															const unsigned int &line,
-															const std::string &message = "",
-															const bool &halt = false) throw()
-				:	scythe_exception("SCYTHE PRECISION ERROR", file, function,
-														line, message, halt)
+ 					        const std::string &function,
+						const unsigned int &line,
+						const std::string &message = "",
+						const bool &halt = false) throw()
+				:	scythe_exception("SCYTHE PRECISION ERROR", file, function, line, message, halt)
 			{}
 	};
 

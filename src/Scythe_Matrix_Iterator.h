@@ -503,8 +503,7 @@ namespace SCYTHE {
 			friend bool operator<(const row_major_iterator &a, const row_major_iterator &b)
 			{
 				if (a.matrix_ != b.matrix_)
-					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
-							__LINE__, 
+					throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__, 
 							"< Comparison on iterators to different matrices");
 				
 				if (a.current_ < b.current_)
@@ -713,8 +712,7 @@ namespace SCYTHE {
 			friend bool operator<(const const_row_major_iterator &a, const const_row_major_iterator &b)
 			{
 				if (a.matrix_ != b.matrix_)
-					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
-							__LINE__, 
+					throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__, 
 							"< Comparison on iterators to different matrices");
 				
 				if (a.current_ < b.current_)
@@ -968,8 +966,7 @@ namespace SCYTHE {
 			friend bool operator<(const col_major_iterator &a, const col_major_iterator &b)	
 			{
 				if (a.matrix_ != b.matrix_)
-					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
-							__LINE__, 
+					throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__, 
 							"< Comparison on iterators to different matrices");
 
 				
@@ -1245,7 +1242,7 @@ namespace SCYTHE {
 			friend bool operator<(const const_col_major_iterator &a, const const_col_major_iterator &b)	
 			{
 				if (a.matrix_ != b.matrix_)
-					throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,	__LINE__, 
+					throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__, 
 							"< Comparison on iterators to different matrices");
 
 				

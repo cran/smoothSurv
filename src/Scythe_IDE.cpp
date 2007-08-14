@@ -62,7 +62,7 @@ namespace SCYTHE {
 	cholesky (const Matrix<T> &A){
 	
 		if (! A.isSquare()) {
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrix not square");
 		}
 		
@@ -77,7 +77,7 @@ namespace SCYTHE {
 				}
 				if (i == j) {
 					if (h <= (T) 0) {
-						throw scythe_type_error(__FILE__, __PRETTY_FUNCTION__,
+						throw scythe_type_error(__FILE__, __AK_PRETTY_FUNCTION__,
 								__LINE__, "Matrix not positive definite");
 					}
 					temp(i,i) = ::sqrt(h);
@@ -99,7 +99,7 @@ namespace SCYTHE {
 		/* NOTE: cholesky() call does check for square/posdef of A */
 	
 		if ((! b.isColVector()) || A.rows() != b.rows() || ! A.isSquare()) {
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Inputs not proper dimension");
 		}
 	
@@ -141,7 +141,7 @@ namespace SCYTHE {
 	{
 		if (b.cols() != 1 || A.rows() != b.rows() || A.rows() != M.rows()
 			|| ! A.isSquare() || ! M.isSquare()) {
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Inputs not proper dimension");
 		}
 		register T *y = new T[A.rows()];
@@ -181,7 +181,7 @@ namespace SCYTHE {
 	{	
   	// SYMMETRY OF A *IS NOT* CHECKED
 		if (! A.isSquare())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrix not square");
 	
 		// Cholesky decomp
@@ -196,7 +196,7 @@ namespace SCYTHE {
 				}
 				if (i == j) {
 					if (h <= (T) 0) {
-						throw scythe_type_error(__FILE__, __PRETTY_FUNCTION__,
+						throw scythe_type_error(__FILE__, __AK_PRETTY_FUNCTION__,
 								__LINE__, "Matrix not positive definite");
 					}
 					M(i,i) = ::sqrt(h);
@@ -256,7 +256,7 @@ namespace SCYTHE {
 	invpd (const Matrix<T> &A, const Matrix<T> &M)
 	{
 		if (A.rows() != M.cols() || A.cols() != M.rows())
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A and M do not conform");
 			
 		register T h;
@@ -314,7 +314,7 @@ namespace SCYTHE {
 						Matrix<int> &perm_vec)
 	{
 		if (! A.isSquare())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrix A not square");
 
 		if (A.isRowVector()) {
@@ -339,7 +339,7 @@ namespace SCYTHE {
 			}
 			
 			if (A(pivot,k) == (T) 0)
-				throw scythe_type_error(__FILE__, __PRETTY_FUNCTION__,
+				throw scythe_type_error(__FILE__, __AK_PRETTY_FUNCTION__,
 						__LINE__, "Matrix is singular");
 
 			// permute
@@ -377,15 +377,15 @@ namespace SCYTHE {
 	lu_solve(Matrix<T> A, const Matrix<T> &b)
 	{
 		if (! b.isColVector())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "b is not a column vector");
  	 
 		if (! A.isSquare())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Matrix A not square");
 
 		if (A.rows() != b.rows())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A.rows() != b.rows()");
  	 
 		// step 1 compute the LU factorization 
@@ -413,7 +413,7 @@ namespace SCYTHE {
 				}
 				
 				if (A(pivot,k) == (T) 0)
-					throw scythe_type_error(__FILE__, __PRETTY_FUNCTION__,
+					throw scythe_type_error(__FILE__, __AK_PRETTY_FUNCTION__,
 							__LINE__, "Matrix is singular");
 	
 				// permute
@@ -478,24 +478,24 @@ namespace SCYTHE {
 						const Matrix<T> &U, const Matrix<int> &perm_vec) 
 	{
 		if (! b.isColVector())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "b is not a column vector");
 
 		if (! A.isSquare())
-			throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A is not square");
 
 		if (A.rows() != b.rows())
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A and b have different row sizes");
 
 		if (A.rows() != L.rows() || A.rows() != U.rows() ||
 				A.cols() != L.cols() || A.cols() != U.cols())
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A, L, and U do not conform");
 
 		if (perm_vec.rows() + 1 != A.rows())
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "perm_vec does not have exactly one less row than A");
   
   
@@ -530,11 +530,11 @@ namespace SCYTHE {
 	Matrix<T>
 	row_interchange(Matrix<T> A, const Matrix<int> &p){
 		if (! p.isColVector()) {
-			throw scythe_dimension_error (__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_dimension_error (__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "p not a column vector");
 		}
 		if (p.rows() + 1 != A.rows()) {
-			throw scythe_conformation_error (__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error (__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "p must have one less row than A");
 		}
 

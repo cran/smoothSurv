@@ -168,7 +168,7 @@ namespace SCYTHE {
       inline T &operator[] (const int &i)
 	{
 	  if ( !inRange(i)) {
-	    throw scythe_out_of_range_error (__FILE__,__PRETTY_FUNCTION__,
+	    throw scythe_out_of_range_error (__FILE__,__AK_PRETTY_FUNCTION__,
 					     __LINE__, std::string("Index ") & i &
 					     " out of range");
 	  }
@@ -179,7 +179,7 @@ namespace SCYTHE {
       inline T &operator() (const int &i, const int &j)
 	{
 	  if (! inRange(i, j)) {
-	    throw scythe_out_of_range_error(__FILE__,__PRETTY_FUNCTION__,
+	    throw scythe_out_of_range_error(__FILE__,__AK_PRETTY_FUNCTION__,
 					    __LINE__, std::string("Index (") & i & "," &  j &
 					    ") out of range");
 	  }
@@ -190,7 +190,7 @@ namespace SCYTHE {
       inline T &operator[] (const int &i) const
 	{
 	  if (! inRange(i)) {
-	    throw scythe_out_of_range_error (__FILE__,__PRETTY_FUNCTION__,
+	    throw scythe_out_of_range_error (__FILE__,__AK_PRETTY_FUNCTION__,
 					     __LINE__, std::string("Index ") & i &
 					     " out of range");
 	  }
@@ -200,7 +200,7 @@ namespace SCYTHE {
       inline T &operator() (const int &i, const int &j) const
 	{
 	  if (! inRange(i, j)) {
-	    throw scythe_out_of_range_error(__FILE__,__PRETTY_FUNCTION__,
+	    throw scythe_out_of_range_error(__FILE__,__AK_PRETTY_FUNCTION__,
 					    __LINE__, std::string("Index (") & i & "," &  j &
 					    ") out of range");
 	  }
@@ -389,7 +389,7 @@ namespace SCYTHE {
       inline void resize(const int &rows, const int &cols)
 	{
 	  if (rows < 0 || cols < 0)
-	    throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
+	    throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__,
 				     __LINE__, "Rows or cols < 0");
 
 	  resize(rows * cols);
@@ -483,7 +483,7 @@ namespace SCYTHE {
       inline int getAllocSize(const int &size) const
 	{
 	  if (size < 0) {
-	    throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+	    throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				     __LINE__, "Can't allocate Matrix of size < 0");
 	  } else if (size == 0) {
 	    return 1;
@@ -527,7 +527,7 @@ namespace SCYTHE {
 	  data_ = new (std::nothrow) T[alloc_];
 
 	  if (data_ == 0) {
-	    throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+	    throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				     __LINE__, "Failed to reallocate internal array");
 	  }
 
@@ -545,7 +545,7 @@ namespace SCYTHE {
 	  data_ = new (std::nothrow) T[alloc_];
 
 	  if (data_ == 0) {
-	    throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+	    throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				     __LINE__, "Failed to reallocate internal array");
 	  }
 

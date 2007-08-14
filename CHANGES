@@ -1,0 +1,11 @@
+14/08/2007
+==========
+* new macro __AK_PRETTY_FUNCTION__ defined in Scythe_Error.h
+* all instances of __PRETTY_FUNCTION__ replaced by __AK_PRETTY_FUNCTION__ 
+  in files: Scythe_Matrix.h (8x)
+            Scythe_Matrix_Iterator.h (4x)
+            Scythe_IDE.cpp (20x)
+            Scythe_LA.cpp (11x)
+            Scythe_Math.cpp (7x)
+            Scythe_Matrix.cpp (43x)
+            AKMatrix.cpp (2x)

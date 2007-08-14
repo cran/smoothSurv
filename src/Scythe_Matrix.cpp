@@ -73,7 +73,7 @@ namespace SCYTHE {
     //data_ = (T*) malloc(sizeof(T) * alloc_);
     data_ = new (std::nothrow) T[alloc_];
     if (data_ == 0) {
-      throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 			       __LINE__, "Failure allocating null Matrix");
     }
   }
@@ -90,7 +90,7 @@ namespace SCYTHE {
     //data_ = (T*) malloc(sizeof(T) * alloc_);
     data_ = new (std::nothrow) T[alloc_];
     if (data_ == 0) {
-      throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 			       __LINE__, "Failure allocating Matrix of size 1");
     } else
       data_[0] = e;
@@ -109,7 +109,7 @@ namespace SCYTHE {
     //data_ = (T*) malloc(sizeof(T) * alloc_);
     data_ = new (std::nothrow) T[alloc_];
     if (data_ == 0) {
-      throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 			       __LINE__,
 			       std::string("Error allocating Matrix of size ")&(n * m));
     } else if (fill) {
@@ -141,7 +141,7 @@ namespace SCYTHE {
     //data_ = (T*) malloc(sizeof(T) * alloc_);
     data_ = new (std::nothrow) T[alloc_];
     if (data_ == 0) {
-      throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			       std::string("Failure allocating Matrix of size ") & (n * m));
     } else if (type == NORMAL) {
       for (int i = 0; i < rows_; ++i) {
@@ -151,7 +151,7 @@ namespace SCYTHE {
       }
     } else if (type == REPEAT) {
       if (a <= 0 || a > n * m) {
-	throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
+	throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__,
 				 __LINE__, "REPEAT requires a s.t. 0 < a <= n * m ");
       } else {
 	int cnt = 0;
@@ -195,7 +195,7 @@ namespace SCYTHE {
       }
     } else if (type == BLOCK) {
       if (a < 0 || b < 0 || c < a || d < b || c >= n || d >= m) {
-	throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
+	throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__,
 				 __LINE__,"BLOCK requires (a, b, c, d) s.t. 0 <= a <= c < n; \
 0 <= b <= d < m");
       } else {
@@ -210,7 +210,7 @@ namespace SCYTHE {
 	}
       }
     } else { // undefined IN_TYPE
-      throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__,
 			       __LINE__, "Undefined IN_TYPE");
     }
   }
@@ -225,26 +225,26 @@ namespace SCYTHE {
   {
     std::ifstream file(path.c_str());
     if (! file) {
-      throw scythe_file_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_file_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      std::string("Could not open ") & path);
     } else {
       file >> rows_ >> cols_;
       if (file.eof() || rows_ <= 0 || cols_ <= 0) {
-	throw scythe_file_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+	throw scythe_file_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 				"Bad file format");
       } else {
 	alloc_ = getAllocSize(rows_ * cols_);
 				//data_ = (T*) malloc(sizeof(T) * alloc_);
 	data_ = new (std::nothrow) T[alloc_];
 	if (data_ == 0) {
-	  throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__,
+	  throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				   __LINE__,
 				   std::string("Failure allocating Matrix of size ")
 				   & size());
 	} else {
 	  for (int i = 0; i < size(); ++i) {
 	    if (file.eof())
-	      throw scythe_file_error(__FILE__, __PRETTY_FUNCTION__,
+	      throw scythe_file_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, std::string("Reached end of file before ")
 				      & size() & " values were read");
 
@@ -267,7 +267,7 @@ namespace SCYTHE {
     //data_ = (T *) malloc(sizeof(T) * alloc_);
     data_ = new (std::nothrow) T[alloc_];
     if (data_ == 0) {
-      throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			       std::string("Failure allocating Matrix of size ") & size());
     } else {
       for (int i = 0; i < size(); ++i) {
@@ -288,7 +288,7 @@ namespace SCYTHE {
     alloc_ = getAllocSize(rows_ * cols_);
     data_ = new (std::nothrow) T[alloc_];
     if (data_ == 0) {
-      throw scythe_alloc_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_alloc_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			       std::string("Failure allocating Matrix of size ") & size());
     } else {
       S *mdata = m.getArray();
@@ -313,7 +313,7 @@ namespace SCYTHE {
 			 const int &d) const
   {
     if (c < a || d < b || !inRange(a,b) || !inRange(c,d)) {
-      throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			       "() requires (a, b, c, d) s.t. 0 <= a <= c < rows_; \
 0 <= b <= d < cols");
       return Matrix((c - a + 1), (d - b + 1));
@@ -335,7 +335,7 @@ namespace SCYTHE {
   Matrix<T>
   Matrix<T>::operator() (const all_elements& a, const int& j){
     if (j >= cols_ || j < 0) {
-      throw scythe_out_of_range_error (__FILE__,__PRETTY_FUNCTION__,
+      throw scythe_out_of_range_error (__FILE__,__AK_PRETTY_FUNCTION__,
 				       __LINE__, std::string("Index ") & j &
 				       " out of range");
     }
@@ -358,7 +358,7 @@ namespace SCYTHE {
   Matrix<T>
   Matrix<T>::operator() (const int& i, const all_elements& a){
     if (i >= rows_ || i < 0) {
-      throw scythe_out_of_range_error (__FILE__,__PRETTY_FUNCTION__,
+      throw scythe_out_of_range_error (__FILE__,__AK_PRETTY_FUNCTION__,
 				       __LINE__, std::string("Index ") & i &
 				       " out of range");
     }
@@ -420,7 +420,7 @@ namespace SCYTHE {
       for (int i = 0; i < size(); ++i)
 	data_[i] += m.data_[i];
     } else { // error
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices are not addition conformable");
     }
     return *this;
@@ -446,7 +446,7 @@ namespace SCYTHE {
       for (int i = 0; i < size(); ++i)
 	data_[i] -= m.data_[i];
     } else { // error
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices are not subtraction conformable");
     }
     return *this;
@@ -472,7 +472,7 @@ namespace SCYTHE {
       alloc_ = getAllocSize(rows_ * m.cols_);
       T* temp = new (std::nothrow) T[alloc_];
       if (temp == 0) {
-	throw scythe_alloc_error(__FILE__,__PRETTY_FUNCTION__, __LINE__,
+	throw scythe_alloc_error(__FILE__,__AK_PRETTY_FUNCTION__, __LINE__,
 				 "Failure allocating space for multiplication");
 	return *this;
       }
@@ -499,7 +499,7 @@ namespace SCYTHE {
       delete[] data_;
       data_ = temp;
     } else { // error
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices are not multiplication conformable");
     }
     return *this;
@@ -543,7 +543,7 @@ namespace SCYTHE {
       for (int i = 0; i < size(); ++i)
 	data_[i] /= m.data_[i];
     } else { // error
-      throw scythe_conformation_error (__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error (__FILE__, __AK_PRETTY_FUNCTION__,
 				       __LINE__, "Matrices are not division conformable");
     }
     return *this;
@@ -566,7 +566,7 @@ namespace SCYTHE {
       for (int i = 0; i < size(); ++i)
 	data_[i] *= m.data_[i];
     } else { // error
-      throw scythe_conformation_error (__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error (__FILE__, __AK_PRETTY_FUNCTION__,
 				       __LINE__, "Matrices are not element-by-element multiplication conformable");
     }
     return *this;
@@ -579,7 +579,7 @@ namespace SCYTHE {
   {
     if (e > 0) {
       if (! isSquare()) {
-	throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+	throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				     __LINE__,
 				     std::string("Matrix must be square to raise it to  the ")
 				     & e & " power");
@@ -601,12 +601,12 @@ namespace SCYTHE {
     } else if (e == -1) {
       // Case 3: A^-1 == inverse of this
       if (! isSquare()) {
-	throw scythe_dimension_error(__FILE__, __PRETTY_FUNCTION__,
+	throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				     __LINE__, "Matrix not square");
 	return *this;
        }
       if (isNull()) {
-	throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__,
+	throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__);
 	return *this;
       }
@@ -633,7 +633,7 @@ namespace SCYTHE {
 	  }
 	  // check for singularity
 	  if (A(pivot, k) == 0) {
-	    throw scythe_type_error(__FILE__, __PRETTY_FUNCTION__,
+	    throw scythe_type_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				    __LINE__, "Matrix is singular");
 	    return *this;
 	  }
@@ -705,7 +705,7 @@ namespace SCYTHE {
 	  (*this)(k,j) = x[k];
       }
     } else { // error A^=n not defined where n < -1
-      throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			       "Invalid argument: -1");
     }
     return *this;
@@ -875,12 +875,12 @@ namespace SCYTHE {
     else if (flag == 'a')
       out.open(path.c_str(), std::ios::out | std::ios::app);
     else {
-      throw scythe_invalid_arg(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_invalid_arg(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			       std::string("Incorrect flag ") & flag);
       return;
     }
     if (! out || err) {
-      throw scythe_file_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_file_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      std::string("Could not open file ") & path);
       return;
     }
@@ -1051,7 +1051,7 @@ namespace SCYTHE {
   {
     Matrix<bool> C = Matrix<bool>(A.rows(), A.cols(), false);
     if (A.isNull() || B.isNull()) {
-      throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      "Invalid use of NULL Matrix");
     } else if (B.isScalar()) {
       // Case 1: Compare every element in A to B[0]
@@ -1076,7 +1076,7 @@ namespace SCYTHE {
 	  C(i,j) = (A(i,j) == B[j]);
       }
     } else {
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices not conformable");
     }
     return C;
@@ -1102,7 +1102,7 @@ namespace SCYTHE {
   {
     Matrix<bool> C = Matrix<bool>(A.rows(), A.cols(), false);
     if (A.isNull() || B.isNull()) {
-      throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      "Invalid use of NULL Matrix");
     } else if (B.isScalar()) {
       // Case 1: Compare every element in A to B[0]
@@ -1127,7 +1127,7 @@ namespace SCYTHE {
 	  C(i,j) = (A(i,j) != B[j]);
       }
     } else {
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices not conformable");
     }
     return C;
@@ -1153,7 +1153,7 @@ namespace SCYTHE {
   {
     Matrix<bool> C = Matrix<bool>(A.rows(), A.cols(), false);
     if (A.isNull() || B.isNull()) {
-      throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      "Invalid use of NULL Matrix");
     } else if (B.isScalar()) {
       // Case 1: Compare every element in A to B[0]
@@ -1178,7 +1178,7 @@ namespace SCYTHE {
 	  C(i,j) = (A(i,j) < B[j]);
       }
     } else {
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices not conformable");
     }
     return C;
@@ -1204,7 +1204,7 @@ namespace SCYTHE {
   {
     Matrix<bool> C = Matrix<bool>(A.rows(), A.cols(), false);
     if (A.isNull() || B.isNull()) {
-      throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      "Invalid use of NULL Matrix");
     } else if (B.isScalar()) {
       // Case 1: Compare every element in A to B[0]
@@ -1229,7 +1229,7 @@ namespace SCYTHE {
 	  C(i,j) = (A(i,j) > B[j]);
       }
     } else {
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices not conformable");
     }
     return C;
@@ -1255,7 +1255,7 @@ namespace SCYTHE {
   {
     Matrix<bool> C = Matrix<bool>(A.rows(), A.cols(), false);
     if (A.isNull() || B.isNull()) {
-      throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      "Invalid use of NULL Matrix");
     } else if (B.isScalar()) {
       // Case 1: Compare every element in A to B[0]
@@ -1280,7 +1280,7 @@ namespace SCYTHE {
 	  C(i,j) = (A(i,j) <= B[j]);
       }
     } else {
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices not conformable");
     }
     return C;
@@ -1306,7 +1306,7 @@ namespace SCYTHE {
   {
     Matrix<bool> C = Matrix<bool>(A.rows(), A.cols());
     if (A.isNull() || B.isNull()) {
-      throw scythe_null_error(__FILE__, __PRETTY_FUNCTION__, __LINE__,
+      throw scythe_null_error(__FILE__, __AK_PRETTY_FUNCTION__, __LINE__,
 			      "Invalid use of NULL Matrix");
     } else if (B.isScalar()) {
       // Case 1: Compare every element in A to B[0]
@@ -1331,7 +1331,7 @@ namespace SCYTHE {
 	  C(i,j) = (A(i,j) >= B[j]);
       }
     } else {
-      throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+      throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				      __LINE__, "Matrices not conformable");
     }
     return C;
@@ -1524,12 +1524,12 @@ namespace SCYTHE {
   operator~ (Matrix <T> A) // no reference because LU kills the matrix
   {
     if (! A.isSquare()) {
-      throw scythe_dimension_error(__FILE__,__PRETTY_FUNCTION__,
+      throw scythe_dimension_error(__FILE__,__AK_PRETTY_FUNCTION__,
 				   __LINE__, "Matrix not square");
       return 0;
     }
     if (A.isNull()) {
-      throw scythe_null_error(__FILE__,__PRETTY_FUNCTION__,
+      throw scythe_null_error(__FILE__,__AK_PRETTY_FUNCTION__,
 			      __LINE__, "Matrix is NULL");
       return 0;
     }

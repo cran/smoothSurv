@@ -142,7 +142,7 @@ namespace SCYTHE {
 			for (int i = 0; i < A.size(); ++i)
 				temp[i] = ::atan2(A[i], B[i]);
 		} else {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "A.size() != B.size() and neither A nor B is scalar");
 		}
 
@@ -193,7 +193,7 @@ namespace SCYTHE {
 			for (int i = 0; i < A.size(); ++i)
 				temp[i] = ::copysign(A[i], B[i]);
 		} else {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "A.size() != B.size() and neither A nor B is scalar");
 		}
 
@@ -308,7 +308,7 @@ namespace SCYTHE {
 			for (int i = 0; i < A.size(); ++i)
 				temp[i] = ::fmod(A[i], B[i]);
 		} else {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "A.size() != B.size() and neither A nor B is scalar");
 		}
 
@@ -323,7 +323,7 @@ namespace SCYTHE {
 	frexp (Matrix<T> A, Matrix<int> &ex)
 	{
 		if (A.size() != ex.size())
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "The input matrix sizes do not match");
 
 		for (int i = 0; i < A.size(); ++i)
@@ -352,7 +352,7 @@ namespace SCYTHE {
 			for (int i = 0; i < A.size(); ++i)
 				temp[i] = ::hypot(A[i], B[i]);
 		} else {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "A.size() != B.size() and neither A nor B is scalar");
 		}
 
@@ -478,7 +478,7 @@ namespace SCYTHE {
 	modf (Matrix<T> A, Matrix<double> &iret)
 	{
 		if (A.size() != iret.size())
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "The input matrix sizes do not match");
 
 		for (int i = 0; i < A.size(); ++i)
@@ -518,7 +518,7 @@ namespace SCYTHE {
 			for (int i = 0; i < A.size(); ++i)
 				temp[i] = ::remainder(A[i], B[i]);
 		} else {
-			throw scythe_conformation_error(__FILE__, __PRETTY_FUNCTION__,
+			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 				__LINE__, "A.size() != B.size() and neither A nor B is scalar");
 		}
 

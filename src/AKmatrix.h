@@ -8,7 +8,7 @@
 // B - 3000, Leuven
 // Belgium
 //
-// arnost.komarek@med.kuleuven.ac.be
+// arnost.komarek@med.kuleuven.be
 //
 //
 // This program is free software; you can redistribute it and/or
