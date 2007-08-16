@@ -1,6 +1,6 @@
 Package: smoothSurv
-Version: 0.3-9
-Date: 2007-08-14
+Version: 0.3-10
+Date: 2007-08-16
 Title: Survival Regression with Smoothed Error Distribution 
 Author: Arnost Komarek <arnost.komarek@med.kuleuven.be>
 Maintainer: Arnost Komarek <arnost.komarek@med.kuleuven.be>
@@ -13,4 +13,4 @@ Description: This package contains primarily a function to fit
                using the Scythe Statistical Libary Version 0.3.
 License: GPL version 2 or newer
 URL: http://perswww.kuleuven.be/arnost_komarek
-Packaged: Tue Aug 14 11:52:34 2007; komari
+Packaged: Thu Aug 16 08:49:17 2007; komari

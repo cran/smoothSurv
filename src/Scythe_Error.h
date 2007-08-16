@@ -62,7 +62,8 @@
    This is broken in G++ before version 2.6.
    C9x has a similar variable called __func__, but prefer the GCC one since
    it demangles C++ function names.  */
-# if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
+//# if defined __cplusplus ? __GNUC_PREREQ (2, 6) : __GNUC_PREREQ (2, 4)
+# if defined __GNUC__ && __GNUC__ >= 2
 #   define __AK_PRETTY_FUNCTION__ __PRETTY_FUNCTION__
 # else
 #  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L

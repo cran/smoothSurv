@@ -121,8 +121,11 @@ using namespace SCYTHE;
 
    double lambda,                // tuning parameter for the penalty term
           sigmaZero,             // standard deviation of one basis "spline"
+          sigmaZeroInv,          // inversion of the standard deviation of one basis "spline" (added on 15/08/2007)
           invsigmaZero,          // inversion of sigmaZero
           logsigmaZero;          // log(sigmaZero)
+
+  Matrix<double> oneMat;         // 1x1 matrix containing 1 (added on 15/08/2007)
 
    bool estScale,                // true if scale is to be estimated
         estA,                    // true if a's are to be estimated
@@ -261,8 +264,10 @@ smoothSurvReg84(int *nP,   int *nyP,   int *nBetaP,   int *nGammaP,  int *nSplin
 
      lambda = (n > 0 ? n*(*lambdaP) : 1.0);
      sigmaZero = *sigmaZeroP;
+     sigmaZeroInv = 1/sigmaZero;                                        // added on 15/08/2007
      invsigmaZero = (sigmaZero > 0) ? (1/sigmaZero) : FLT_MAX;
      logsigmaZero = (sigmaZero > 0) ? log(sigmaZero) : (-FLT_MAX);
+     oneMat = Matrix<double>(1.0);                                      // added on 15/08/2007
 
   // Status vector and response vector/matrix.
      int *statusarray = new int[n];

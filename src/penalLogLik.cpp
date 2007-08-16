@@ -98,8 +98,12 @@ using namespace SCYTHE;
 
    extern double lambda,                // tuning parameter for the penalty term
                  sigmaZero,             // standard deviation of one basis "spline"
+                 sigmaZeroInv,          // inversion of the standard deviation of one basis "spline" (added on 15/08/2007)
                  invsigmaZero,          // inversion of sigmaZero
                  logsigmaZero;          // log(sigmaZero)
+
+  extern Matrix<double> oneMat;         // 1x1 matrix containing 1 (added on 15/08/2007)
+
 
    extern bool estScale,                // true if scale is to be estimated
                estA,                    // true if a's are to be estimated
@@ -380,11 +384,11 @@ penalLogLik(const Matrix<double> & Theta,
       scale = exp(logscale);
       Matrix<double> eta = XMat * Beta + offset;       // linear predictor  (n x 1)
       Matrix<double> w1Mat = (resp1Mat - eta)/scale;   // censored residuals (or lower limits of residuals in interval censored case) (n x 1)
-      Matrix<double> ss0 = 1 / (scale*sigmaZero);
+      Matrix<double> ss0 = oneMat / (scale*sigmaZero);
       Matrix<double> s2s02 = ss0 & ss0;
       double s0 = invsigmaZero;
       double s02 = s0 * s0;
-      Matrix<double> ss02 = (1 / scale) * s02;
+      Matrix<double> ss02 = (oneMat / scale) * s02;
 
     // Variables used in the loop over persons,
     //   variables used for interval censored observations have "subscript" 2
@@ -454,7 +458,7 @@ penalLogLik(const Matrix<double> & Theta,
       }
 
     // Following quantities are used for all possible censoring patterns
-      Matrix<double> wm1Mat = (ww1 - mm)/sigmaZero;        // matrix (n x g), wm1Mat(i, j) = (w1[i] - mu[j]) / sigma0
+      Matrix<double> wm1Mat = sigmaZeroInv*(ww1 - mm);        // matrix (n x g), wm1Mat(i, j) = (w1[i] - mu[j]) / sigma0
 
     // Loop over persons to compute derivatives and likelihood contributions
       for (person = 0; person < n; person++) {
@@ -649,7 +653,7 @@ penalLogLik(const Matrix<double> & Theta,
             case 3:
                 Swm1 = Snorm(wm1);
                 w2 = (resp2Mat[person] - eta[person])/scale[person]; // upper censored residual
-                wm2 = (w2 - knotsMat)/sigmaZero;                     // vector (g x 1)
+                wm2 = sigmaZeroInv*(w2 - knotsMat);                  // vector (g x 1)
                 Swm2 = Snorm(wm2);
                 deltaSwm = Swm1 - Swm2;                              // vector (g x 1)
                 deltaS = (tCcoef * deltaSwm)[0];

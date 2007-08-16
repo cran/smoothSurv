@@ -318,14 +318,26 @@ namespace SCYTHE {
 0 <= b <= d < cols");
       return Matrix((c - a + 1), (d - b + 1));
     }
-    int cnt = 0;
-    double temp[(c - a + 1) * (d - b + 1)];
-    for (int i = a; i <= c; ++i) {
-      for (int j = b; j <= d; ++j) {
-	temp[cnt++] = data_[ijIndex(i, j)];
-      }
-    }
-    return Matrix ((c - a + 1), (d - b + 1), temp);
+
+    /*** Original code, invalid (needs dynamic memory allocation for temp!)                       ***/
+    /*** replaced by the code below (from a newer Scythe distribution) on 14/08/2007              ***/
+    /*** ======================================================================================== ***/
+    //int cnt = 0;
+    //double temp[(c - a + 1) * (d - b + 1)];
+    //for (int i = a; i <= c; ++i) {
+    //  for (int j = b; j <= d; ++j) {
+    //	temp[cnt++] = data_[ijIndex(i, j)];
+    //  }
+    //}
+    //return Matrix ((c - a + 1), (d - b + 1), temp);
+
+    int cnt = -1;
+    Matrix<T> temp((c - a + 1), (d - b + 1), false);
+    for (int i = a; i <= c; ++i)
+      for (int j = b; j <= d; ++j)
+        temp.data_[++cnt] = data_[i * cols_ + j];
+			
+    return temp;
   }
 
 

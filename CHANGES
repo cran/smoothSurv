@@ -1,6 +1,6 @@
 14/08/2007
 ==========
-* new macro __AK_PRETTY_FUNCTION__ defined in Scythe_Error.h
+* new macro __AK_PRETTY_FUNCTION__ defined in Scythe_Error.h to avoid back compatibility problems with some compilers (thanks to B. Ripley)
 * all instances of __PRETTY_FUNCTION__ replaced by __AK_PRETTY_FUNCTION__ 
   in files: Scythe_Matrix.h (8x)
             Scythe_Matrix_Iterator.h (4x)
@@ -9,3 +9,7 @@
             Scythe_Math.cpp (7x)
             Scythe_Matrix.cpp (43x)
             AKMatrix.cpp (2x)
+
+* bug in Scythe_Matrix.cpp (in Submatrix operator) fixed
+
+* operations of the type "int / SCYTHE::Matrix<double>" and "SCYTHE::Matrix<double> / double" which were declared as illegal by Sun's compilers (thanks to B. Ripley) fixed
