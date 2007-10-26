@@ -125,7 +125,7 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
   539--552.  
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek@med.kuleuven.be}
+  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{komarek@karlin.mff.cuni.cz}
 }
 \examples{
 ### We generate interval censored data and fit a model with few artificial covariates

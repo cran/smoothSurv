@@ -12,13 +12,13 @@
 //
 // Arnost Komarek
 //
-// Biostatistical Centre
-// Katholieke Universiteit Leuven
-// Kapucijnenvoer 35
-// B - 3000, Leuven
-// Belgium
+// Dept. of Probability and Mathematical Statistics
+// Charles University
+// Sokolovska 83
+// CZ - 186 75, Praha 8
+// the Czech Republic
 //
-// arnost.komarek@med.kuleuven.ac.be
+// komarek@karlin.mff.cuni.cz
 //
 //
 // This program is free software; you can redistribute it and/or
