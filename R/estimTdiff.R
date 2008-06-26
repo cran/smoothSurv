@@ -92,7 +92,7 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
     if (ncovz == 1){
       logscale.cov1 <- matrix(logscale.cov1, ncol = 1)
       logscale.cov2 <- matrix(logscale.cov2, ncol = 1)
-      if (length(logscale.cov1) != length(logscalecov2)) 
+      if (length(logscale.cov1) != length(logscale.cov2)) 
         stop("logscale.cov1 and logscale.cov2 must be of same length.")
     }
     if (ncovz > 1){
@@ -167,8 +167,8 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
       logscale1 <- sint + as.numeric(logscale.cov1 %*% pars.scale)
       logscale2 <- sint + as.numeric(logscale.cov2 %*% pars.scale)
       if (is.intercept.inscale){
-        logscale.cov1 <- cbind(rep(1, row.cov), cov1)      ## add intercept to the covariates
-        logscale.cov2 <- cbind(rep(1, row.cov), cov2)      ## to be used in further computation
+        logscale.cov1 <- cbind(rep(1, row.cov), logscale.cov1)      ## add intercept to the covariates
+        logscale.cov2 <- cbind(rep(1, row.cov), logscale.cov2)      ## to be used in further computation
       }
     }
     else{    ## this should never happen if !common.logscale
@@ -230,7 +230,7 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
   dET1 <- t(cov1) * matrix(ET1, nrow = ncov + 1, ncol = row.cov, byrow = TRUE)
   dET2 <- t(cov2) * matrix(ET2, nrow = ncov + 1, ncol = row.cov, byrow = TRUE)
   ddiffT <- dET1 - dET2
-  
+
   ## Derivatives of E(s0*epsilon)
   if (est.scale){
     c.mu.expm.1 <- knotsrep * expm.1
@@ -248,11 +248,15 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
     dET2dgamma <- dMdgamma.2 * exp(eta2)        
 
     if (!common.logscale){
-      dET1ds <- t(logscale.cov1) * matrix(dET1dgamma, nrow = logscale.ncov + 1, ncol = row.cov, byrow = TRUE)
-      dET2ds <- t(logscale.cov2) * matrix(dET2dgamma, nrow = logscale.ncov + 1, ncol = row.cov, byrow = TRUE)
-      dET1 <- rbind(dET1, dET1ds)
-      dET2 <- rbind(dET2, dET2ds)
-      ddiffT <- rbind(ddiffT, dET1ds - dET2ds)
+      stop("Not (yet) implemented when the scale depends on covariates")
+      ### There is a problem in the following two lines
+      ### -> logscale.ncov is not defined and I do not know any more (26/06/2008) what it should be...
+      ### -> I might have sometimes some time to explore this back in more details
+      #26/06/2008 dET1ds <- t(logscale.cov1) * matrix(dET1dgamma, nrow = logscale.ncov + 1, ncol = row.cov, byrow = TRUE)
+      #26/06/2008 dET2ds <- t(logscale.cov2) * matrix(dET2dgamma, nrow = logscale.ncov + 1, ncol = row.cov, byrow = TRUE)
+      #26/06/2008 dET1 <- rbind(dET1, dET1ds)
+      #26/06/2008 dET2 <- rbind(dET2, dET2ds)
+      #26/06/2008 ddiffT <- rbind(ddiffT, dET1ds - dET2ds)
     }      
     else{
       dET1 <- rbind(dET1, dET1dgamma)

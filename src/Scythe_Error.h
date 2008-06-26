@@ -52,6 +52,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <cstdlib>      /* added by AK on 26/06/2008 to provide abort() in g++ 4.3 compiler  */
 
 /***** The following piece of code has been motivated by /usr/include/assert.h (in Debian Linux) *****/
 /***** and has been added by Arnost Komarek on 14/08/2007                                        *****/

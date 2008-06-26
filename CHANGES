@@ -1,3 +1,8 @@
+26/06/2008
+==========
+* #include <cstdlib> added to Scythe_Error.h to let abort() work also with g++ 4.3
+* estimTdiff.smoothSurvReg will no more work when logscale.cov1 and logscale.cov2 are specified
+
 14/08/2007
 ==========
 * new macro __AK_PRETTY_FUNCTION__ defined in Scythe_Error.h to avoid back compatibility problems with some compilers (thanks to B. Ripley)

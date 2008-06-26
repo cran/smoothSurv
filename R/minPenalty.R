@@ -60,10 +60,10 @@ minPenalty <- function(knots = NULL,
      }
   }
   else{
-     if(length(init.c) != control$nsplines) stop("Incorrect length of the vector of initial c coefficients. ")
+     if(length(init.c) != pars$nsplines) stop("Incorrect length of the vector of initial c coefficients. ")
      if((sum(init.c) < 0.99) || (sum(init.c) > 1.01)) stop("Sum of initial c coefficients is not 1. ")
      if((sum(init.c < 0) > 0) || (sum(init.c > 1) > 0)) stop("All c coefficients must be between 0 and 1. ")
-     init.c <- give.c(pars$knots, pars$sdspline, pars$last.three, init.c[-control$last.three])
+     init.c <- give.c(pars$knots, pars$sdspline, pars$last.three, init.c[-pars$last.three])
      init.c[init.c < 1e-5] <- 1e-5
   }
   acoef <- c2a(init.c, pars$last.three[1])  
