@@ -1,3 +1,8 @@
+27/04/2009
+==========
+* lines fit.logn$failure <- 2; fit.logl$failure <- 2; fit.weib$failure <- 2 in smoothSurvReg.R commented
+  due to changes in survival package in R 2.9.0 (argument 'failure' is no more included in survreg.control)
+
 26/06/2008
 ==========
 * #include <cstdlib> added to Scythe_Error.h to let abort() work also with g++ 4.3

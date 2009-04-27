@@ -84,12 +84,12 @@ smoothSurvReg <- function(formula = formula(data),
    fit.logn[[1]] <- as.name("survreg")
    fit.logl[[1]] <- as.name("survreg")
    fit.weib[[1]] <- as.name("survreg")
-   fit.logn$dist <- "lognormal"
+   fit.logn$dist <- "lognormal"          
    fit.logl$dist <- "loglogistic"
    fit.weib$dist <- "weibull"
-   fit.logn$failure <- 2
-   fit.logl$failure <- 2
-   fit.weib$failure <- 2
+   #fit.logn$failure <- 2       ### this argument used to be passed to survreg.control in R 2.8.1 and older
+   #fit.logl$failure <- 2       ### * starting from R 2.9.0, 'failure' is no more argument of survreg.control
+   #fit.weib$failure <- 2
    fit.logn <- eval(fit.logn, parent.frame())
    fit.logl <- eval(fit.logl, parent.frame())
    fit.weib <- eval(fit.weib, parent.frame())
