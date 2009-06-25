@@ -11,7 +11,8 @@
 }
 \usage{
 estimTdiff(x, \dots)
-\method{estimTdiff}{smoothSurvReg}(x, cov1, cov2, logscale.cov1, logscale.cov2, time0 = 0, \dots)
+\method{estimTdiff}{smoothSurvReg}(x, cov1, cov2, logscale.cov1, logscale.cov2,
+    time0 = 0, conf.level=0.95, \dots)
 }
 \arguments{
    \item{x}{
@@ -50,13 +51,17 @@ estimTdiff(x, \dots)
       Starting time of the follow-up as used in the model. I.e. the
       model is assumed to be \eqn{\log(T-time0) = x'\beta + 
 	\sigma\varepsilon}{log(T-time0) = x'beta + sigma*epsilon} 
-    }   
+    }
+    \item{conf.level}{confidence level of produced confidence intervals.}
     \item{\dots}{who knows
     }
 }
 \value{
-   A \code{data.frame} with columns named ``ET1'', ``sd.ET1'', ``ET2'',
-   ``sd.ET2'', ``diffT'', ``sd.diffT'' giving the estimates of expected
+   A \code{data.frame} with columns named ``ET1'', ``sd.ET1'',
+   ``ET1.lower'', ``ET1.upper'', 
+   `ET2'', ``sd.ET2'', ``ET2.lower'', ``ET2.upper'', 
+   ``diffT'', ``sd.diffT'', ``diffT.lower'', ``diffT.upper''
+   giving the estimates of expected
    values of the survival times for covariate values given in rows of
    \code{cov1} and \code{logscale.cov1}, 
    their standard errors, estimates of expected values of
@@ -64,8 +69,8 @@ estimTdiff(x, \dots)
    and \code{logscale.cov2},
    their standard errors and estimates of a difference of expected
    values of survival times for covariate values given in rows of
-   \code{cov1}, \code{logscale.cov1} and \code{cov2}, \code{logscale.cov2} 
-   and their standard errors.
+   \code{cov1}, \code{logscale.cov1} and \code{cov2}, \code{logscale.cov2},
+   their standard errors and confidence intervals.
 }   
 \author{
   \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek[AT]mff.cuni.cz}

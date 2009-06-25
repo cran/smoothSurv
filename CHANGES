@@ -1,3 +1,8 @@
+12/06/2009
+==========
+* computation of confidence intervals added to estimTdiff
+* print.estimTdiff adjusted to give nicer output when there are no covariates in the model
+
 27/04/2009
 ==========
 * lines fit.logn$failure <- 2; fit.logl$failure <- 2; fit.weib$failure <- 2 in smoothSurvReg.R commented

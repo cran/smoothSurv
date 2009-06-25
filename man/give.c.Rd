@@ -25,7 +25,7 @@ give.c(knots, sdspline, last.three, c.rest)
       \code{1:length(knots)}.
    }
    \item{c.rest}{
-      A vector of \code{\length(knots) - 3} 'c' spline coefficients
+      A vector of \code{length(knots) - 3} 'c' spline coefficients
       corresponding to knots \code{knots[-last.three]}. 
       They must all lie between zero and one and their sum must be lower 
       or equal to one.

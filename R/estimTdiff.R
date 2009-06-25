@@ -15,7 +15,7 @@ estimTdiff <- function(x, ...)
 }
 
 
-estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2, time0 = 0, ...)
+estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2, time0 = 0, conf.level=0.95, ...)
 {
   if (x$fail >= 99) {
     cat("No estimate of T difference, smoothSurvReg failed.\n")
@@ -287,8 +287,24 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
   sdET1 <- sqrt(varET1)
   sdET2 <- sqrt(varET2)
   sddiffT <- sqrt(vardiffT)
-  
-  obj <- data.frame(ET1 = ET1 + time0, sd.ET1 = sdET1, ET2 = ET2 + time0, sd.ET2 = sdET2, diffT = diffT, sd.diffT = sddiffT)
+
+  alpha <- 1 - conf.level
+  if (alpha <= 0 | alpha >= 1) stop("incorrect confidence level supplied")
+  u <- qnorm(1 - alpha/2)
+  ET1.lower <- ET1 + time0 - sdET1*u
+  ET1.lower[ET1.lower < 0] <- 0
+  ET1.upper <- ET1 + time0 + sdET1*u  
+  #
+  ET2.lower <- ET2 + time0 - sdET2*u
+  ET2.lower[ET2.lower < 0] <- 0
+  ET2.upper <- ET2 + time0 + sdET2*u  
+  #
+  diffT.lower <- diffT - sddiffT*u
+  diffT.upper <- diffT + sddiffT*u
+    
+  obj <- data.frame(ET1 = ET1 + time0, sd.ET1 = sdET1, ET1.lower= ET1.lower, ET1.upper= ET1.upper, 
+                    ET2 = ET2 + time0, sd.ET2 = sdET2, ET2.lower= ET2.lower, ET2.upper= ET2.upper, 
+                    diffT = diffT, sd.diffT = sddiffT, diffT.lower=diffT.lower, diffT.upper=diffT.upper)
 
   if (ncov > 1){
     cov1 <- cov1[, -1]                   ## Remove intercept from the covariates
@@ -313,7 +329,8 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
     rownames(logscale.cov1) <- paste("Value ", 1:row.cov, sep = "")
     rownames(logscale.cov2) <- paste("Value ", 1:row.cov, sep = "")    
   }    
-  
+
+  attr(obj, "conf.level") <- conf.level
   attr(obj, "cov1") <- cov1
   attr(obj, "cov2") <- cov2
   if (!common.logscale){
