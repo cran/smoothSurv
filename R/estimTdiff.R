@@ -1,13 +1,14 @@
-####################################################
-#### AUTHOR:    Arnost Komarek                  ####
-####            25/02/2004                      ####
-###             03/05/2004                      ####
-####                                            ####
-#### FILE:      estimTdiff.R                    ####
-####                                            ####
-#### FUNCTIONS: estimTdiff                      ####
-####            estimTdiff.smoothSurvReg        ####
-####################################################
+######################################################################################################
+#### AUTHOR:    Arnost Komarek                                                                    ####
+####            25/02/2004                                                                        ####
+###             03/05/2004                                                                        ####
+###             14/01/2010:  debugging for the case that there is only one covariate in a model   ####
+####                                                                                              ####
+#### FILE:      estimTdiff.R                                                                      ####
+####                                                                                              ####
+#### FUNCTIONS: estimTdiff                                                                        ####
+####            estimTdiff.smoothSurvReg                                                          ####
+######################################################################################################
 
 estimTdiff <- function(x, ...)
 {
@@ -143,7 +144,7 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
      cov2 <- cov1
   }
 
-
+  
 ## LINEAR PREDICTORS FOR LOG-SCALE, AND COMPUTATION OF A SCALE
 ## ===========================================================
   if (!common.logscale){
@@ -305,10 +306,15 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
   obj <- data.frame(ET1 = ET1 + time0, sd.ET1 = sdET1, ET1.lower= ET1.lower, ET1.upper= ET1.upper, 
                     ET2 = ET2 + time0, sd.ET2 = sdET2, ET2.lower= ET2.lower, ET2.upper= ET2.upper, 
                     diffT = diffT, sd.diffT = sddiffT, diffT.lower=diffT.lower, diffT.upper=diffT.upper)
+  rownames(obj) <- 1:nrow(obj)
 
-  if (ncov > 1){
+  if (ncov > 0){                 ### 14/01/2010:  changed from 'if (ncov > 1)' which was not correct 
     cov1 <- cov1[, -1]                   ## Remove intercept from the covariates
     cov2 <- cov2[, -1]
+    if (ncov == 1){                      ### added on 14/01//2010
+      cov1 <- matrix(cov1, ncol=1)       ### added on 14/01//2010
+      cov2 <- matrix(cov2, ncol=1)       ### added on 14/01//2010
+    }                                    ### added on 14/01//2010
     colnames(cov1) <- regrname
     colnames(cov2) <- regrname
     rownames(cov1) <- paste("Value ", 1:row.cov, sep = "")

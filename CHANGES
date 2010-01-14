@@ -1,3 +1,7 @@
+14/01/2010
+==========
+* bug fixed in estimTdiff (estimTdiff did not work correctly when there was only 1 covariate in a model)
+
 12/06/2009
 ==========
 * computation of confidence intervals added to estimTdiff
