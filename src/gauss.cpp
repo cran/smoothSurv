@@ -63,10 +63,10 @@ Snorm(double z)
 {
      double survf;
      if (z > 0) {
-       survf =  erfc(z/ROOT_2) /2;
+       survf =  erfcAK(z/ROOT_2) /2;
      }
      else {
-       survf = (1 + erf(-z/ROOT_2))/2;
+       survf = (1 + erfAK(-z/ROOT_2))/2;
      }
 
      return survf;
@@ -94,10 +94,10 @@ Fnorm(double z)
 {
      double cdff;
      if (z > 0) {
-       cdff = (1 + erf(z/ROOT_2))/2;
+       cdff = (1 + erfAK(z/ROOT_2))/2;
      }
      else {
-       cdff = erfc(-z/ROOT_2) /2;
+       cdff = erfcAK(-z/ROOT_2) /2;
      }
 
      return cdff;
@@ -153,10 +153,10 @@ SnormZero(double z)
 {
      double survf;
      if (z > 0) {
-       survf =  erfc(z/ROOT_2) /2;
+       survf =  erfcAK(z/ROOT_2) /2;
      }
      else {
-       survf = (1 + erf(-z/ROOT_2))/2;
+       survf = (1 + erfAK(-z/ROOT_2))/2;
      }
      if (survf < ZERO) survf = ZERO;
      return survf;
@@ -184,10 +184,10 @@ FnormZero(double z)
 {
      double cdff;
      if (z > 0) {
-       cdff = (1 + erf(z/ROOT_2))/2;
+       cdff = (1 + erfAK(z/ROOT_2))/2;
      }
      else {
-       cdff = erfc(-z/ROOT_2) /2;
+       cdff = erfcAK(-z/ROOT_2) /2;
      }
      if (cdff < ZERO) cdff = ZERO;
      return cdff;

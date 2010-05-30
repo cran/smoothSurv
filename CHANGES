@@ -1,3 +1,8 @@
+30/05/2010
+==========
+* erf and erfc in gauss.h and gauss.cpp changed to erfAK, erfcAK
+  (there were some conflicts with /usr/include/bits/mathcalls.h reported by CRAN checks)
+
 14/01/2010
 ==========
 * bug fixed in estimTdiff (estimTdiff did not work correctly when there was only 1 covariate in a model)

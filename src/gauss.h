@@ -28,6 +28,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA
 //
+// 30/05/2010:  erf, erfc changed to erfAK, erfcAK
+//              becaues of some conflicts with /usr/include/bits/mathcalls.h
+//              reported by CRAN checks
+//
 
 #ifndef GAUSS_H
 #define GAUSS_H
@@ -43,13 +47,13 @@ const double ZERO = 1e-50;
 using namespace SCYTHE;
 
 // Return 2 * Phi(x * sqrt(2)) - 1
-inline double erf(double x)
+inline double erfAK(double x)
 {
   return 2*pnorm(x*ROOT_2, 0, 1, 1, 0) - 1;
 }
 
 // Return 2 * Phi(-x * sqrt(2))
-inline double erfc(double x)
+inline double erfcAK(double x)
 {
   return 2*pnorm(-x*ROOT_2, 0, 1, 1, 0);
 }
