@@ -1,0 +1,33 @@
+citHeader("To cite package 'smoothSurv' in publications, please, use either of the following article:")
+     
+desc <- packageDescription("smoothSurv")
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", desc$Date)
+vers <- paste("R package version", desc$Version)
+
+citEntry(entry   = "Article",
+         title   = "Accelerated failure time model for arbitrarily censored data with smoothed error distribution",
+         author  = "Arno\\v{s}t Kom\\'arek, Emmanuel Lesaffre, Joan F. Hilton",
+         journal = "Journal of Computational and Graphical Statistics",
+         year    = "2005",
+         volume  = "14",
+         number  = "3",
+         pages   = "726-745",
+         doi     = "10.1198/106186005X63734",
+         textVersion = "Komarek, A., Lesaffre, E., and Hilton, J. F. (2005). 
+                        Accelerated failure time model for arbitrarily censored data 
+                        with smoothed error distribution.
+                        Journal of Computational and Graphical Statistics, 14(3), 726-745. doi: 10.1198/106186005X63734.")
+
+citEntry(entry   = "Article",
+         title   = "Statistical Methods in Medical Research",
+         author  = "Emmanuel Lesaffre, Arno\\v{s}t Kom\\'arek, Dominique Declerck",
+         journal = "An overview of methods for interval-censored data with an emphasis on applications in dentistry",
+         year    = "2005",
+         volume  = "14",
+         number  = "6",
+         pages   = "539-552",
+         doi     = "10.1191/0962280205sm417oa",
+         textVersion = "Komarek, A., Lesaffre, E., and Hilton, J. F. (2005). 
+                        An overview of methods for interval-censored data with 
+                        an emphasis on applications in dentistry
+                        Statistical Methods in Medical Research, 14(6), 539-552. doi: 10.1191/0962280205sm417oa.")

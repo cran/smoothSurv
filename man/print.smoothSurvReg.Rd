@@ -13,13 +13,13 @@
   \samp{Std.Error} \tab - \tab estimated standard error based on the
     pseudo-variance estimate (3.1) \cr
     \tab \tab in
-         \eqn{\mbox{Kom\'arek, Lesaffre and Hilton (2005)}}{%
-              Kom&#225rek, Lesaffre and Hilton (2005)} \cr
+         Komárek, Lesaffre and Hilton (2005)
+    \cr
   \samp{Std.Error2} \tab - \tab estimated standard error based on the
      asymptotic variance estimate (3.2) \cr
      \tab \tab in
-          \eqn{\mbox{Kom\'arek, Lesaffre and Hilton (2005)}}{%
-               Kom&#225rek, Lesaffre and Hilton (2005)} \cr
+          Komárek, Lesaffre and Hilton (2005)
+     \cr
   \samp{Z} \tab - \tab the Wald statistic obtained as \samp{Value} divided by
     \samp{Std.Error} \cr
   \samp{Z2} \tab - \tab the Wald statistic obtained as \samp{Value} divided
@@ -37,19 +37,16 @@
     \tab \tab divided by the sample size,
     i.e., \eqn{\lambda/n}{lambda/n} in the notation \cr
     \tab \tab of
-    \eqn{\mbox{Kom\'arek, Lesaffre and Hilton (2005)}}{%
-      Kom&#225rek, Lesaffre and Hilton (2005)}
+    Komárek, Lesaffre and Hilton (2005)
     \cr
     \samp{Log(Lambda)} \tab - \tab logarithm of the above \cr
     \samp{df} \tab - \tab effective degrees of freedom of the model, see
     Section 2.2.3 \cr
-        \tab \tab of \eqn{\mbox{Kom\'arek, Lesaffre and Hilton (2005)}}{%
-	Kom&#225rek, Lesaffre and Hilton (2005)}
+        \tab \tab of Komárek, Lesaffre and Hilton (2005)
     \cr
     \samp{AIC} \tab - \tab Akaike's information criterion of the model, see
     Section 2.2.3 \cr
-      \tab \tab of \eqn{\mbox{Kom\'arek, Lesaffre and Hilton (2005)}}{%
-      Kom&#225rek, Lesaffre and Hilton (2005)}
+      \tab \tab of Komárek, Lesaffre and Hilton (2005)
     \cr
   }  
 
@@ -76,18 +73,18 @@
    }
  }
 \references{
-  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005).}}{Kom&#225rek, A., Lesaffre, E., and Hilton, J. F. (2005).}
+  Komárek, A., Lesaffre, E., and Hilton, J. F. (2005).
   Accelerated failure time model for arbitrarily censored data with smoothed error distribution. 
   \emph{Journal of Computational and Graphical Statistics}, \bold{14},
   726--745.
 
-  \eqn{\mbox{Lesaffre, E., Kom\'arek, A., and Declerck, D. (2005).}}{Lesaffre, E., Kom&#225rek, A., and Declerck, D. (2005).}
+  Lesaffre, E., Komárek, A., and Declerck, D. (2005).
   An overview of methods for interval-censored data with an emphasis on applications in dentistry.
   \emph{Statistical Methods in Medical Research}, \bold{14}, 
   539--552.  
 } 
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
 }
 \seealso{
    \code{\link{smoothSurvReg}}, \code{\link{print}}, \code{\link{summary}}

@@ -527,11 +527,19 @@ smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
 ##  * eigen values lower than or equal to toler are considered to be 0
 ##  * !!! x is assumed to be symmetric
 MP.pseudoinv <- function(x, toler = 1e-7){
-   eigen.x <- La.eigen(x, symmetric = TRUE)
+   #eigen.x <- La.eigen(x, symmetric = TRUE)  ## From some point, La.eigen is no longer part of R as it is no longer needed.
+                                              ## It became a default for eigen.
+   eigen.x <- eigen(x, symmetric = TRUE)  
    nonZeroEV <- abs(eigen.x$values) > toler
-   ev.x <- diag(eigen.x$values[nonZeroEV])
+
+   llambda <- sum(nonZeroEV)
+   if (!llambda) return(NA)
+   lambda <- eigen.x$values[nonZeroEV]
+   
+   ev.x <- diag(lambda, nrow=llambda, ncol=llambda)
    evec.x <- eigen.x$vectors[, nonZeroEV]
-   x.inv <- evec.x %*% (diag(1/diag(ev.x))) %*% t(evec.x)    ## Moore-Penrose pseudoinverse of x
+   x.inv <- evec.x %*% diag(1/lambda, nrow=llambda, ncol=llambda) %*% t(evec.x)    ## Moore-Penrose pseudoinverse of x
+   
    return(x.inv)
 }
 

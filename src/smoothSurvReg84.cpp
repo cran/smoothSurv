@@ -1152,8 +1152,10 @@ smoothSurvReg84(int *nP,   int *nyP,   int *nBetaP,   int *nGammaP,  int *nSplin
 
       if (debug > 0){
          Matrix<double> LagrScore = UMatD - XiMat[0] * dCon0 - XiMat[1] * dCon1;
-         cout << "Unadjusted 'a' score = " << t(UMatD).toString() << "\n";
-         cout << "Lagrange 'a' score = " << t(LagrScore).toString() << "\n";
+         //cout << "Unadjusted 'a' score = " << t(UMatD).toString() << "\n";
+         //cout << "Lagrange 'a' score = " << t(LagrScore).toString() << "\n";
+         //Rprintf("Unadjusted 'a' score = %s\n", (char*)(&t(UMatD).toString()));    // compiler complains warning: taking address of temporary
+         //Rprintf("Lagrange 'a' score = %s\n", (char*)(&t(LagrScore).toString()));  // uncomment it only when debug > 0
       }
 
       for (i = 0; i < nD * nD; i++){

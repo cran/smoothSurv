@@ -1,0 +1,38 @@
+# Load dynamic library
+useDynLib(smoothSurv)
+
+
+# Export all names
+export("smoothSurvReg", "piece", "dextreme", "dstextreme", "dstlogis")
+export("smoothSurvReg.control")
+export("smoothSurvReg.fit", "MP.pseudoinv")
+
+S3method(survfit, "smoothSurvReg")
+S3method(summary, "smoothSurvReg")
+S3method(plot, "smoothSurvReg")
+S3method(print, "smoothSurvReg")
+S3method(residuals, "smoothSurvReg")
+
+export("fdensity")
+S3method(fdensity, "smoothSurvReg")
+
+export("hazard")
+S3method(hazard, "smoothSurvReg")
+
+exportClasses("estimTdiff")
+S3method(print, "estimTdiff")
+
+export("estimTdiff")
+S3method(estimTdiff, "smoothSurvReg")
+
+export("c2a", "a2c", "derivative.expAD", "find.c", "give.c", "derivative.cc3")
+export("eval.Gspline")
+export("minPenalty")
+export("std.data")
+
+
+# Import all packages listed as Imports or Depends
+import(
+  survival
+)
+

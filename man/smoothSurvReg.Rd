@@ -114,18 +114,18 @@ smoothSurvReg(formula = formula(data), logscale = ~1,
    See \code{\link{smoothSurvReg.object}} for details.
 }
 \references{
-  \eqn{\mbox{Kom\'arek, A., Lesaffre, E., and Hilton, J. F. (2005).}}{Kom&#225rek, A., Lesaffre, E., and Hilton, J. F. (2005).}
+  Komárek, A., Lesaffre, E., and Hilton, J. F. (2005).
   Accelerated failure time model for arbitrarily censored data with smoothed error distribution. 
   \emph{Journal of Computational and Graphical Statistics}, \bold{14},
   726--745.
 
-  \eqn{\mbox{Lesaffre, E., Kom\'arek, A., and Declerck, D. (2005).}}{Lesaffre, E., Kom&#225rek, A., and Declerck, D. (2005).}
+  Lesaffre, E., Komárek, A., and Declerck, D. (2005).
   An overview of methods for interval-censored data with an emphasis on applications in dentistry.
   \emph{Statistical Methods in Medical Research}, \bold{14}, 
   539--552.  
 }
 \author{
-  \eqn{\mbox{Arno\v{s}t Kom\'arek}}{Arno&#353t Kom&#225rek} \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
 }
 \examples{
 ##### EXAMPLE 1:  Common scale

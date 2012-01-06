@@ -1,3 +1,8 @@
+06/01/2012
+==========
+* NAMESPACE added
+* MP.pseudoinv function (smoothSurvReg.fit.R): La.eigen replaced by eigen.
+
 30/05/2010
 ==========
 * erf and erfc in gauss.h and gauss.cpp changed to erfAK, erfcAK

@@ -10,11 +10,17 @@
 ### =============================================
 ### .First.lib
 ### =============================================
-.First.lib <- function(lib, pkg)
+.onAttach <- function(libname, pkgname)
+#.First.lib <- function(libname, pkgname)
 {
-   require(survival)
-   library.dynam("smoothSurv", pkg, lib)
+   library.dynam("smoothSurv", pkgname, libname)
 
+   packageStartupMessage(paste(
+       "\n",
+       "### Survival Regression with Smoothed Error Distribution \n",
+       "### Arnost Komarek\n\n",
+       "### See citation(\"smoothSurv\") or toBibtex(citation(\"smoothSurv\")) for the best way to cite\n",
+       "### the package if you find it useful.\n\n", sep=""))
+   
    invisible()
 }
-
