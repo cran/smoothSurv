@@ -27,7 +27,7 @@ citEntry(entry   = "Article",
          number  = "6",
          pages   = "539-552",
          doi     = "10.1191/0962280205sm417oa",
-         textVersion = "Komarek, A., Lesaffre, E., and Hilton, J. F. (2005). 
+         textVersion = "Lesaffre, E., Komarek, A., and Declerck, D. (2005). 
                         An overview of methods for interval-censored data with 
-                        an emphasis on applications in dentistry
+                        an emphasis on applications in dentistry.
                         Statistical Methods in Medical Research, 14(6), 539-552. doi: 10.1191/0962280205sm417oa.")
