@@ -55,6 +55,7 @@
 //#include <cstdlib>      /* added by AK on 26/06/2008 to provide abort() in g++ 4.3 compiler     */
                           /* again commented on 06/01/2012 after replacement of abort by R error  */
 #include <R.h>            /* added by AK on 06/01/2012 to provide error()                         */
+#undef error
 
 /***** The following piece of code has been motivated by /usr/include/assert.h (in Debian Linux) *****/
 /***** and has been added by Arnost Komarek on 14/08/2007                                        *****/
@@ -300,7 +301,7 @@ namespace SCYTHE {
 	        //std::cerr << serr << std::endl;      
 	        //std::cerr << std::endl;
 	        //abort();
-                error("%s\n\n", (char*)(&serr));     // added on 20120106 to replace previsous three rows
+                Rf_error("%s\n\n", (char*)(&serr));     // added on 20120106 to replace previsous three rows
 
 	}
 

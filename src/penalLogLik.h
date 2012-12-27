@@ -30,9 +30,6 @@
 #ifndef PENAL_LOG_LIK_H_
 #define PENAL_LOG_LIK_H_
 
-#include <R.h>
-#include <Rmath.h>
-
 #include <iostream>
 #include <cmath>
 #include <cfloat>
@@ -46,6 +43,9 @@
 #include "Scythe_Stat.h"
 #include "Scythe_IDE.h"
 #include "Scythe_LA.h"
+
+#include <R.h>
+#include <Rmath.h>
 
 using namespace SCYTHE;
 

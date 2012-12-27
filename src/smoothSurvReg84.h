@@ -30,9 +30,6 @@
 #ifndef smooth_Surv84_S_H
 #define smooth_Surv84_S_H
 
-#include <R.h>
-#include <Rmath.h>
-
 #include <iostream>
 #include <cmath>
 #include <cfloat>
@@ -52,6 +49,9 @@
 #include "Scythe_Stat.h"
 #include "Scythe_IDE.h"
 #include "Scythe_LA.h"
+
+#include <R.h>
+#include <Rmath.h>
 
 const int non_conv_flag = 1000;          // flag for non-convergence
 

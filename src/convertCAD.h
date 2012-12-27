@@ -40,9 +40,6 @@
 #ifndef CONVERT_C_A_D_H
 #define CONVERT_C_A_D_H
 
-#include <R.h>
-#include <Rmath.h>
-
 #include <cmath>
 #include <cfloat>
 
@@ -50,6 +47,9 @@
 #include "Scythe_Math.h"
 #include "Scythe_Stat.h"
 #include "Scythe_LA.h"
+
+#include <R.h>
+#include <Rmath.h>
 
 using namespace SCYTHE;
 

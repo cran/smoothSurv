@@ -1,4 +1,4 @@
-77061357d2178ef88d836dbe449e85c3 *DESCRIPTION
+52290c7264b6cdbcba886799e0b35abc *DESCRIPTION
 1112b5b71b2e2d339de873dd5c2788d9 *NAMESPACE
 bcb16e4113fe6cbd02731842009ade49 *NEWS
 e7c5d5e5288f49224d76e8a0b6e4d647 *R/convertCDA.R
@@ -48,7 +48,7 @@ f0eab6ff4515d2d9d3b9d6f1dc7d01a2 *man/smoothSurvReg.control.Rd
 ef1d9c141372dece2613c18124547212 *man/survfit.smoothSurvReg.Rd
 c9d2b42665b0cf200a4f802d18f15211 *src/AKmatrix.cpp
 90e36340b1406c32c50471dc2901d744 *src/AKmatrix.h
-10364c435f6adbfa9f950b151b95485d *src/Scythe_Error.h
+590a5b491d30c7661e87b5315895eaf0 *src/Scythe_Error.h
 5d2dd04256de895c19c49e034d6d3378 *src/Scythe_IDE.cpp
 f45280c621cf79ad849268e5cf6657c9 *src/Scythe_IDE.h
 925be28bbc6400f757eac7a8394dcd50 *src/Scythe_LA.cpp
@@ -62,7 +62,7 @@ d144729aa6a7af0ca1631018e97e9bc6 *src/Scythe_Matrix.cpp
 4431a658557c77316d0a077392f9c066 *src/Scythe_Stat.h
 b61d9804d7646bc7b5ebaddb29809cbb *src/Scythe_Util.h
 c6439acd337f157632af06f584583d60 *src/convertCAD.cpp
-4559addf3b49f9508f113c2af49531f8 *src/convertCAD.h
+1372e46988ab33170ff56ed287e58f83 *src/convertCAD.h
 03259909afede42b21e6c612464c2e38 *src/createPosDef.cpp
 b2f3856b9f2133f4f5a389e210b052cc *src/createPosDef.h
 e9db816f2315f0343fbff3e408fc444c *src/difference.cpp
@@ -74,8 +74,8 @@ e9db816f2315f0343fbff3e408fc444c *src/difference.cpp
 df9b17ffa8b51dffae43a3b3a2dd558a *src/linpackFORT.cpp
 8c51913b247400bd767b312fc534072a *src/linpackFORT.h
 9ba98f6ac9f4f8b3d2f93a5efb37092a *src/penalLogLik.cpp
-203e3a8a01319825a815d652d3d99bc7 *src/penalLogLik.h
+cd588b080aba7ecf20e860c163c9e323 *src/penalLogLik.h
 ba727d98053802731bdfdb90bddf5489 *src/smoothSurvReg84.cpp
-ac23c66732e21c89c6755196335008e9 *src/smoothSurvReg84.h
+bd683fca5f34378df1a45166452f7663 *src/smoothSurvReg84.h
 cde8f2a826811011d12434f6746f6d35 *src/solve.QP.compact.cpp
 d25a62dedfaca2bd0c90842ebb02bd64 *src/solve.QP.compact.h
