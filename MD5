@@ -1,4 +1,4 @@
-2dec66b370b2277cf22529847ca7b13e *DESCRIPTION
+77061357d2178ef88d836dbe449e85c3 *DESCRIPTION
 1112b5b71b2e2d339de873dd5c2788d9 *NAMESPACE
 bcb16e4113fe6cbd02731842009ade49 *NEWS
 e7c5d5e5288f49224d76e8a0b6e4d647 *R/convertCDA.R
@@ -17,7 +17,7 @@ dcdc2b20620ab5778c883d853f2b4357 *R/print.smoothSurvReg.R
 78f92792bb6da4d3c67af391fc48f456 *R/std.data.R
 5cc95070799d916eb7e2d0a7beb0abb5 *R/summary.smoothSurvReg.R
 98823c030acba501940cd1cb6bc85f67 *R/survfit.smoothSurvReg.R
-f3004db02193426079a2474a3abbbf01 *R/zzz.R
+95c2e4bd2d8cd7e6dbeae893c2b443d2 *R/zzz.R
 dcb6f5965a54faea9fa5d858a0b0b0ab *inst/CITATION
 41a72ff775b88927f795f248d0aa773a *inst/doc/tandmobiel.tar.gz
 d398871055099c7046defeeb4d5de72e *inst/doc/wihs.tar.gz

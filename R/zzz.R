@@ -13,7 +13,7 @@
 .onAttach <- function(libname, pkgname)
 #.First.lib <- function(libname, pkgname)
 {
-   library.dynam("smoothSurv", pkgname, libname)
+   ###library.dynam("smoothSurv", pkgname, libname)    ### no more needed, load is provided by useDynLib in NAMESPACE
 
    packageStartupMessage(paste(
        "\n",
