@@ -22,10 +22,6 @@
 smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
                               init, controlvals, common.logscale)
 {
-    ## Main C++ fitter
-    fitterc <- "smoothSurvReg84"    ## C++ function used to fit the model
-    packagec <- "smoothSurv"        ## name of R library
-
     ## Get a list of control values for iteration process.
     controlvals <- do.call("smoothSurvReg.control", controlvals)
     est.c <- controlvals$est.c
@@ -100,7 +96,7 @@ smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
     if (nparam == 0) stop("Nothing to be estimated... ")   # this should never occure but one never knows...
 
     ## Fit the model
-    fit <- .C(fitterc,
+    fit <- .C("smoothSurvReg84",
                      as.integer(n),
                      as.integer(ny),
                      as.integer(nvarx),
@@ -144,7 +140,7 @@ smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
                      as.integer(debug),
       fail =         integer(1),
       nonPosDefH =   integer(1),
-    PACKAGE = packagec
+    PACKAGE = "smoothSurv"
     )
 
     warn <- ""

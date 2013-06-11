@@ -54,10 +54,10 @@ namespace SCYTHE {
 template <class T>
 Matrix<T> sortOrder(const Matrix<T> & A, Matrix<int> & ordering, Matrix<int> & invordering)
 {
-   if (ordering.rows() != A.rows() || ordering.cols() != A.cols())
+  if (ordering.rows() != A.rows() || ordering.cols() != A.cols())
        throw scythe_dimension_error (__FILE__, __AK_PRETTY_FUNCTION__,
-                                     __LINE__, "A and ordering of different dimension");
-   if (invordering.rows() != A.rows() || invordering.cols() != A.cols())
+                                    __LINE__, "A and ordering of different dimension");
+  if (invordering.rows() != A.rows() || invordering.cols() != A.cols())
        throw scythe_dimension_error (__FILE__, __AK_PRETTY_FUNCTION__,
                                      __LINE__, "A and ordering of different dimension");
 

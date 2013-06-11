@@ -25,13 +25,7 @@ minPenalty <- function(knots = NULL,
                        info = TRUE)
 {
   est.c <- TRUE
-  
-  ### Main C++ fitter
-  ### ---------------
-  fitterc <- "smoothSurvReg84"    ## C++ function used to fit the model
-  packagec <- "smoothSurv"        ## name of R library
-
-  
+    
   ### Create knots and other parameters that control the fit
   ### --------------------------------------------------------
   pars <- smoothSurvReg.control(est.c = est.c, est.scale = FALSE, maxiter = maxiter, firstiter = 0,
@@ -84,7 +78,7 @@ minPenalty <- function(knots = NULL,
     ## Size of matrices used to compute df
   ndfm <- ifelse(est.c, nknots - 1, 1)
 
-  fit <- .C(fitterc,
+  fit <- .C("smoothSurvReg84",
                   as.integer(0),                 # n
                   as.integer(0),                 # nY
                   as.integer(0),                 # nX
@@ -128,7 +122,7 @@ minPenalty <- function(knots = NULL,
                   as.integer(pars$debug),
    fail =         integer(1),
    nonPosDefH =   integer(1),
-  PACKAGE = packagec
+  PACKAGE = "smoothSurv"
   )
   
   warn <- ""

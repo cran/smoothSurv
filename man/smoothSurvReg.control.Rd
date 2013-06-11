@@ -9,9 +9,11 @@
 }
 \usage{
 smoothSurvReg.control(est.c = TRUE, est.scale = TRUE,
-   maxiter = 200, firstiter = 0, rel.tolerance = 5e-5, toler.chol = 1e-15, toler.eigen = 1e-3,
+   maxiter = 200, firstiter = 0, rel.tolerance = 5e-5,
+   toler.chol = 1e-15, toler.eigen = 1e-3,
    maxhalf = 10, debug = 0, info = TRUE, lambda.use = 1.0, sdspline = NULL,
-   difforder = 3, dist.range = c(-6, 6), by.knots = 0.3, knots = NULL, nsplines = NULL, last.three = NULL)
+   difforder = 3, dist.range = c(-6, 6), by.knots = 0.3,
+   knots = NULL, nsplines = NULL, last.three = NULL)
 }
 \arguments{
    \item{est.c}{

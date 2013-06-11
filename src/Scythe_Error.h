@@ -48,14 +48,18 @@
 #ifndef SCYTHE_ERROR_H
 #define SCYTHE_ERROR_H
 
-#include <exception>
+//#include <exception>    /* commented on 04/06/2013, it is nowhere needed */
 #include <string>
 #include <sstream>
 #include <iostream>
 //#include <cstdlib>      /* added by AK on 26/06/2008 to provide abort() in g++ 4.3 compiler     */
                           /* again commented on 06/01/2012 after replacement of abort by R error  */
-#include <R.h>            /* added by AK on 06/01/2012 to provide error()                         */
-#undef error
+
+#ifndef R_NO_REMAP        /* Added on 04/06/2013 to prevent <R_ext/Error.h> included by <R.h>        */
+#define R_NO_REMAP        /* from definition of error as Rf_error which causes problems on some      */
+#endif                    /* compilers, see explanation on bottom of this file close to the place    */ 
+                          /* where error() is commented.                                             */
+#include <R.h>            /* added by AK on 06/01/2012 to provide error()                            */
 
 /***** The following piece of code has been motivated by /usr/include/assert.h (in Debian Linux) *****/
 /***** and has been added by Arnost Komarek on 14/08/2007                                        *****/
@@ -298,11 +302,22 @@ namespace SCYTHE {
 	// The definition of our terminate handler described above
 	inline void scythe_terminate ()
 	{
+    	        // VERSION 1:
 	        //std::cerr << serr << std::endl;      
 	        //std::cerr << std::endl;
 	        //abort();
-                Rf_error("%s\n\n", (char*)(&serr));     // added on 20120106 to replace previsous three rows
 
+                // VERSION 2:
+                //error("%s\n\n", (char*)(&serr));     // added on 20120106 to replace previsous three rows
+		/* Discovered later on: On some compilers the following error occurs: 'Rf_error' is not a member of 'std::codecvt:base'. */
+                /* First reported by Brian Ripley on 19/03/2013 (compiler on Mac), later found also on Karlov cluster                    */
+                /* with the Redhat Linux 64 bit compiler.                                                                                */
+                /* It is caused by the fact that <R_ext/Error.h> included by <R.h> defines error as Rf_error.                            */
+                /* Final decission from 20130604:  Just print the message here but otherwise do nothing.                                 */
+                /* In most cases, this should not cause any problems...                                                                  */
+             
+                // VERSION 3 (from 20130604):
+  	        REprintf("ERROR in SCYTHE: %s\n\n", (char*)(&serr));
 	}
 
 } // end namspace SCYTHE

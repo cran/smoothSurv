@@ -179,9 +179,9 @@ print(estimTdiff(fit1, cov1 = cov1, cov2 = cov2))
 ##### =======================================
 ### We generate interval censored data and fit a model with few artificial covariates
 set.seed(221913282)
-x1 <- rbinom(50, 1, 0.4)                                         ## binary covariate
-x2 <- rnorm(50, 180, 10)                                         ## continuous covariate
-x3 <- runif(50, 0, 1)                                            ## covariate for the scale parameter
+x1 <- rbinom(50, 1, 0.4)                                        ## binary covariate
+x2 <- rnorm(50, 180, 10)                                        ## continuous covariate
+x3 <- runif(50, 0, 1)                                           ## covariate for the scale parameter
 logscale <- 1 + x3
 scale <- exp(logscale)
 y1 <- 0.5*x1 - 0.01*x2 + 0.005 *x1*x2 + scale*rnorm(50, 0, 1)    ## generate log(T), left limit
