@@ -30,7 +30,7 @@
 survfit.smoothSurvReg <- 
   function(formula, cov, logscale.cov, time0 = 0, plot = TRUE, cdf = FALSE,
            by, xlim, ylim = c(0, 1), xlab = "t", ylab, 
-           type = "l", lty, main, sub, legend, bty = "n", ...)
+           type = "l", lty, main, sub, legend, bty = "n", cex.legend = 1, ...)
 {
    x <- formula
    if (x$fail >= 99){
@@ -219,7 +219,7 @@ survfit.smoothSurvReg <-
       legjust[1] <- ifelse(cdf, 0, 1)
       legjust[2] <- 1
       if (missing(legend)) legend <- paste("cov", 1:row.cov, sep = "")
-      legend(leg[1], leg[2], legend = legend, lty = lty, bty = "n", xjust = legjust[1], yjust = legjust[2])
+      legend(leg[1], leg[2], legend = legend, lty = lty, bty = "n", xjust = legjust[1], yjust = legjust[2], cex = cex.legend)
    }
    to.return <- data.frame(grid, Sfun[[1]])
    if (row.cov > 1)

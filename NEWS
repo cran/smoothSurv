@@ -1,3 +1,13 @@
+05/02/2015 (version 1.5)
+========================
+* CITATION file updated (desc changed to meta)
+
+24/04/2014
+==========
+* small piece of code added to smoothSurvReg function to treat non-zero fail
+  of any type when doing the grid search for optimal lambda
+* confint.smoothSurvReg implemented
+
 06/01/2012
 ==========
 * NAMESPACE added

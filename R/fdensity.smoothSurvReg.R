@@ -17,7 +17,7 @@ fdensity <- function(x, ...){
 fdensity.smoothSurvReg <-
   function(x, cov, logscale.cov, time0 = 0, plot = TRUE,
            by, xlim, ylim, xlab = "t", ylab = "f(t)", 
-           type = "l", lty, main, sub, legend, bty = "n", ...)
+           type = "l", lty, main, sub, legend, bty = "n", cex.legend = 1, ...)
 {
    if (x$fail >= 99){
         cat("No hazard functions, smoothSurvReg failed.\n")
@@ -200,7 +200,7 @@ fdensity.smoothSurvReg <-
       legjust[1] <- 0
       legjust[2] <- 1
       if (missing(legend)) legend <- paste("cov", 1:row.cov, sep = "")
-      legend(leg[1], leg[2], legend = legend, lty = lty, bty = "n", xjust = legjust[1], yjust = legjust[2])
+      legend(leg[1], leg[2], legend = legend, lty = lty, bty = "n", xjust = legjust[1], yjust = legjust[2], cex = cex.legend)
    }
    to.return <- data.frame(grid, dens[[1]])
    if (row.cov > 1)

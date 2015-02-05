@@ -1,12 +1,13 @@
-###########################################
-#### AUTHOR:    Arnost Komarek         ####
-####            25/02/2004             ####
-###             03/05/2004             ####
-####                                   ####
-#### FILE:      print.estimTdiff.R     ####
-####                                   ####
-#### FUNCTIONS: print.estimTdiff       ####
-###########################################
+#####################################################
+#### AUTHOR:    Arnost Komarek                   ####
+####            25/02/2004                       ####
+###             03/05/2004                       ####
+###             28/06/2014  minor change         ####
+####                                             ####
+#### FILE:      print.estimTdiff.R               ####
+####                                             ####
+#### FUNCTIONS: print.estimTdiff                 ####
+#####################################################
 
 ### ====================================================================
 ### print.estimTdiff: Print objects of class 'estimTdiff'
@@ -70,10 +71,12 @@ print.estimTdiff <- function(x, digits = min(options()$digits, 4), ...)
       
       colnames(show1) <- c("ET1", "Std.Error", "Lower", "Upper", "Z", "p")
       colnames(show2) <- c("ET2", "Std.Error", "Lower", "Upper", "Z", "p")
-      colnames(show3) <- c("E(T1 - T2)", "Std.Error", "Lower", "Upper", "Z", "p")    
-      rownames(show1) <- paste("Value ", 1:length(x$ET1), sep = "")
-      rownames(show2) <- paste("Value ", 1:length(x$ET1), sep = "")
-      rownames(show3) <- paste("Value ", 1:length(x$ET1), sep = "")    
+      colnames(show3) <- c("E(T1 - T2)", "Std.Error", "Lower", "Upper", "Z", "p")
+      if (is.null(attr(x, "cov1"))) rncov1 <- paste("Value ", 1:length(x$ET1), sep = "") else rncov1 <- rownames(attr(x, "cov1"))
+      if (is.null(attr(x, "cov2"))) rncov2 <- paste("Value ", 1:length(x$ET2), sep = "") else rncov2 <- rownames(attr(x, "cov2"))
+      rownames(show1) <- rncov1
+      rownames(show2) <- rncov2     
+      rownames(show3) <- paste(rncov1, " - ", rncov2, sep = "")
       print(show1, digits = digits, ...); cat("\n")
       print(show2, digits = digits, ...); cat("\n")
       print(show3, digits = digits, ...); cat("\n")

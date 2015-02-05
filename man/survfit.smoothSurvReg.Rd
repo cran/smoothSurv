@@ -10,7 +10,7 @@
 \usage{
 \method{survfit}{smoothSurvReg}(formula, cov, logscale.cov, time0 = 0, plot = TRUE, cdf = FALSE,
    by, xlim, ylim = c(0, 1), xlab = "t", ylab, 
-   type = "l", lty, main, sub, legend, bty = "n", \dots)
+   type = "l", lty, main, sub, legend, bty = "n", cex.legend = 1, \dots)
 }
 \arguments{
    \item{formula}{
@@ -62,6 +62,9 @@
    \item{legend, bty}{
       Argument passed to the \code{\link{plot}} function.
    }
+   \item{cex.legend}{argument passed to \code{cex} argument of the
+     \code{\link{legend}} function.
+   }    
    \item{\dots}{
       Arguments passed to the \code{\link{plot}} function.
    }

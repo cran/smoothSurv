@@ -1,15 +1,19 @@
-###########################################
-#### AUTHOR:    Arnost Komarek         ####
-####            29/04/2004             ####
-####                                   ####
-#### FILE:      smoothSurvReg.R        ####
-####                                   ####
-#### FUNCTIONS: smoothSurvReg          ####
-####            dextreme               ####
-####            dstextreme             ####
-####            dstlogis               ####
-####            piece                  ####
-###########################################
+################################################################################
+#### AUTHOR:    Arnost Komarek                                              ####
+####            29/04/2004                                                  ####
+####                                                                        ####
+#### FILE:      smoothSurvReg.R                                             ####
+####                                                                        ####
+#### FUNCTIONS: smoothSurvReg                                               ####
+####            dextreme                                                    ####
+####            dstextreme                                                  ####
+####            dstlogis                                                    ####
+####            piece                                                       ####
+####                                                                        ####
+#### CHANGES:  20140424 small piece of code added to treat non-zero fail    ####
+####                    when doing the grid search for optimal lambda       ####
+####                                                                        ####
+################################################################################
 
 ### ====================================================================================
 ### smoothSurvReg: Survival regression with smoothed error distribution (main function)
@@ -56,9 +60,9 @@ smoothSurvReg <- function(formula = formula(data),
    if (missing(control)) control <- smoothSurvReg.control(...)
 
    ## Load survival package if not loaded
-   mamho <- require(survival)
-   if (!mamho)
-      stop("I need 'survival' package to be installed. ")
+   #mamho <- require(survival)
+   #if (!mamho)
+   #   stop("I need 'survival' package to be installed. ")
 
    ## Check initial distribution
    dist.allowed <- c("lognormal", "loggaussian", "loglogistic", "weibull", "rayleigh", "exponential", "best")
@@ -446,7 +450,16 @@ smoothSurvReg <- function(formula = formula(data),
       if (!control$info) cat(",  ")
       
       fitA <- smoothSurvReg.fit(X, Z, Y, offset, correctlik = logcorrect,
-                                     init = initials.aic, controlvals = control, common.logscale = common.logscale)
+                                init = initials.aic, controlvals = control, common.logscale = common.logscale)
+
+      ### === Code added on 20140424 === ###
+      if (fitA$fail & m > 1){       ### Try also original initials if any type of fail
+        fitAB <- smoothSurvReg.fit(X, Z, Y, offset, correctlik = logcorrect,
+                                   init = initials, controlvals = control, common.logscale = common.logscale)
+        if (fitAB$fail == 0) fitA <- fitAB
+      }  
+      ### === End of code added on 20140424 === ###
+        
       fit.aic[[m]] <- fitA
 
       if (fitA$fail >= 99){

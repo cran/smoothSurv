@@ -3,11 +3,14 @@
 ####            25/02/2004                                                                        ####
 ###             03/05/2004                                                                        ####
 ###             14/01/2010:  debugging for the case that there is only one covariate in a model   ####
+###             24/04/2014:  correction to make it work with covariates for the scale parameter   ####
+###             28/06/2014:  additional adjustment to keep also covariate labels in the output    ####
 ####                                                                                              ####
 #### FILE:      estimTdiff.R                                                                      ####
 ####                                                                                              ####
 #### FUNCTIONS: estimTdiff                                                                        ####
 ####            estimTdiff.smoothSurvReg                                                          ####
+####                                                                                              ####
 ######################################################################################################
 
 estimTdiff <- function(x, ...)
@@ -27,7 +30,32 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
   est.scale <- x$estimated["Scale"]
   allregrname <- row.names(x$regres)
 
+## Rownames of cov1 and cov2
+## added on 20140628
+## =================================
+  if (!missing(cov1)){
+    if (is.null(rownames(cov1))) rncov1 <- NULL else rncov1 <- rownames(cov1)
+  }else{
+    rncov1 <- NULL
+  }    
+  if (!missing(cov2)){
+    if (is.null(rownames(cov2))) rncov2 <- NULL else rncov2 <- rownames(cov2)
+  }else{
+    rncov2 <- NULL
+  }    
+  
+  if (!missing(logscale.cov1)){
+    if (is.null(rownames(logscale.cov1))) rnlscov1 <- NULL else rnlscov1 <- rownames(logscale.cov1)
+  }else{
+    rnlscov1 <- NULL
+  }    
+  if (!missing(logscale.cov2)){
+    if (is.null(rownames(logscale.cov2))) rnlscov2 <- NULL else rnlscov2 <- rownames(logscale.cov2)
+  }else{
+    rnlscov2 <- NULL
+  }    
 
+  
 ## INTERCEPT AND SCALE (if it is common)
 ## =====================================
   mu0 <- ifelse(is.intercept, x$regres["(Intercept)", "Value"], 0)
@@ -249,15 +277,11 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
     dET2dgamma <- dMdgamma.2 * exp(eta2)        
 
     if (!common.logscale){
-      stop("Not (yet) implemented when the scale depends on covariates")
-      ### There is a problem in the following two lines
-      ### -> logscale.ncov is not defined and I do not know any more (26/06/2008) what it should be...
-      ### -> I might have sometimes some time to explore this back in more details
-      #26/06/2008 dET1ds <- t(logscale.cov1) * matrix(dET1dgamma, nrow = logscale.ncov + 1, ncol = row.cov, byrow = TRUE)
-      #26/06/2008 dET2ds <- t(logscale.cov2) * matrix(dET2dgamma, nrow = logscale.ncov + 1, ncol = row.cov, byrow = TRUE)
-      #26/06/2008 dET1 <- rbind(dET1, dET1ds)
-      #26/06/2008 dET2 <- rbind(dET2, dET2ds)
-      #26/06/2008 ddiffT <- rbind(ddiffT, dET1ds - dET2ds)
+      dET1ds <- t(logscale.cov1) * matrix(dET1dgamma, nrow = ncol(logscale.cov1), ncol = row.cov, byrow = TRUE)
+      dET2ds <- t(logscale.cov2) * matrix(dET2dgamma, nrow = ncol(logscale.cov2), ncol = row.cov, byrow = TRUE)
+      dET1 <- rbind(dET1, dET1ds)
+      dET2 <- rbind(dET2, dET2ds)
+      ddiffT <- rbind(ddiffT, dET1ds - dET2ds)      
     }      
     else{
       dET1 <- rbind(dET1, dET1dgamma)
@@ -317,8 +341,8 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
     }                                    ### added on 14/01//2010
     colnames(cov1) <- regrname
     colnames(cov2) <- regrname
-    rownames(cov1) <- paste("Value ", 1:row.cov, sep = "")
-    rownames(cov2) <- paste("Value ", 1:row.cov, sep = "")
+    if (is.null(rncov1)) rownames(cov1) <- paste("Value ", 1:row.cov, sep = "") else rownames(cov1) <- rncov1
+    if (is.null(rncov2)) rownames(cov2) <- paste("Value ", 1:row.cov, sep = "") else rownames(cov2) <- rncov2
   }
   else{
     cov1 <- NULL
@@ -332,8 +356,8 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
     }      
     colnames(logscale.cov1) <- scalename
     colnames(logscale.cov2) <- scalename
-    rownames(logscale.cov1) <- paste("Value ", 1:row.cov, sep = "")
-    rownames(logscale.cov2) <- paste("Value ", 1:row.cov, sep = "")    
+    if (is.null(rnlscov1)) rownames(logscale.cov1) <- paste("Value ", 1:row.cov, sep = "") else rownames(logscale.cov1) <- rnlscov1
+    if (is.null(rnlscov2)) rownames(logscale.cov2) <- paste("Value ", 1:row.cov, sep = "") else rownames(logscale.cov2) <- rnlscov2
   }    
 
   attr(obj, "conf.level") <- conf.level

@@ -11,7 +11,7 @@
 \usage{
 \method{fdensity}{smoothSurvReg}(x, cov, logscale.cov, time0 = 0, plot = TRUE,
     by, xlim, ylim, xlab = "t", ylab = "f(t)", 
-    type = "l", lty, main, sub, legend, bty = "n", \dots)
+    type = "l", lty, main, sub, legend, bty = "n", cex.legend = 1, \dots)
 }
 \arguments{
    \item{x}{
@@ -58,7 +58,9 @@
    }
    \item{legend, bty}{
       Argument passed to the \code{\link{plot}} function.
-   }
+    }
+   \item{cex.legend}{argument passed to \code{cex} argument of the
+     \code{\link{legend}} function.}
    \item{\dots}{
       Arguments passed to the \code{\link{plot}} function.
    }

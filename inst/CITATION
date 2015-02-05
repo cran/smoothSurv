@@ -1,8 +1,7 @@
 citHeader("To cite package 'smoothSurv' in publications, please, use either of the following article:")
      
-desc <- packageDescription("smoothSurv")
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", desc$Date)
-vers <- paste("R package version", desc$Version)
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
+vers <- paste("R package version", meta$Version)
 
 citEntry(entry   = "Article",
          title   = "Accelerated failure time model for arbitrarily censored data with smoothed error distribution",
