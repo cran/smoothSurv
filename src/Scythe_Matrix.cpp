@@ -355,7 +355,9 @@ namespace SCYTHE {
     int newcolsize = 1;
     int newrowsize = rows_;
 
-    double temp[newrowsize];
+    //double temp[newrowsize];                                // original version, commented on 20150520
+    double *temp;                                             // added on 20150520
+    temp = (double *) R_alloc(newrowsize, sizeof(double));    // added on 20150520
     for (int i=0; i<newrowsize; ++i){
       temp[i] = data_[ijIndex(i,j)];
     }
@@ -378,7 +380,9 @@ namespace SCYTHE {
     int newcolsize = cols_;
     int newrowsize = 1;
 
-    double temp[newcolsize];
+    //double temp[newcolsize];                                // original version, commented on 20150520
+    double *temp;                                             // added on 20150520
+    temp = (double *) R_alloc(newcolsize, sizeof(double));    // added on 20150520
     for (int j=0; j<newcolsize; ++j){
       temp[j] = data_[ijIndex(i,j)];
     }

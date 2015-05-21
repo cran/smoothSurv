@@ -53,6 +53,8 @@
 #include "Scythe_Util.h"
 #include "Scythe_Matrix_Iterator.h"
 
+#include <R.h>                            // added on 20150520
+
 namespace SCYTHE {
 
   struct all_elements{

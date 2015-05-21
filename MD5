@@ -1,4 +1,4 @@
-cdb8a4645a966a32a9b24ac1195f878d *DESCRIPTION
+36ddd70f2e36cd64101c9e953c12ad8f *DESCRIPTION
 33a5aabd9ab0a95277f85d1d86939324 *NAMESPACE
 5456980d10a41723e18c63644a5af733 *NEWS
 09290b328fe9ebc8f7224ef7c57fa24c *R/confint.smoothSurvReg.R
@@ -57,8 +57,8 @@ f45280c621cf79ad849268e5cf6657c9 *src/Scythe_IDE.h
 f772154857185631cca146745dffb71d *src/Scythe_LA.h
 1efaf50b400fe4d211b8f0786e62a831 *src/Scythe_Math.cpp
 00d16e117be745e9816c44771bd9ed68 *src/Scythe_Math.h
-d144729aa6a7af0ca1631018e97e9bc6 *src/Scythe_Matrix.cpp
-31126571b44452aa3b11face849df6d0 *src/Scythe_Matrix.h
+09e81db7b9d7e8c61ccb8ce37e8bd4c6 *src/Scythe_Matrix.cpp
+b429a663c6ee58a29dd53e55ec33415e *src/Scythe_Matrix.h
 085ff9ea1c797c01fe3a28d136bd26bd *src/Scythe_Matrix_Iterator.h
 45b79ee159d304a70561d4d668eecb00 *src/Scythe_Stat.cpp
 4431a658557c77316d0a077392f9c066 *src/Scythe_Stat.h
