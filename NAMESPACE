@@ -37,3 +37,8 @@ import(
   survival
 )
 
+
+# Selective import from standard packages
+# (to make CRAN check happy)
+importFrom(graphics, "lines", "points", "title")
+importFrom(stats, "dlogis", "dnorm", "model.extract", "model.matrix", "na.fail", "pnorm", "qnorm", "sd", "terms")

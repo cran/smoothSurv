@@ -1,3 +1,7 @@
+227/07/2015 (version 1.6)
+=========================
+* NAMESPACE updated by imports from standard packages graphics and stats
+
 05/02/2015 (version 1.5)
 ========================
 * CITATION file updated (desc changed to meta)
