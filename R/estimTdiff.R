@@ -5,6 +5,7 @@
 ###             14/01/2010:  debugging for the case that there is only one covariate in a model   ####
 ###             24/04/2014:  correction to make it work with covariates for the scale parameter   ####
 ###             28/06/2014:  additional adjustment to keep also covariate labels in the output    ####
+###             24/09/2017:  correction related to data.frame arithmetics                         ####
 ####                                                                                              ####
 #### FILE:      estimTdiff.R                                                                      ####
 ####                                                                                              ####
@@ -223,9 +224,9 @@ estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2
 ## ESTIMATION AND STANDARD ERRORS
 ## ==============================
   ## Compute M = E(s0*epsilon) (for each covariate combination)
-  knots <- as.numeric(x$spline$Knot)
-  ccoef <- as.numeric(x$spline[["c coef."]])
-  sigmasq0 <- (x$spline["SD basis"])^2  
+  knots <- as.numeric(x$spline[, "Knot"])
+  ccoef <- as.numeric(x$spline[, "c coef."])
+  sigmasq0 <- (as.numeric(x$spline[, "SD basis"]))^2                        ## as.numeric added here on 24/09/2017
   nknots <- length(knots)
 
   s0sq.1 <- s0.1^2

@@ -1,5 +1,6 @@
 \name{smoothSurvReg}
 \alias{smoothSurvReg}
+\alias{C_smoothSurvReg84}
 \title{
    Regression for a Survival Model with Smoothed Error Distribution
 }

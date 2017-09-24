@@ -1,6 +1,6 @@
 Package: smoothSurv
-Version: 1.6
-Date: 2015-07-27
+Version: 2.0
+Date: 2017-09-24
 Title: Survival Regression with Smoothed Error Distribution
 Author: Arnošt Komárek <arnost.komarek@mff.cuni.cz>
 Maintainer: Arnošt Komárek <arnost.komarek@mff.cuni.cz>
@@ -16,6 +16,6 @@ Encoding: UTF-8
 License: GPL (>= 2)
 URL: http://msekce.karlin.mff.cuni.cz/~komarek
 NeedsCompilation: yes
-Packaged: 2015-07-27 17:57:30 UTC; komarek
+Packaged: 2017-09-24 14:05:30 UTC; komarek
 Repository: CRAN
-Date/Publication: 2015-07-27 23:57:23
+Date/Publication: 2017-09-24 14:41:08 UTC

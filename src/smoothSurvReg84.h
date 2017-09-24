@@ -57,6 +57,53 @@ const int non_conv_flag = 1000;          // flag for non-convergence
 
 using namespace SCYTHE;
 
+extern "C"{
+void
+smoothSurvReg84(int *nP,
+		int *nyP,
+		int *nBetaP,
+		int *nGammaP,
+		int *nSplinesP,
+                double *XP,
+		double *YP,
+		double *offsetP,
+		double *ZP,
+                double *knotsP,
+		double *sigmaZeroP,
+                int *lastThreeAP,
+                int *estScaleP,
+		int *estAP,
+                double *BetaP,
+		double *GammaP,
+		double *AcoefP,
+		double *CcoefP,
+                double *penalloglikP,
+                double *loglikP,
+		double *correctLikP,
+		double *penaltyP,
+                double *HP,
+		double *IP,
+		double *GP,
+                double *UP,
+		double *dCdDP,
+                double *HaP,
+		double *IaP,
+		double *GaP,
+		double *dConP,
+                double *lambdaP,
+		int *difforderP,
+                int *maxiterP,
+		int *firstiterP,
+                double *epsP,
+		double *tolCholP,
+		double *tolEigenP,
+                int *maxhalfP,
+                int *infoP,
+		int *debugP,
+		int *failP,
+		int *nonPosDefHP);
+}
+
 // Return Euclidian norm of the vector
 inline 
 double EucNorm(Matrix<double> & A)

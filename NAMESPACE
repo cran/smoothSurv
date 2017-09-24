@@ -1,5 +1,5 @@
 # Load dynamic library
-useDynLib(smoothSurv)
+useDynLib(smoothSurv, .registration = TRUE)
 
 
 # Export all names

@@ -96,7 +96,7 @@ smoothSurvReg.fit <- function(x, z, y, offset = NULL, correctlik,
     if (nparam == 0) stop("Nothing to be estimated... ")   # this should never occure but one never knows...
 
     ## Fit the model
-    fit <- .C("smoothSurvReg84",
+    fit <- .C(C_smoothSurvReg84,                   ### use of registered C routine implemented on 24/09/2017
                      as.integer(n),
                      as.integer(ny),
                      as.integer(nvarx),

@@ -78,7 +78,7 @@ minPenalty <- function(knots = NULL,
     ## Size of matrices used to compute df
   ndfm <- ifelse(est.c, nknots - 1, 1)
 
-  fit <- .C("smoothSurvReg84",
+  fit <- .C(C_smoothSurvReg84,                   ### use of registered C routine implemented on 24/09/2017
                   as.integer(0),                 # n
                   as.integer(0),                 # nY
                   as.integer(0),                 # nX
