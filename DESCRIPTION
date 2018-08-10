@@ -1,9 +1,9 @@
 Package: smoothSurv
-Version: 2.0
+Version: 2.0.1
 Date: 2017-09-24
 Title: Survival Regression with Smoothed Error Distribution
 Author: Arnošt Komárek <arnost.komarek@mff.cuni.cz>
-Maintainer: Arnošt Komárek <arnost.komarek@mff.cuni.cz>
+Maintainer: ORPHANED
 Depends: R (>= 3.0.0), survival
 Imports: graphics, stats
 Description: Contains, as a main contribution, a function to fit
@@ -16,6 +16,9 @@ Encoding: UTF-8
 License: GPL (>= 2)
 URL: http://msekce.karlin.mff.cuni.cz/~komarek
 NeedsCompilation: yes
-Packaged: 2017-09-24 14:05:30 UTC; komarek
+Packaged: 2018-08-08 15:10:37 UTC; ripley
 Repository: CRAN
-Date/Publication: 2017-09-24 14:41:08 UTC
+Date/Publication: 2018-08-10 06:11:50 UTC
+X-CRAN-Original-Maintainer: Arnošt Komárek <arnost.komarek@mff.cuni.cz>
+X-CRAN-Comment: Orphaned on 2018-08-10 as C++ issues were not corrected
+        despite reminders.
