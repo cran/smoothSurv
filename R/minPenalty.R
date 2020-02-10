@@ -169,7 +169,7 @@ minPenalty <- function(knots = NULL,
   knotname <- paste("knot[",1:nknots,"]", sep = "")
 
 ## Basis spline SD (normal density)
-  sd.spline <- rep(sdspline, nknots)
+  sd.spline <- rep(pars$sdspline, nknots)     ### BUG sdspline -> pars$sdspline corrected on 20171018
 
 
 ## Put all spline information into a dataframe

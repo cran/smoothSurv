@@ -81,7 +81,7 @@ createPosDef(double * H, const int n, const double eps)
          i--;
       }
       // Replacement of small and negative eigen values by eps and back comnposition
-      for (i; i > -1; i--){
+      for (; i > -1; i--){                 // for(i; ...) replaced by for(; ...) on 10/02/2020
          for (j = 0; j < n*n; j++){
             k = j % n;              // row
             l = j / n;              // column
