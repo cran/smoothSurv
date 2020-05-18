@@ -1,3 +1,8 @@
+17/05/2020 (version 2.2)
+=========================
+* register keyword commented in Scythe_IDE.cpp
+  to make it compatible with C++17
+
 18/10/2017, 10/02/2020 (version 2.1)
 ====================================
 * small bug in minPenalty corrected (on 18/10/2017)

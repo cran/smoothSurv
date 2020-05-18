@@ -1,3 +1,5 @@
+/* register commented on 17/05/2020 */
+
 /* Scythe_IDE.cpp
  *
  * This file provides implementations for inversion and decomposition
@@ -67,7 +69,8 @@ namespace SCYTHE {
 		}
 		
 		Matrix<T> temp (A.rows(), A.cols(), false);
-		register T h;
+		/*register T h;*/
+		T h;
 		
 		for (int i = 0; i < A.rows(); ++i) {
 			for (int j = i; j < A.cols(); ++j) {
@@ -104,10 +107,13 @@ namespace SCYTHE {
 		}
 	
   	Matrix<T> M = cholesky (A);
-  	register T holder;
-  	register T *y = new T[A.rows()];
-  	register T *x = new T[A.rows()];
-  	 
+  	/*register T holder;                  */
+	/*register T *y = new T[A.rows()];    */
+	/*register T *x = new T[A.rows()];    */
+  	T holder;
+  	T *y = new T[A.rows()];
+  	T *x = new T[A.rows()];
+	
   	// solve M*y = b
   	for (int i = 0; i < A.rows(); ++i) {
     	holder = (T) 0;
@@ -144,10 +150,13 @@ namespace SCYTHE {
 			throw scythe_dimension_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "Inputs not proper dimension");
 		}
-		register T *y = new T[A.rows()];
-		register T *x = new T[A.rows()];
-		register T holder;
- 	 
+		/*register T *y = new T[A.rows()];    */
+		/*register T *x = new T[A.rows()];    */
+		/*register T holder;                  */
+		T *y = new T[A.rows()];
+		T *x = new T[A.rows()];
+		T holder;
+		
 		// solve M*y = b
 		for (int i = 0; i < A.rows(); ++i) {
 			holder = 0.0;
@@ -186,7 +195,8 @@ namespace SCYTHE {
 	
 		// Cholesky decomp
 		Matrix<T> M (A.rows(), A.cols(), false);
-		register T h;
+		/*register T h;  */
+		T h;
 		
 		for (int i = 0; i < A.rows(); ++i) {
 			for (int j = i; j < A.cols(); ++j) {
@@ -208,8 +218,10 @@ namespace SCYTHE {
 		}
 	
 		// for chol_solve block
-  	register T *y = new T[A.rows()];
-  	register T *x = new T[A.rows()];
+	/*register T *y = new T[A.rows()];    */
+	/*register T *x = new T[A.rows()];    */
+  	T *y = new T[A.rows()];
+  	T *x = new T[A.rows()];	
 		Matrix<T> b(A.rows(), 1); // full of zeros
 		
 		// For final answer
@@ -259,11 +271,14 @@ namespace SCYTHE {
 			throw scythe_conformation_error(__FILE__, __AK_PRETTY_FUNCTION__,
 					__LINE__, "A and M do not conform");
 			
-		register T h;
-
+		/*register T h; */
+                T h;
+		
 		// for chol_solve block
-  	register T *y = new T[A.rows()];
-  	register T *x = new T[A.rows()];
+	/*register T *y = new T[A.rows()];        */
+  	/*register T *x = new T[A.rows()];        */
+  	T *y = new T[A.rows()];
+  	T *x = new T[A.rows()];	
 		Matrix<T> b(A.rows(), 1); // full of zeros
 		
 		// For final answer
