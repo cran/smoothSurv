@@ -1,6 +1,6 @@
-bab8c9e3dc466ecc9fba54cf91eacc3c *DESCRIPTION
-ad1660c794010190f3553622ffcfe737 *NAMESPACE
-46f4019ce3b9d9cfd816b207fb11f448 *NEWS
+2dcc836b9c7e50b0994946de9548b9b8 *DESCRIPTION
+8d3fcd7c333e18bf82759be25e9393f1 *NAMESPACE
+d64bdd1a09b083aad353176331d9fefb *NEWS
 09290b328fe9ebc8f7224ef7c57fa24c *R/confint.smoothSurvReg.R
 e7c5d5e5288f49224d76e8a0b6e4d647 *R/convertCDA.R
 2d7efbf634c4e08a88c1fd03e666a4bd *R/estimTdiff.R
@@ -51,7 +51,7 @@ e65bacf75e61bcd71654bd0d64abbdb1 *man/smoothSurvReg.control.Rd
 a7727e4aabfda1433ee5074ba0a4a643 *src/00smoothSurv_init.cpp
 9d45feccb0c6decb1d909ca3b9bc23c8 *src/AKmatrix.cpp
 90e36340b1406c32c50471dc2901d744 *src/AKmatrix.h
-19f27cacc26536761b8df47cd96b0856 *src/Scythe_Error.h
+96aa78c582f074b503d83c6cebfc5671 *src/Scythe_Error.h
 d43fab65f0b8c9499d04bc46958e297b *src/Scythe_IDE.cpp
 f45280c621cf79ad849268e5cf6657c9 *src/Scythe_IDE.h
 925be28bbc6400f757eac7a8394dcd50 *src/Scythe_LA.cpp

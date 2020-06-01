@@ -121,7 +121,9 @@ namespace SCYTHE {
 				serr = os.str();
 				std::set_terminate(scythe_terminate);
 				if (halt)
-					std::terminate();
+				  //std::terminate();
+				  //error("std::terminate\n", "Scythe_Error.h");         /* this also causes some problems, see comments at bottom of this file*/
+ 				  REprintf("ERROR in SCYTHE: %s\n\n", (char*)(&serr));
 			}
 
 			scythe_exception (const scythe_exception &e) throw()

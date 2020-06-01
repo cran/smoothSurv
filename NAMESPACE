@@ -20,7 +20,7 @@ S3method(fdensity, "smoothSurvReg")
 export("hazard")
 S3method(hazard, "smoothSurvReg")
 
-exportClasses("estimTdiff")
+##exportClasses("estimTdiff")    ## this would export estimTdiff as S4 class, but in the code (see estimTdiff function, it is defined as just S3 class)
 S3method(print, "estimTdiff")
 
 export("estimTdiff")
