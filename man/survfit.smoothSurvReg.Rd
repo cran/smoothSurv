@@ -74,7 +74,7 @@
    and \code{y} the values of the survivor/cum. distribution function at that grid.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \seealso{
    \code{\link{smoothSurvReg}}, \code{\link{plot}}

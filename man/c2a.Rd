@@ -33,7 +33,7 @@ c2a(ccoef, which.zero = which.max(ccoef), toler = 1e-6)
    A vector of same length as \code{ccoef} with 'a' G-spline coefficients.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \seealso{\code{\link{a2c}}}
 \examples{

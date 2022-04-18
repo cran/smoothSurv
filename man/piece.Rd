@@ -29,7 +29,7 @@
    The value of the piecewise constant function.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \examples{
 my.breaks <- c(-2, 1.5, 4, 7)

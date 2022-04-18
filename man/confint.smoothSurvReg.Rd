@@ -40,7 +40,7 @@
    and 1 - (1 - level)/2 in \% (by default 2.5 \% and 97.5 \%).
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \seealso{
    \code{\link{smoothSurvReg}}

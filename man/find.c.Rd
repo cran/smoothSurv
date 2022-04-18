@@ -34,7 +34,7 @@ find.c(knots, sdspline, dist = "dnorm")
    if there are problems to find them.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \examples{
 knots <- seq(-4, 4, 0.5)

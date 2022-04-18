@@ -21,7 +21,7 @@
    The value of the density.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \seealso{
    \code{\link{dlogis}} for the logistic distribution.

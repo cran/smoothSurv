@@ -38,7 +38,7 @@ dstextreme(x)
    The value of the density.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \examples{
 dextreme(1, (sqrt(6)/pi)*0.5772, sqrt(6)/pi)

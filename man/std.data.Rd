@@ -31,7 +31,7 @@ std.data(datain, cols)
    \code{\link{scale}}
  }  
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \examples{
 variable1 <- rnorm(30)

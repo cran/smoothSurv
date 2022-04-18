@@ -70,7 +70,7 @@ WARNING: This function is primarily used inside \code{\link{smoothSurvReg}}.
 Consequently, it has very few error checks on its input arguments.
 }
 \author{
-  Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+  Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \keyword{internal}
 \keyword{utilities}

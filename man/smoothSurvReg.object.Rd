@@ -204,7 +204,7 @@ A data frame with columns named ``Lambda'', ``Log(Lambda)'', ``AIC'', ``df'',
 }
 }
 \author{
-Arnošt Komárek \email{arnost.komarek[AT]mff.cuni.cz}
+Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }
 \keyword{survival}
 \keyword{smooth}
