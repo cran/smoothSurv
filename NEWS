@@ -1,3 +1,11 @@
+10/10/2022 (version 2.5)
+========================
+virtual const char * what() const throw() function in Scythe_Error.h modified
+to avoid returning address of local temporar object [-Wreturn-stack-address]
+  - first attempt to return address of a global std::ostringstream variable os_AK declared in smoothSurvReg84.cpp
+  - finally, the whole what() function commented in Scythe_Error.h
+    and the only instance of its use modified in Scythe_Util.h (line 75)
+  
 18/04/2022 (version 2.4)
 ========================
 * change of [AT] to @ in e-mail addresses in Rd files

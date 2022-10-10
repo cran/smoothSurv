@@ -72,7 +72,7 @@ namespace SCYTHE {
 	std::ostream &
 	operator<< (std::ostream &os, const scythe_exception &se)
 	{
-		os << se.what();
+	        //os << se.what();   // commented by AK on 10/10/2022
 		return os;
 	}
 

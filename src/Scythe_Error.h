@@ -83,6 +83,8 @@
 
 /***** ======================================================================================== *****/
 
+//extern std::ostringstream os_AK;       /**** added by AK on 10/10/2022, global variable being defined in smoothSurvReg84.cpp  ****/
+
 namespace SCYTHE {
 
         /**** This file-local variable holds the output of the last
@@ -97,7 +99,7 @@ namespace SCYTHE {
          * the user of why the program crashed.
          ****/
         inline void scythe_terminate();
-
+  
         /**** The scythe exception abstract base class ****/
         class scythe_exception : public std::exception
         {
@@ -151,13 +153,19 @@ namespace SCYTHE {
 			{
 			}
 
-			virtual const char * what() const throw()
-			{
-				std::ostringstream os;
-				os << head_ << " in " << file_ << ", " << function_ << ", "
-					<< line_ << ": " << message_ << "!";
-				return os.str().c_str();
-			}
+	                //virtual const char * what() const throw()      // the whole function commented by AK on 10/10/2022
+	                //{
+			        //std::ostringstream os;
+				//os << head_ << " in " << file_ << ", " << function_ << ", "
+				//	<< line_ << ": " << message_ << "!";
+				//return os.str().c_str();
+
+                                /*** Replacement of the above code by AK on 10/10/2022 ***/
+                        //      os_AK.str(""); 
+			// 	os_AK << head_ << " in " << file_ << ", " << function_ << ", "
+			//		<< line_ << ": " << message_ << "!";
+			//	return os_AK.str().c_str();			  
+			//}
 
 		private:
 			std::string head_;

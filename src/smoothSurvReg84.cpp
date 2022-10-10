@@ -101,6 +101,8 @@
 
 #include "smoothSurvReg84.h"
 
+//std::ostringstream os_AK;      /**** added by AK on 10/10/2022, global variable being used in Scythe_Error.h  ****/
+
 extern "C"{
 
 using namespace std;
@@ -108,6 +110,7 @@ using namespace SCYTHE;
 
 // GLOBAL VARIABLES
 // *****************
+    
    int n,                        // number of observations
        nTheta,                   // number of all parameters to be really estimated
        nThetaSq,                 // nTheta^2

@@ -1,6 +1,6 @@
-2e6081cd938f05529f29e483c25191c3 *DESCRIPTION
+2933608fe01c73b7b832d3dfac244de3 *DESCRIPTION
 8d3fcd7c333e18bf82759be25e9393f1 *NAMESPACE
-92502a93b85838044d1a2d1bc4837820 *NEWS
+83bfb9fabcaa413c9085fa56e5d4c014 *NEWS
 09290b328fe9ebc8f7224ef7c57fa24c *R/confint.smoothSurvReg.R
 e7c5d5e5288f49224d76e8a0b6e4d647 *R/convertCDA.R
 2d7efbf634c4e08a88c1fd03e666a4bd *R/estimTdiff.R
@@ -48,10 +48,10 @@ d3396e8d3b242910c4dcf13d745004d9 *man/smoothSurvReg.fit.Rd
 6198954d47626e4cad484da1e79c50e9 *man/smoothSurvReg.object.Rd
 40957bb6593fdd3d1788977db974e6af *man/std.data.Rd
 388afb96dfe2c894b4e5ef62596b0666 *man/survfit.smoothSurvReg.Rd
-a7727e4aabfda1433ee5074ba0a4a643 *src/00smoothSurv_init.cpp
+fd0aa156450173a58934d10b110e6c61 *src/00smoothSurv_init.cpp
 9d45feccb0c6decb1d909ca3b9bc23c8 *src/AKmatrix.cpp
 90e36340b1406c32c50471dc2901d744 *src/AKmatrix.h
-96aa78c582f074b503d83c6cebfc5671 *src/Scythe_Error.h
+f9ddc3aa1a59be1c99086e29adf4bb15 *src/Scythe_Error.h
 d43fab65f0b8c9499d04bc46958e297b *src/Scythe_IDE.cpp
 f45280c621cf79ad849268e5cf6657c9 *src/Scythe_IDE.h
 925be28bbc6400f757eac7a8394dcd50 *src/Scythe_LA.cpp
@@ -63,7 +63,7 @@ b429a663c6ee58a29dd53e55ec33415e *src/Scythe_Matrix.h
 085ff9ea1c797c01fe3a28d136bd26bd *src/Scythe_Matrix_Iterator.h
 45b79ee159d304a70561d4d668eecb00 *src/Scythe_Stat.cpp
 4431a658557c77316d0a077392f9c066 *src/Scythe_Stat.h
-b61d9804d7646bc7b5ebaddb29809cbb *src/Scythe_Util.h
+db8862c3b6abe4e0b87aeafd08da3ed4 *src/Scythe_Util.h
 c6439acd337f157632af06f584583d60 *src/convertCAD.cpp
 4559addf3b49f9508f113c2af49531f8 *src/convertCAD.h
 6fbc2e3ca487e3206acbe5c4a7e45e87 *src/createPosDef.cpp
@@ -78,7 +78,7 @@ df9b17ffa8b51dffae43a3b3a2dd558a *src/linpackFORT.cpp
 8c51913b247400bd767b312fc534072a *src/linpackFORT.h
 9ba98f6ac9f4f8b3d2f93a5efb37092a *src/penalLogLik.cpp
 203e3a8a01319825a815d652d3d99bc7 *src/penalLogLik.h
-ba727d98053802731bdfdb90bddf5489 *src/smoothSurvReg84.cpp
+54747bfc87042faf26e168593f63fa19 *src/smoothSurvReg84.cpp
 1ce7ce0205569001c9330549ab52e7cd *src/smoothSurvReg84.h
 cde8f2a826811011d12434f6746f6d35 *src/solve.QP.compact.cpp
 d25a62dedfaca2bd0c90842ebb02bd64 *src/solve.QP.compact.h
