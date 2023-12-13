@@ -1,3 +1,14 @@
+13/12/2023 (version 2.6)
+========================
+* in Scythe_Matrix_Iterator.h, public std::iterator<std::random_access_iterator_tag, T> items (2 instances)
+     have been modified to treat the 'std::iterator is deprecated' issue
+* in Scythe_Stat.cpp: accumulate -> std::accumulate
+     Scythe_Matrix.cpp: inner_product -> std::inner_product
+     AKmatrix.cpp: stable_sort -> std::stable_sort
+* in std.data.R and smoothSurvReg.R: options(warn = -1) commented
+* in estimTdiff.R, fdensity.smoothSurvReg.R, hazard.smoothSurvReg.R, plot.smoothSurvReg.R, survfit.smoothSurvReg.R, std.data.R, smoothSurvReg.R: most appearences of cat("") replaced by message("")  
+* ctb and chd items added to the DESCRIPTION file
+
 10/10/2022 (version 2.5)
 ========================
 virtual const char * what() const throw() function in Scythe_Error.h modified

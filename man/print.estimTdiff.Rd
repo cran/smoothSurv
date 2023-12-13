@@ -22,6 +22,9 @@
       Further arguments passed to or from other methods.
    }
 }
+\value{
+  No return value, called to print the object.
+}  
 \author{
   Arnošt Komárek \email{arnost.komarek@mff.cuni.cz}
 }

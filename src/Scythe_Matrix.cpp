@@ -506,7 +506,7 @@ namespace SCYTHE {
       typename SCYTHE::Matrix<T>::const_col_major_Iterator cmi = m.beginc();
       for (int i = 0; i < rows_; ++i) {
 	for (int j = 0; j < m.cols_; ++j) {
-	  temp[i * m.cols_ + j] = inner_product(&data_[i * cols_],
+	  temp[i * m.cols_ + j] = std::inner_product(&data_[i * cols_],
 						&data_[i * cols_ + m.rows_], cmi + (m.rows_ * j), (T) 0);
 	}
       }

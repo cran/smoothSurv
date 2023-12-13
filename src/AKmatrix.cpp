@@ -62,7 +62,7 @@ Matrix<T> sortOrder(const Matrix<T> & A, Matrix<int> & ordering, Matrix<int> & i
                                      __LINE__, "A and ordering of different dimension");
 
    Matrix<T> sorted = A;
-   stable_sort(sorted.begin(), sorted.end());
+   std::stable_sort(sorted.begin(), sorted.end());
    for (int i = 0; i < A.size(); i++){
       ordering[i] = 0;
       for (int j = 0; j < A.size(); j++){

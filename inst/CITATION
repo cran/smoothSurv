@@ -1,36 +1,24 @@
-citHeader("To cite package 'smoothSurv' in publications, please, use either of the following article:")
-     
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
-vers <- paste("R package version", meta$Version)
-
-citEntry(entry   = "Article",
+bibentry(bibtype = "Article",
          title   = "Accelerated failure time model for arbitrarily censored data with smoothed error distribution",
-         author  = personList(as.person("Arno\\v{s}t Kom\\'arek"),
-                              as.person("Emmanuel Lesaffre"),
-                              as.person("Joan F. Hilton")),
+         author  = c(as.person("Arnošt Komárek"),
+                     as.person("Emmanuel Lesaffre"),
+                     as.person("Joan F. Hilton")),
          journal = "Journal of Computational and Graphical Statistics",
          year    = "2005",
          volume  = "14",
          number  = "3",
-         pages   = "726-745",
+         pages   = "726--745",
          doi     = "10.1198/106186005X63734",
-         textVersion = "Arnošt Komárek, Emmanuel Lesaffre, Joan F. Hilton (2005). 
-                        Accelerated failure time model for arbitrarily censored data 
-                        with smoothed error distribution.
-                        Journal of Computational and Graphical Statistics, 14(3), 726-745. doi: 10.1198/106186005X63734.")
+         header  = "To cite package smoothSurv in publications, please, use either of the following articles:")
 
-citEntry(entry   = "Article",
-         title   = "Statistical Methods in Medical Research",
-         author  = personList(as.person("Emmanuel Lesaffre"),
-                              as.person("Arno\\v{s}t Kom\\'arek"),
-                              as.person("Dominique Declerck")),
-         journal = "An overview of methods for interval-censored data with an emphasis on applications in dentistry",
+bibentry(bibtype = "Article",
+         title   = "An overview of methods for interval-censored data with an emphasis on applications in dentistry",
+         author  = c(as.person("Emmanuel Lesaffre"),
+                     as.person("Arnošt Komárek"),
+                     as.person("Dominique Declerck")),
+         journal = "Statistical Methods in Medical Research",
          year    = "2005",
          volume  = "14",
          number  = "6",
-         pages   = "539-552",
-         doi     = "10.1191/0962280205sm417oa",
-         textVersion = "Emmanuel Lesaffre, Arnošt Komárek, Dominique Declerck (2005). 
-                        An overview of methods for interval-censored data with 
-                        an emphasis on applications in dentistry.
-                        Statistical Methods in Medical Research, 14(6), 539-552. doi: 10.1191/0962280205sm417oa.")
+         pages   = "539--552",
+         doi     = "10.1191/0962280205sm417oa")

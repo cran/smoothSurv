@@ -72,6 +72,9 @@
       Further arguments passed to or from other methods.
    }
  }
+\value{
+  No return value, called to print the object.
+}  
 \references{
   Komárek, A., Lesaffre, E., and Hilton, J. F. (2005).
   Accelerated failure time model for arbitrarily censored data with smoothed error distribution. 

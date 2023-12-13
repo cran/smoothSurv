@@ -60,7 +60,7 @@ namespace SCYTHE {
 	T
 	sum (const Matrix<T> &A)
 	{
-		return (accumulate(A.begin(), A.end(), (T) 0));
+	  return (std::accumulate(A.begin(), A.end(), (T) 0));
 	}
 
 	/* Calculate the sum of each column in a Matrix */
@@ -71,7 +71,7 @@ namespace SCYTHE {
 		Matrix<T> temp(1, A.cols(), false);
 		
 		for (int j = 0; j  < A.cols(); ++j)
-			temp[j] = accumulate(A.vecc(j), A.vecc(j + 1), (T) 0);
+  		      temp[j] = std::accumulate(A.vecc(j), A.vecc(j + 1), (T) 0);
 	
   	return temp;
 	}
@@ -110,7 +110,7 @@ namespace SCYTHE {
 	T
 	mean (const Matrix<T> &A)
 	{
-		return (accumulate(A.begin(), A.end(), (T) 0) / A.size());
+	       return (std::accumulate(A.begin(), A.end(), (T) 0) / A.size());
 	}
 
 	/* Calculate the mean of each column of a Matrix */
@@ -121,7 +121,7 @@ namespace SCYTHE {
 		Matrix<T> temp(1, A.cols(), false);
 		
 		for (int j = 0; j  < A.cols(); ++j) 
-			temp[j] = accumulate(A.vecc(j), A.vecc(j + 1), (T) 0) / A.rows();
+  		      temp[j] = std::accumulate(A.vecc(j), A.vecc(j + 1), (T) 0) / A.rows();
 		
   	return temp;
 	}

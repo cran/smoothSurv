@@ -23,7 +23,7 @@ estimTdiff <- function(x, ...)
 estimTdiff.smoothSurvReg <- function(x, cov1, cov2, logscale.cov1, logscale.cov2, time0 = 0, conf.level=0.95, ...)
 {
   if (x$fail >= 99) {
-    cat("No estimate of T difference, smoothSurvReg failed.\n")
+    warning("No estimate of T difference, smoothSurvReg failed.\n")
     return(invisible(x))
   }
   is.intercept <- x$estimated["(Intercept)"]

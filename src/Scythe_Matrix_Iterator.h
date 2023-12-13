@@ -69,10 +69,19 @@ namespace SCYTHE {
 // matrix_iterator
 // =================
 	template <class T>
-	class matrix_iterator
-		: public std::iterator<std::random_access_iterator_tag, T>
+   	class matrix_iterator 
+        //	: public std::iterator<std::random_access_iterator_tag, T>      /* commented on 09/12/2023 */
 	{
 		public:
+
+    	                /* Piece of the code which replaces the line commented on 09/12/2023 */
+   	                using iterator_category = std::random_access_iterator_tag;
+                        using value_type = T;
+	                using difference_type = std::ptrdiff_t;
+                        using pointer = T*;
+                        using reference = T&;	  
+	                /* end of the 'Piece of the code...'                                 */
+	  
 			friend class const_matrix_iterator<T>;
 			
 			virtual ~matrix_iterator ()
@@ -189,9 +198,18 @@ namespace SCYTHE {
 // ======================
 	template <class T>
 	class const_matrix_iterator
-		: public std::iterator<std::random_access_iterator_tag, T>
+	//	: public std::iterator<std::random_access_iterator_tag, T>   /* commented on 09/12/2023 */
 	{
 		public:
+
+    	                /* Piece of the code which replaces the line commented on 09/12/2023 */
+   	                using iterator_category = std::random_access_iterator_tag;
+                        using value_type = T;
+	                using difference_type = std::ptrdiff_t;
+                        using pointer = T*;
+                        using reference = T&;	  
+	                /* end of the 'Piece of the code...'                                 */
+	  
 			virtual ~const_matrix_iterator ()
 			{
 			}

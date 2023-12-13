@@ -409,9 +409,9 @@ smoothSurvReg <- function(formula = formula(data),
    initials <- list(beta = init.beta, logscale = init.logscale, ccoef = init.c)
 
    if (control$debug == 1){
-      cat("\ncontrol:\n"); print(control)
-      cat("\ninitials:\n"); print(initials)
-      cat("\n"); print(summary(fit0))
+      message("\ncontrol:\n");  message(paste(control, collapse = ", "))
+      message("\ninitials:\n"); message(paste(initials, collapse = ", "))
+      message("\n");            print(summary(fit0))
    }
 
    
@@ -440,14 +440,14 @@ smoothSurvReg <- function(formula = formula(data),
    search <- TRUE
    m <- 1
    warn.opt <- options("warn")$warn
-   options(warn = -1)
+   #options(warn = -1)                     ## commented on 20231212
    while (search){
       control$lambda.use <- lambda[m]
       if (control$info){
-         cat("\n\n=================================================")
+         message("\n\n=================================================")
       }
-      cat("\nFit with Log(Lambda) = ", log(lambda[m]), sep="")
-      if (!control$info) cat(",  ")
+      message("\nFit with Log(Lambda) = ", log(lambda[m]), sep="")
+      if (!control$info) message(",  ")
       
       fitA <- smoothSurvReg.fit(X, Z, Y, offset, correctlik = logcorrect,
                                 init = initials.aic, controlvals = control, common.logscale = common.logscale)
@@ -494,13 +494,13 @@ smoothSurvReg <- function(formula = formula(data),
       problem <- c(problem, fitA$fail)
       problem.look <- c(problem.look, fitA$fail)
 
-      cat("AIC(", lambda[m], ") = ", fitA$aic, sep="")
-      cat(",  df(", lambda[m], ") = ", fitA$degree.smooth$df, sep="")
-#      cat(",  df2(", lambda[m], ") = ", fitA$degree.smooth$df2, sep="")
-#      cat(",  n of param.(", lambda[m], ") = ", fitA$degree.smooth[["Number of parameters"]], sep="")
-      cat(",  ", fitA$iter, " iterations", sep = "")
-      cat(",  fail = ", fitA$fail, sep = "")
-      if (m == length(lambda)) cat("\n")
+      message(paste("AIC(", lambda[m], ") = ", fitA$aic, sep = ""))
+      message(paste(",  df(", lambda[m], ") = ", fitA$degree.smooth$df, sep=""))
+#      message(paste(",  df2(", lambda[m], ") = ", fitA$degree.smooth$df2, sep=""))
+#      message(paste(",  n of param.(", lambda[m], ") = ", fitA$degree.smooth[["Number of parameters"]], sep=""))
+      message(paste(",  ", fitA$iter, " iterations", sep = ""))
+      message(paste(",  fail = ", fitA$fail, sep = ""))
+      if (m == length(lambda)) message("\n")
 
       if (fitA$fail < 99){
          if (update.init && fitA$fail == 0 && fitA$degree.smooth$df > df.previous){   ## update the initials
@@ -522,7 +522,7 @@ smoothSurvReg <- function(formula = formula(data),
       m <- m + 1
       if (m > nlam) search <- FALSE
    }    ## end of 'while (search)'
-   options(warn = warn.opt)
+   #options(warn = warn.opt)                ## commented on 20231212
 
 ## If all lambdas caused problems then the last fit with fail < 99 is presented
 ##   otherwise the fit with fail == 0 and highest AIC is presented as the last one

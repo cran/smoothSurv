@@ -20,7 +20,7 @@ fdensity.smoothSurvReg <-
            type = "l", lty, main, sub, legend, bty = "n", cex.legend = 1, ...)
 {
    if (x$fail >= 99){
-        cat("No hazard functions, smoothSurvReg failed.\n")
+        warning("No hazard functions, smoothSurvReg failed.\n")
         return(invisible(x))
    }
    is.intercept <- x$estimated["(Intercept)"]

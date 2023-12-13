@@ -19,11 +19,11 @@ std.data <- function(datain, cols){
    changecols <- colnames(dataout) %in% cols
    leavecols <- !changecols
 
-   options(warn = -1)
+   #options(warn = -1)                             ## commented on 20231212
    means <- sapply(dataout, mean, na.rm = TRUE)
    sds <- sapply(dataout, sd, na.rm = TRUE)
 
-   options(warn = 1)
+   #options(warn = 1)                              ## commented on 20231212
    changed <- 0
    for(i in 1:ncol(dataout)){
      if(changecols[i]){
@@ -39,15 +39,15 @@ std.data <- function(datain, cols){
      }
    }
 
-   options(warn = 0)     ## default value
-   cat("\nNumber of standardized columns: ", changed, "\n")
+   #options(warn = 0)     ## default value
+   message(paste("\nNumber of standardized columns: ", changed, "\n"))
 
    means <- means[changecols]
    sds <- sds[changecols]
    tab <- rbind(means, sds)
    rownames(tab) <- c("mean","sd")
 
-   cat("\nUsed means and sd's: \n")
+   message(paste("\nUsed means and sd's: \n"))
    print(tab)
 
    return(dataout)

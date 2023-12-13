@@ -43,7 +43,7 @@ plot.smoothSurvReg <-
            type = "l", lty = 1, main, sub, bty = "n", ...)
 {
    if (x$fail >= 99){
-        cat("No summary, smoothSurvReg failed.\n")
+        warning("No summary, smoothSurvReg failed.\n")
         return(invisible(x))
    }
    is.intercept <- x$estimated["(Intercept)"]
